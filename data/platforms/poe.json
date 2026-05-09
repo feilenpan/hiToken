@@ -1,0 +1,13 @@
+{
+  "id": "poe",
+  "name": "Poe API",
+  "url": "https://poe.com/api_key",
+  "type": "聚合平台",
+  "region": "海外",
+  "direct_access": false,
+  "openai_compatible": "部分",
+  "payment": "订阅制",
+  "invoice": false,
+  "kyc": "账号注册",
+  "summary": "Quora 出品，Poe 订阅用户可获 API 配额，Claude 等海外模型可用。"
+}

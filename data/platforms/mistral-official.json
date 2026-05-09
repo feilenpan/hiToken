@@ -1,0 +1,13 @@
+{
+  "id": "mistral-official",
+  "name": "Mistral 官方",
+  "url": "https://console.mistral.ai",
+  "type": "大厂官方",
+  "region": "海外",
+  "direct_access": false,
+  "openai_compatible": "部分",
+  "payment": ["信用卡"],
+  "invoice": false,
+  "kyc": "邮箱",
+  "summary": "Mistral AI 官方平台，不定期提供新用户免费额度。"
+}

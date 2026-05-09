@@ -1,0 +1,37 @@
+{
+  "id": "gemini",
+  "display_name": "Gemini 2.5 Pro / Flash",
+  "category": "海外旗舰",
+  "tags": ["长上下文", "多模态", "免费慷慨"],
+  "summary": "Google 出品，2.5 Pro 百万 token 上下文；长期存在慷慨的免费层。",
+  "official": {
+    "name": "Google AI Studio",
+    "url": "https://aistudio.google.com",
+    "note": "个人用户可免费获取 API Key。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "aistudio",
+      "platform_name": "Google AI Studio",
+      "offer": "长期免费层，Gemini 2.5 Flash/Pro 有每日/每分钟调用额度",
+      "threshold": "Google 账号 + 海外网络",
+      "difficulty": "medium",
+      "expires": "长期免费（受限速和配额）",
+      "eligible_models": ["Gemini 2.5 Pro", "Gemini 2.5 Flash"],
+      "verified_at": "2026-05-08",
+      "source_url": "https://aistudio.google.com/apikey",
+      "notes": "最慷慨的长期白嫖渠道；需翻墙访问。"
+    },
+    {
+      "platform_id": "openrouter",
+      "platform_name": "OpenRouter",
+      "offer": "$1 新用户额度",
+      "threshold": "账号注册",
+      "difficulty": "medium",
+      "expires": "永久",
+      "eligible_models": ["Gemini 2.5 Pro", "Flash"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://openrouter.ai"
+    }
+  ]
+}

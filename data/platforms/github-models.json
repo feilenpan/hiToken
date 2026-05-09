@@ -1,0 +1,13 @@
+{
+  "id": "github-models",
+  "name": "GitHub Models",
+  "url": "https://github.com/marketplace/models",
+  "type": "大厂官方",
+  "region": "海外",
+  "direct_access": "部分网络可",
+  "openai_compatible": true,
+  "payment": "免费层 + 升级付费",
+  "invoice": false,
+  "kyc": "GitHub 账号",
+  "summary": "微软提供的模型 Marketplace，可免费调用 GPT-4o 等模型（受速率限制）。"
+}

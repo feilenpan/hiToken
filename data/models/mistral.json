@@ -1,0 +1,37 @@
+{
+  "id": "mistral",
+  "display_name": "Mistral",
+  "category": "开源明星",
+  "tags": ["开源", "欧洲", "多语言"],
+  "summary": "欧洲 Mistral AI 系列，开源 + 商业模型并行，多语言场景口碑好。",
+  "official": {
+    "name": "Mistral 官方",
+    "url": "https://mistral.ai",
+    "note": "官方 API 国内需代理。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "mistral-official",
+      "platform_name": "Mistral 官方",
+      "offer": "新用户赠送免费额度（不定期变化）",
+      "threshold": "邮箱注册",
+      "difficulty": "medium",
+      "expires": "受活动约束",
+      "eligible_models": ["Mistral Large", "Medium", "Small"],
+      "verified_at": "2026-04-15",
+      "source_url": "https://console.mistral.ai",
+      "notes": "以官网最新公告为准。"
+    },
+    {
+      "platform_id": "openrouter",
+      "platform_name": "OpenRouter",
+      "offer": "$1 新用户额度",
+      "threshold": "账号注册",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["Mistral 全系"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://openrouter.ai"
+    }
+  ]
+}

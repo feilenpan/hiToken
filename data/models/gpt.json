@@ -1,0 +1,38 @@
+{
+  "id": "gpt",
+  "display_name": "GPT-4o / GPT-4.1",
+  "category": "海外旗舰",
+  "tags": ["通用", "多模态", "工具调用"],
+  "summary": "OpenAI 旗舰，GPT-4o 多模态、GPT-4.1 长上下文代码能力强。",
+  "official": {
+    "name": "OpenAI Platform",
+    "url": "https://platform.openai.com",
+    "note": "对中国大陆不开放，需要海外卡 + 海外号码。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "openrouter",
+      "platform_name": "OpenRouter",
+      "offer": "新用户 $1 免费额度",
+      "threshold": "GitHub/Google 登录",
+      "difficulty": "medium",
+      "expires": "永久",
+      "eligible_models": ["GPT-4o-mini", "GPT-4o", "GPT-4.1"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://openrouter.ai",
+      "notes": "国内部分网络可直连；支持加密货币。"
+    },
+    {
+      "platform_id": "github-models",
+      "platform_name": "GitHub Models",
+      "offer": "免费调用（有速率限制）",
+      "threshold": "GitHub 账号",
+      "difficulty": "easy",
+      "expires": "永久（限速）",
+      "eligible_models": ["GPT-4o", "GPT-4o-mini", "o-series 部分"],
+      "verified_at": "2026-05-01",
+      "source_url": "https://github.com/marketplace/models",
+      "notes": "微软提供，限速较紧，适合试用。"
+    }
+  ]
+}

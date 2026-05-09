@@ -1,0 +1,26 @@
+{
+  "id": "doubao",
+  "display_name": "豆包 Doubao",
+  "category": "国产旗舰",
+  "tags": ["中文", "通用", "多模态"],
+  "summary": "字节跳动出品，火山方舟平台旗舰模型，中文场景优化。",
+  "official": {
+    "name": "火山方舟",
+    "url": "https://www.volcengine.com/product/ark",
+    "note": "国内直连，企业级稳定性。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "volcengine",
+      "platform_name": "火山方舟",
+      "offer": "豆包系列每模型 50 万 tokens 免费",
+      "threshold": "实名认证",
+      "difficulty": "medium",
+      "expires": "6 个月",
+      "eligible_models": ["Doubao-pro", "Doubao-lite", "Doubao-vision"],
+      "verified_at": "2026-05-05",
+      "source_url": "https://www.volcengine.com/product/ark",
+      "notes": "额度按模型分配，豆包全家桶都有。"
+    }
+  ]
+}

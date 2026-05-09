@@ -1,0 +1,13 @@
+{
+  "id": "bailian",
+  "name": "阿里云百炼",
+  "url": "https://bailian.console.aliyun.com",
+  "type": "大厂官方",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "对公", "云账户"],
+  "invoice": true,
+  "kyc": "阿里云实名账号",
+  "summary": "阿里云旗下大模型服务平台，Qwen 系列官方出口，企业合规场景首选之一。"
+}

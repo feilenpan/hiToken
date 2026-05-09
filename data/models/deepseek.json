@@ -1,0 +1,50 @@
+{
+  "id": "deepseek",
+  "display_name": "DeepSeek V3 / R1",
+  "category": "国产旗舰",
+  "tags": ["代码", "推理", "中文", "高性价比"],
+  "summary": "深度求索出品，V3 通用对话强，R1 推理能力对标 o1，性价比之王。",
+  "official": {
+    "name": "DeepSeek 开放平台",
+    "url": "https://platform.deepseek.com",
+    "note": "官方 API 价格极低，本身就是\"平价\"，不算严格的羊毛但推荐。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "siliconflow",
+      "platform_name": "硅基流动",
+      "offer": "注册送 ¥14 体验金（约 2000 万 DeepSeek tokens）",
+      "threshold": "手机号注册",
+      "difficulty": "easy",
+      "expires": "永久（不含使用时效）",
+      "eligible_models": ["DeepSeek-V3", "DeepSeek-R1", "Qwen", "GLM 等"],
+      "verified_at": "2026-05-07",
+      "source_url": "https://siliconflow.cn",
+      "notes": "国内直连，OpenAI 兼容，开箱即用。"
+    },
+    {
+      "platform_id": "volcengine",
+      "platform_name": "火山方舟",
+      "offer": "每个模型 50 万 tokens 免费额度",
+      "threshold": "实名认证",
+      "difficulty": "medium",
+      "expires": "6 个月",
+      "eligible_models": ["DeepSeek-V3", "DeepSeek-R1", "豆包系列"],
+      "verified_at": "2026-05-05",
+      "source_url": "https://www.volcengine.com/product/ark",
+      "notes": "字节出品，稳定性好；需要实名认证。"
+    },
+    {
+      "platform_id": "ppio",
+      "platform_name": "PPIO 派欧云",
+      "offer": "注册送 ¥15 额度",
+      "threshold": "手机号",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["DeepSeek-V3", "DeepSeek-R1"],
+      "verified_at": "2026-04-20",
+      "source_url": "https://ppinfra.com",
+      "notes": "国内直连，按量付费。"
+    }
+  ]
+}

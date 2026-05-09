@@ -1,0 +1,13 @@
+{
+  "id": "volcengine",
+  "name": "火山方舟",
+  "url": "https://www.volcengine.com/product/ark",
+  "type": "大厂官方",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "微信", "对公"],
+  "invoice": true,
+  "kyc": "实名认证",
+  "summary": "字节跳动旗下，豆包系列官方平台，也支持 DeepSeek 等第三方模型；企业级稳定性。"
+}

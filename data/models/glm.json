@@ -1,0 +1,37 @@
+{
+  "id": "glm",
+  "display_name": "GLM（智谱 AI）",
+  "category": "国产旗舰",
+  "tags": ["中文", "通用", "代码", "多模态"],
+  "summary": "智谱 AI 出品，GLM-4 系列支持函数调用、视觉、长文本。",
+  "official": {
+    "name": "智谱 AI 开放平台",
+    "url": "https://open.bigmodel.cn",
+    "note": "官方平台，兼容 OpenAI 接口。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "zhipu",
+      "platform_name": "智谱开放平台",
+      "offer": "新用户 2000 万 tokens 资源包",
+      "threshold": "手机号 + 实名",
+      "difficulty": "medium",
+      "expires": "1 个月",
+      "eligible_models": ["GLM-4-Flash", "GLM-4-Air"],
+      "verified_at": "2026-05-04",
+      "source_url": "https://open.bigmodel.cn",
+      "notes": "GLM-4-Flash 部分时段官方免费。"
+    },
+    {
+      "platform_id": "siliconflow",
+      "platform_name": "硅基流动",
+      "offer": "¥14 体验金覆盖 GLM 开源系列",
+      "threshold": "手机号",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["GLM-4 开源版本"],
+      "verified_at": "2026-05-07",
+      "source_url": "https://siliconflow.cn"
+    }
+  ]
+}

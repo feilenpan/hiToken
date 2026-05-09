@@ -1,0 +1,48 @@
+{
+  "id": "llama",
+  "display_name": "Llama（Meta 开源）",
+  "category": "开源明星",
+  "tags": ["开源", "通用", "可自部署"],
+  "summary": "Meta 开源旗舰，各聚合平台广泛托管，价格低廉。",
+  "official": {
+    "name": "Meta（自行部署）",
+    "url": "https://www.llama.com",
+    "note": "模型权重开源，可自部署或选聚合平台 API。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "groq",
+      "platform_name": "Groq",
+      "offer": "免费层，每天充足调用额度",
+      "threshold": "账号注册",
+      "difficulty": "easy",
+      "expires": "长期免费（速率限制）",
+      "eligible_models": ["Llama 最新版本"],
+      "verified_at": "2026-05-03",
+      "source_url": "https://console.groq.com",
+      "notes": "以极快推理速度闻名，长期白嫖神器。"
+    },
+    {
+      "platform_id": "openrouter",
+      "platform_name": "OpenRouter",
+      "offer": "$1 新用户额度；部分 Llama 模型长期免费",
+      "threshold": "账号注册",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["Llama 开源全系"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://openrouter.ai"
+    },
+    {
+      "platform_id": "siliconflow",
+      "platform_name": "硅基流动",
+      "offer": "¥14 体验金",
+      "threshold": "手机号",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["Llama 3.x 系列"],
+      "verified_at": "2026-05-07",
+      "source_url": "https://siliconflow.cn"
+    }
+  ]
+}

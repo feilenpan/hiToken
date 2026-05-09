@@ -1,0 +1,13 @@
+{
+  "id": "ppio",
+  "name": "PPIO 派欧云",
+  "url": "https://ppinfra.com",
+  "type": "聚合平台",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "微信"],
+  "invoice": true,
+  "kyc": "手机号",
+  "summary": "国内直连的 GPU 与模型推理平台，DeepSeek 等主流开源模型价格有竞争力。"
+}

@@ -1,0 +1,38 @@
+{
+  "id": "claude",
+  "display_name": "Claude（Anthropic）",
+  "category": "海外旗舰",
+  "tags": ["代码", "写作", "推理"],
+  "summary": "Anthropic 出品，Sonnet / Opus 在代码与长文写作场景口碑极好。",
+  "official": {
+    "name": "Anthropic 官方",
+    "url": "https://www.anthropic.com/api",
+    "note": "官方 API 对中国大陆不直接开放，需海外卡 + 海外网络。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "openrouter",
+      "platform_name": "OpenRouter",
+      "offer": "新用户 $1 免费额度",
+      "threshold": "GitHub/Google 登录",
+      "difficulty": "medium",
+      "expires": "永久（额度有限）",
+      "eligible_models": ["Claude Sonnet", "Claude Haiku"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://openrouter.ai",
+      "notes": "国内可直连（部分网络需代理），OpenAI 兼容。支持加密货币充值。"
+    },
+    {
+      "platform_id": "poe",
+      "platform_name": "Poe API",
+      "offer": "订阅 Poe 会员附带 API 配额",
+      "threshold": "订阅付费",
+      "difficulty": "hard",
+      "expires": "订阅期内",
+      "eligible_models": ["Claude 全系"],
+      "verified_at": "2026-04-30",
+      "source_url": "https://poe.com/api_key",
+      "notes": "需先订阅 Poe，并非纯免费。"
+    }
+  ]
+}

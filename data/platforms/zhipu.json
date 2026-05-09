@@ -1,0 +1,13 @@
+{
+  "id": "zhipu",
+  "name": "智谱开放平台",
+  "url": "https://open.bigmodel.cn",
+  "type": "大厂官方",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "微信", "对公"],
+  "invoice": true,
+  "kyc": "实名",
+  "summary": "智谱 AI 的 GLM 系列官方平台；GLM-4-Flash 部分时段免费。"
+}

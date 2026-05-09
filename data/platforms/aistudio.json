@@ -1,0 +1,13 @@
+{
+  "id": "aistudio",
+  "name": "Google AI Studio",
+  "url": "https://aistudio.google.com",
+  "type": "大厂官方",
+  "region": "海外",
+  "direct_access": false,
+  "openai_compatible": "部分（需 compat 层）",
+  "payment": ["信用卡（升级付费层）"],
+  "invoice": false,
+  "kyc": "Google 账号",
+  "summary": "获取 Gemini API Key 的官方入口；个人免费层慷慨，对开发者极友好。"
+}

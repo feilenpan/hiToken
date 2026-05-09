@@ -1,0 +1,13 @@
+{
+  "id": "siliconflow",
+  "name": "硅基流动 SiliconFlow",
+  "url": "https://siliconflow.cn",
+  "type": "聚合平台",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "微信", "对公"],
+  "invoice": true,
+  "kyc": "手机号（基础使用）",
+  "summary": "国内直连的开源模型聚合平台，OpenAI 兼容，新人 ¥14 体验金；开发者口碑好。"
+}

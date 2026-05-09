@@ -1,0 +1,49 @@
+{
+  "id": "qwen",
+  "display_name": "Qwen3（通义千问）",
+  "category": "国产旗舰",
+  "tags": ["中文", "通用", "多模态", "代码"],
+  "summary": "阿里云出品的开源旗舰系列，Qwen3 全面升级，对中文任务友好。",
+  "official": {
+    "name": "阿里云百炼（DashScope）",
+    "url": "https://bailian.console.aliyun.com",
+    "note": "官方平台，支持开票、对公付款。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "bailian",
+      "platform_name": "阿里云百炼",
+      "offer": "新用户每个主流 Qwen 模型 100 万 tokens",
+      "threshold": "阿里云账号（需实名）",
+      "difficulty": "medium",
+      "expires": "6 个月",
+      "eligible_models": ["Qwen3-Max", "Qwen3-Plus", "Qwen3-Turbo"],
+      "verified_at": "2026-05-06",
+      "source_url": "https://bailian.console.aliyun.com",
+      "notes": "官方渠道最稳；新用户活动不定期刷新。"
+    },
+    {
+      "platform_id": "siliconflow",
+      "platform_name": "硅基流动",
+      "offer": "¥14 体验金适用于 Qwen 全系开源模型",
+      "threshold": "手机号",
+      "difficulty": "easy",
+      "expires": "永久",
+      "eligible_models": ["Qwen3 开源版本"],
+      "verified_at": "2026-05-07",
+      "source_url": "https://siliconflow.cn"
+    },
+    {
+      "platform_id": "modelscope",
+      "platform_name": "魔搭 ModelScope",
+      "offer": "每日免费调用额度",
+      "threshold": "阿里账号",
+      "difficulty": "easy",
+      "expires": "每日刷新",
+      "eligible_models": ["Qwen3 开源"],
+      "verified_at": "2026-04-28",
+      "source_url": "https://modelscope.cn",
+      "notes": "更偏研究场景，速率有限。"
+    }
+  ]
+}

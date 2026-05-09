@@ -1,0 +1,13 @@
+{
+  "id": "moonshot",
+  "name": "Moonshot 开放平台",
+  "url": "https://platform.moonshot.cn",
+  "type": "大厂官方",
+  "region": "中国大陆",
+  "direct_access": true,
+  "openai_compatible": true,
+  "payment": ["支付宝", "微信", "对公"],
+  "invoice": true,
+  "kyc": "实名",
+  "summary": "Kimi 官方平台，长上下文场景的首选。"
+}

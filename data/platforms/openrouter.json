@@ -1,0 +1,13 @@
+{
+  "id": "openrouter",
+  "name": "OpenRouter",
+  "url": "https://openrouter.ai",
+  "type": "聚合平台",
+  "region": "海外",
+  "direct_access": "部分网络可",
+  "openai_compatible": true,
+  "payment": ["信用卡", "加密货币"],
+  "invoice": false,
+  "kyc": "邮箱/GitHub",
+  "summary": "全球最知名的模型聚合平台，覆盖 Claude/GPT/Gemini/Llama 几乎所有主流模型。"
+}

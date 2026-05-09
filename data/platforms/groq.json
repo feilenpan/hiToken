@@ -1,0 +1,13 @@
+{
+  "id": "groq",
+  "name": "Groq",
+  "url": "https://console.groq.com",
+  "type": "聚合平台",
+  "region": "海外",
+  "direct_access": "部分网络可",
+  "openai_compatible": true,
+  "payment": ["信用卡"],
+  "invoice": false,
+  "kyc": "邮箱",
+  "summary": "以极快推理速度闻名的海外平台，Llama/Mistral 等开源模型长期免费可用。"
+}

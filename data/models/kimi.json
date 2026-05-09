@@ -1,0 +1,38 @@
+{
+  "id": "kimi",
+  "display_name": "Kimi（Moonshot）",
+  "category": "国产旗舰",
+  "tags": ["长文本", "中文", "阅读理解"],
+  "summary": "月之暗面出品，主打超长上下文（128K-2M），文档理解场景首选。",
+  "official": {
+    "name": "Moonshot 开放平台",
+    "url": "https://platform.moonshot.cn",
+    "note": "官方平台，支持开票。"
+  },
+  "free_sources": [
+    {
+      "platform_id": "moonshot",
+      "platform_name": "Moonshot 开放平台",
+      "offer": "新用户注册赠送 ¥15 额度",
+      "threshold": "手机号 + 实名",
+      "difficulty": "medium",
+      "expires": "1 年",
+      "eligible_models": ["moonshot-v1-8k", "32k", "128k"],
+      "verified_at": "2026-05-02",
+      "source_url": "https://platform.moonshot.cn",
+      "notes": "实名后额度到账。"
+    },
+    {
+      "platform_id": "siliconflow",
+      "platform_name": "硅基流动",
+      "offer": "间接支持（部分时间有 Kimi 模型上架）",
+      "threshold": "手机号",
+      "difficulty": "easy",
+      "expires": "看上架情况",
+      "eligible_models": ["Moonshot 开源版本（如有）"],
+      "verified_at": "2026-04-25",
+      "source_url": "https://siliconflow.cn",
+      "notes": "以平台实际上架为准。"
+    }
+  ]
+}
