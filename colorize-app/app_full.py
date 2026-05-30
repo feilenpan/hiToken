@@ -341,12 +341,40 @@ async def evaluate_photo(data: FileInput):
         import base64 as b64
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
         reviewer = get_random_reviewer()
+
+        # 构建质量诊断提示
+        quality_hint = ""
+        if quality_result.get("success") and quality_result.get("quality"):
+            q = quality_result["quality"]
+            issues = []
+            # 各项阈值检测，生成中文诊断
+            if isinstance(q.get("blur"), (int, float)) and q["blur"] < 0.6:
+                issues.append(f"模糊度偏高({q['blur']:.2f})，建议去模糊/清晰增强")
+            if isinstance(q.get("noise"), (int, float)) and q["noise"] < 0.5:
+                issues.append(f"噪点较多({q['noise']:.2f})，建议降噪")
+            if isinstance(q.get("overexposure"), (int, float)) and q["overexposure"] > 0.3:
+                issues.append(f"存在过曝({q['overexposure']:.2f})，建议修复过曝")
+            if isinstance(q.get("brightness"), (int, float)) and q["brightness"] < 0.35:
+                issues.append(f"画面偏暗({q['brightness']:.2f})，建议提亮")
+            if isinstance(q.get("contrast"), (int, float)) and q["contrast"] < 0.4:
+                issues.append(f"对比度不足({q['contrast']:.2f})，建议增强对比")
+            if isinstance(q.get("saturation"), (int, float)) and q["saturation"] < 0.3:
+                issues.append(f"色彩偏淡({q['saturation']:.2f})，建议色彩增强")
+            if isinstance(q.get("texture"), (int, float)) and q["texture"] < 0.5:
+                issues.append(f"细节不足({q['texture']:.2f})，建议细节增强")
+            if isinstance(q.get("aesthetic"), (int, float)) and q["aesthetic"] < 0.5:
+                issues.append(f"构图可优化({q['aesthetic']:.2f})，建议构图调整")
+            if issues:
+                quality_hint = "质量诊断：" + "；".join(issues) + "。"
+            logger.info(f"质量诊断: {quality_hint if quality_hint else '各项指标正常'}")
+
         prompt_text = f"""你是一个{reviewer['persona']}。
 语气：{reviewer['tone']}。所有输出必须是简体中文！
 看细节，能识别地点就提。
 评分严格按质量分散：95-98 惊为天人（极少），85-94 非常好看（少数），75-84 不错，65-74 普通，55-64 随意，40-54 朴实记录。
 重要：大部分普通照片应在60-82分之间，不要集中给高分！只有光影构图情绪都出色的才能给90+。
-必须给出1-2个修图建议。高分照片用「锦上添花」语气，低分照片用「焕然一新」语气。提示词≤15字。
+{quality_hint}
+修图建议要求：根据照片实际情况和质量诊断，给出1-3个最需要的修图建议。高分照片用「锦上添花」语气，低分照片用「焕然一新」语气。每个提示词≤15字。优先针对质量诊断中的问题给出建议，如果质量正常则给出锦上添花的美化建议。
 金句要求：根据场景/天气/人物/地点等元素，创作一句有画面感的原创短句，≤15字。
 返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"类型","label":"按钮文字≤8字","prompt":"提示词≤20字"}}]}}"""
         
