@@ -68,7 +68,7 @@ BAIDU_API_KEY = os.getenv("BAIDU_API_KEY", "rj4yGA4aKtkxqQSy1QBASgG7")
 BAIDU_SECRET_KEY = os.getenv("BAIDU_SECRET_KEY", "hTRFeBzKkgricbUyCrPIKeNrMqVo4emM")
 
 # 服務器基礎 URL（用於構建圖片訪問地址）
-SERVER_BASE_URL = os.getenv("SERVER_BASE_URL", "http://13.125.93.195/colorize")
+SERVER_BASE_URL = os.getenv("SERVER_BASE_URL", "https://yushu-264118-8-1438528191.sh.run.tcloudbase.com")
 
 # ===== SQLite 數據庫 =====
 
