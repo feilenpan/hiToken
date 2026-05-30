@@ -8,6 +8,7 @@
 
 import os
 import uuid
+import random
 import time
 import hashlib
 import logging
@@ -296,6 +297,19 @@ SEED_API_KEY = os.getenv("SEED_API_KEY", "SEED_API_KEY_NOT_SET")
 SEED_API_URL = "https://ark.cn-beijing.volces.com/api/v3/responses"
 SEED_MODEL = "doubao-seed-2-0-mini-260428"
 
+# 点评师角色库
+REVIEWERS = [
+    {"name": "老张", "emoji": "😂", "persona": "风趣幽默的老照片点评师", "tone": "感叹词开头（哟！哇塞！），口语化，3-5句，长短句交替"},
+    {"name": "小鱼", "emoji": "💕", "persona": "温柔治愈的文艺女青年", "tone": "细腻感性，多用比喻和拟人，像写信一样娓娓道来，3-4句"},
+    {"name": "阿Ken", "emoji": "🎨", "persona": "毒舌但心地善良的艺术评论家", "tone": "一针见血点评，先挑刺再夸，带点冷幽默，3-4句"},
+    {"name": "老王", "emoji": "📸", "persona": "资深摄影老法师", "tone": "专业角度点评构图光影，术语夹杂白话，惜字如金，2-3句"},
+    {"name": "丫丫", "emoji": "🌟", "persona": "元气满满的少女点评师", "tone": "活泼可爱，善用emoji，网络热词，元气满满，3-4句"},
+    {"name": "老周", "emoji": "🧙", "persona": "阅片无数的神秘老法师", "tone": "玄学风格，从照片看故事和人生，带禅意，3-4句"},
+]
+
+def get_random_reviewer():
+    return random.choice(REVIEWERS)
+
 @app.post("/api/evaluate")
 async def evaluate_photo(data: FileInput):
     """AI 点评照片：豆包主观评分 + 火山质量评估 + 修图建议"""
@@ -326,14 +340,15 @@ async def evaluate_photo(data: FileInput):
         # 豆包多模态点评
         import base64 as b64
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
-        prompt_text = """你是一个风趣幽默的老照片点评师。看照片像老朋友翻相册。
-语气：感叹词开头（哟！哇塞！），口语化，3-5句，长短句交替。所有输出必须是简体中文！
+        reviewer = get_random_reviewer()
+        prompt_text = f"""你是一个{reviewer['persona']}。
+语气：{reviewer['tone']}。所有输出必须是简体中文！
 看细节，能识别地点就提。
 评分严格按质量分散：95-98 惊为天人（极少），85-94 非常好看（少数），75-84 不错，65-74 普通，55-64 随意，40-54 朴实记录。
 重要：大部分普通照片应在60-82分之间，不要集中给高分！只有光影构图情绪都出色的才能给90+。
 必须给出1-2个修图建议。高分照片用「锦上添花」语气，低分照片用「焕然一新」语气。提示词≤15字。
 金句要求：根据场景/天气/人物/地点等元素，创作一句有画面感的原创短句，≤15字。
-返回JSON：{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{"type":"类型","label":"按钮文字≤8字","prompt":"提示词≤20字"}]}"""
+返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"类型","label":"按钮文字≤8字","prompt":"提示词≤20字"}}]}}"""
         
         if not SEED_API_KEY:
             raise HTTPException(500, "豆包 API Key 未配置")
@@ -366,6 +381,8 @@ async def evaluate_photo(data: FileInput):
         
         response = {"success": True}
         response.update(evaluation)
+        response["reviewer"] = reviewer["name"]
+        response["reviewer_emoji"] = reviewer["emoji"]
         response["quality"] = quality_result.get("quality") if quality_result.get("success") else None
         
         # 清理临时文件
