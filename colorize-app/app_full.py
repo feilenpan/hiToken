@@ -542,20 +542,20 @@ async def process_photo(
         
         else:
             # 增強/超分/修復：使用火山引擎
-            if function == "enhance":
+            if data.function == "enhance":
                 multiple = 2
                 tool_version = "professional"
-            elif function == "upscale":
+            elif data.function == "upscale":
                 multiple = 4
                 tool_version = "professional"
-            elif function == "restore":
+            elif data.function == "restore":
                 multiple = 2
                 tool_version = "professional"
             else:
                 multiple = 2
                 tool_version = "professional"
             
-            logger.info(f"火山引擎增強開始: function={function}, multiple={multiple}, url={original_url}")
+            logger.info(f"火山引擎增強開始: function={data.function}, multiple={multiple}, url={original_url}")
             volc_result = call_volcengine(original_url, multiple, tool_version)
             
             if volc_result["success"]:
@@ -612,7 +612,7 @@ async def process_photo(
         )
         conn.execute(
             "INSERT INTO process_records (user_id, task_id, process_type, result_path) VALUES (?, ?, ?, ?)",
-            (user["id"], task_id, function, result_path)
+            (user["id"], task_id, data.function, result_path)
         )
         conn.commit()
         conn.close()
@@ -620,7 +620,7 @@ async def process_photo(
     return {
         "success": True,
         "task_id": task_id,
-        "function": function,
+        "function": data.function,
         "result": f"data:image/jpeg;base64,{result_base64}",
         "result_url": result_url,
         "engine": engine_name
