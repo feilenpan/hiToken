@@ -13,13 +13,14 @@ RUN pip install --no-cache-dir \
     aiofiles==23.2.1 \
     Pillow==10.2.0 \
     requests==2.31.0 \
-    httpx==0.26.0
+    httpx==0.26.0 \
+    python-jose[cryptography]==3.3.0 \
+    passlib[bcrypt]==1.7.4
 
-# 如果云托管从这个目录构建，app-simple.py 就在当前目录
-COPY app-simple.py ./
+COPY app_full.py volc_visual_engine.py ./
 
-RUN mkdir -p /app/results
+RUN mkdir -p /app/results /app/data /app/temp /app/uploads
 
 EXPOSE 80
 
-CMD ["python", "-m", "uvicorn", "app-simple:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "-m", "uvicorn", "app_full:app", "--host", "0.0.0.0", "--port", "80"]

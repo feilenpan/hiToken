@@ -17,6 +17,7 @@ static/
 *.pem
 *.key
 app.py
+app-simple.py
 main.py
 colorize_engine.py
 database.py
@@ -26,7 +27,6 @@ photo_ai_engine.py
 photo_ai_engine_v2.py
 vanceai_engine.py
 baidu_engine.py
-volc_visual_engine.py
 deploy-aws.sh
 deploy.sh
 project.config.json
