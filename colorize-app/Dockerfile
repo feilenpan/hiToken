@@ -1,3 +1,5 @@
+# CloudBase Run 部署 — 时光修复 v2
+# evaluate + suggest-edit + process (seededit_v3.0)
 FROM python:3.11-slim
 
 WORKDIR /app
