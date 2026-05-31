@@ -6,11 +6,14 @@
 
   <!-- 用户卡片 -->
   <view class="user-card">
-    <view class="user-avatar">
-      <text class="avatar-text">😊</text>
-    </view>
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image class="avatar-img" src="{{avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="avatar-edit-hint" wx:if="{{!avatarUrl}}">
+        <text class="avatar-edit-icon">📷</text>
+      </view>
+    </button>
     <view class="user-info">
-      <text class="user-name">{{nickname}}</text>
+      <input class="nickname-input" type="nickname" placeholder="点击设置昵称" value="{{nickname}}" bindblur="onNicknameBlur" maxlength="32" />
       <text class="user-desc">已处理 {{totalUsed}} 张照片</text>
     </view>
   </view>
@@ -39,7 +42,7 @@
     <view class="share-icon">🎁</view>
     <view class="share-info">
       <text class="share-title">分享给好友</text>
-      <text class="share-desc">AI 智能修复老照片</text>
+      <text class="share-desc">AI 照片点评与修复</text>
     </view>
     <button class="btn btn-outline btn-xs" open-type="share">分享</button>
   </view>

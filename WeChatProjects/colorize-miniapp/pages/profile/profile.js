@@ -4,6 +4,7 @@ const app = getApp()
 Page({
   data: {
     nickname: '时光用户',
+    avatarUrl: '',
     totalUsed: 0,
     quota: null
   },
@@ -19,6 +20,7 @@ Page({
       if (res.data && res.data.success && res.data.user) {
         that.setData({
           nickname: res.data.user.nickname || '时光用户',
+          avatarUrl: res.data.user.avatar || '',
           totalUsed: res.data.user.total_used || 0
         })
       } else {
@@ -40,6 +42,67 @@ Page({
         that.setData({ quota: res.data.quota })
       }
     }).catch(function() {})
+  },
+
+  // 用户选择头像
+  onChooseAvatar(e) {
+    var that = this
+    var avatarPath = e.detail.avatarUrl
+    if (!avatarPath) return
+
+    // 先本地预览
+    that.setData({ avatarUrl: avatarPath })
+
+    // 上传到后端
+    wx.getFileSystemManager().readFile({
+      filePath: avatarPath,
+      encoding: 'base64',
+      success: function(readRes) {
+        app.cloudPost('/api/user/profile', {
+          avatar: readRes.data
+        }).then(function(resp) {
+          if (resp.data && resp.data.success && resp.data.user) {
+            that.setData({
+              avatarUrl: resp.data.user.avatar || avatarPath,
+              nickname: resp.data.user.nickname || that.data.nickname
+            })
+            // 更新全局缓存
+            app.globalData.userInfo = resp.data.user
+            wx.setStorageSync('userInfo', resp.data.user)
+            wx.showToast({ title: '头像已更新', icon: 'success' })
+          }
+        }).catch(function() {
+          wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+        })
+      },
+      fail: function() {
+        wx.showToast({ title: '读取头像失败', icon: 'none' })
+      }
+    })
+  },
+
+  // 用户修改昵称（失焦时保存）
+  onNicknameBlur(e) {
+    var nickname = (e.detail.value || '').trim()
+    if (!nickname || nickname === this.data.nickname) return
+
+    var that = this
+    app.cloudPost('/api/user/profile', {
+      nickname: nickname
+    }).then(function(resp) {
+      if (resp.data && resp.data.success) {
+        wx.showToast({ title: '昵称已更新', icon: 'success' })
+        // 更新全局缓存
+        if (resp.data.user) {
+          app.globalData.userInfo = resp.data.user
+          wx.setStorageSync('userInfo', resp.data.user)
+        }
+      }
+    }).catch(function() {
+      // 失败时恢复旧昵称
+      that.setData({ nickname: that.data.nickname })
+      wx.showToast({ title: '保存失败', icon: 'none' })
+    })
   },
 
   onShareAppMessage() {
