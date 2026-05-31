@@ -13,23 +13,31 @@
 
   <!-- 空白状态 -->
   <view class="empty-state" wx:if="{{!imagePath && !isUploading}}">
-    <!-- 浮动评语特效 -->
+    <!-- 浮动特效：emoji + 评语 + 爱心 混合冒泡 -->
     <view class="floating-words">
-      <text class="fw f1">光影绝佳</text>
-      <text class="fw f2">情感真挚</text>
-      <text class="fw f3">构图精妙</text>
-      <text class="fw f4">温暖治愈</text>
-      <text class="fw f5">色彩动人</text>
-      <text class="fw f6">瞬间永恒</text>
-      <text class="fw f7">故事感满满</text>
-      <text class="fw f8">氛围拉满</text>
-      <text class="fw f9">胶片质感</text>
-      <text class="fw f10">眼神有光</text>
-      <text class="fw f11">好温柔啊</text>
-      <text class="fw f12">太美了</text>
-      <text class="fw f13">有感觉</text>
-      <text class="fw f14">想收藏</text>
-      <text class="fw f15">拍得好</text>
+      <!-- 大号 emoji 无背景 -->
+      <text class="fw fw-emoji fe1">🌸</text>
+      <text class="fw fw-emoji fe2">👏</text>
+      <text class="fw fw-emoji fe3">💕</text>
+      <text class="fw fw-emoji fe4">✨</text>
+      <text class="fw fw-emoji fe5">🎉</text>
+      <text class="fw fw-emoji fe6">🔥</text>
+      <text class="fw fw-emoji fe7">🌟</text>
+      <text class="fw fw-emoji fe8">💫</text>
+      <!-- 评语文字带背景 -->
+      <text class="fw fw-praise fp1">太美了！</text>
+      <text class="fw fw-praise fp2">好温柔~</text>
+      <text class="fw fw-praise fp3">绝了！</text>
+      <text class="fw fw-praise fp4">氛围感拉满</text>
+      <text class="fw fw-praise fp5">有故事</text>
+      <text class="fw fw-praise fp6">拍得真好</text>
+      <text class="fw fw-praise fp7">喜欢这张</text>
+      <text class="fw fw-praise fp8">满分！</text>
+      <!-- 小爱心点缀 -->
+      <text class="fw fw-heart fh1">💕</text>
+      <text class="fw fw-heart fh2">❤️</text>
+      <text class="fw fw-heart fh3">💗</text>
+      <text class="fw fw-heart fh4">💖</text>
     </view>
     <view class="empty-illustration floating">📸</view>
     <text class="empty-title">照片打分</text>
