@@ -10,12 +10,26 @@ Page({
   },
 
   onShow() {
-    this.loadUserInfo()
+    // 等待自动登录完成再加载用户信息
+    var that = this
+    var loginPromise = app._loginReady || Promise.resolve()
+    loginPromise.then(function() {
+      that.loadUserInfo()
+    })
     this.fetchQuota()
   },
 
   loadUserInfo() {
     var that = this
+    // 优先用缓存
+    var cached = app.globalData.userInfo
+    if (cached && cached.nickname) {
+      that.setData({
+        nickname: cached.nickname,
+        avatarUrl: cached.avatar || '',
+        totalUsed: cached.total_used || 0
+      })
+    }
     app.cloudGet('/api/user/info').then(function(res) {
       if (res.data && res.data.success && res.data.user) {
         that.setData({

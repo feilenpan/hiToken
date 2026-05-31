@@ -23,8 +23,8 @@ App({
       this.globalData.agreementAgreed = userInfo.agreement_agreed || false
     }
 
-    // 自动登录：无 token 或 token 过期时静默登录
-    this._autoLogin()
+    // 自动登录，返回 Promise 供页面等待
+    this._loginReady = this._autoLogin()
 
     // 隐私授权全局监听
     var that = this
@@ -160,14 +160,15 @@ App({
     })
   },
 
-  // 静默自动登录，失败不报错
+  // 静默自动登录，返回 Promise
   _autoLogin() {
     var that = this
-    this.login().then(function(user) {
+    return this.login().then(function(user) {
       console.log('自动登录成功:', user.nickname)
+      return user
     }).catch(function(err) {
       console.log('自动登录跳过:', err.message || err)
-      // 本地开发/无网络时不阻塞
+      return null
     })
   },
 
