@@ -39,13 +39,13 @@
       <text class="fw fw-heart fh3">💗</text>
       <text class="fw fw-heart fh4">💖</text>
     </view>
-    <view class="empty-illustration floating">📷</view>
-    <text class="empty-title">照片打分</text>
     <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
     <view class="btn-circle-wrap" bindtap="onChooseImage">
+      <view class="btn-circle-outer"></view>
+      <view class="btn-circle-ring"></view>
       <view class="btn-circle-ring"></view>
       <view class="btn-circle-core">
-        <text class="btn-circle-icon">＋</text>
+        <image class="btn-circle-icon" src="/images/btn-camera.png" mode="aspectFit"></image>
       </view>
     </view>
     <text class="circle-label">选择照片</text>

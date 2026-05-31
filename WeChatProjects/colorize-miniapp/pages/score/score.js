@@ -381,7 +381,7 @@ Page({
 
   onShareAppMessage: function() {
     return {
-      title: '时光修复 - AI 照片打分',
+      title: '时光修复 - AI 照片点评与修复',
       path: '/pages/score/score'
     };
   }

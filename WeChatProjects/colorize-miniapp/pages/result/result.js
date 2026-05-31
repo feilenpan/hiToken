@@ -290,6 +290,6 @@ Page({
   },
 
   onShareAppMessage: function() {
-    return { title: '时光修复 - AI 智能修复老照片', path: '/pages/index/index' };
+    return { title: '时光修复 - AI 照片点评与修复', path: '/pages/index/index' };
   }
 });

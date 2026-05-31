@@ -142,53 +142,71 @@
   position: relative; z-index: 2;
 }
 
-/* 圆形选择按钮 */
+/* ═══════════════════════════════
+   圆形选择按钮 — 三层叠环结构
+   外层: 半透白描边定帧
+   中层: 橙光脉冲扩散
+   内层: 暖橙渐变主体
+   ═══════════════════════════════ */
 .btn-circle-wrap {
   position: relative;
-  width: 200rpx;
-  height: 200rpx;
-  margin: 30rpx auto 0;
+  width: 240rpx;
+  height: 240rpx;
+  margin: 40rpx auto 0;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.btn-circle-wrap:active { transform: scale(0.94); transition: transform 0.15s; }
+.btn-circle-wrap:active { transform: scale(0.92); transition: transform 0.12s ease; }
 
-/* 脉冲光环 */
+/* 外层静态描边环 */
+.btn-circle-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255,255,255,0.5);
+  box-shadow: 0 0 0 8rpx rgba(255,107,53,0.08);
+  z-index: 1;
+}
+
+/* 脉冲光环 — 中层扩散 */
 .btn-circle-ring {
   position: absolute;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 4rpx solid rgba(255,107,53,0.3);
-  animation: ringPulse 2s ease-out infinite;
+  border: 5rpx solid rgba(255,107,53,0.25);
+  animation: ringPulse 2.2s cubic-bezier(0.25, 0, 0.25, 1) infinite;
+  z-index: 2;
 }
+.btn-circle-ring:nth-child(3) { animation-delay: 0.7s; }
 @keyframes ringPulse {
-  0%   { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.35); opacity: 0; }
+  0%   { transform: scale(1); opacity: 0.85; }
+  100% { transform: scale(1.45); opacity: 0; }
 }
 
-/* 圆形主体 */
+/* 圆形主体 — 内层 */
 .btn-circle-core {
-  width: 160rpx;
-  height: 160rpx;
+  width: 176rpx;
+  height: 176rpx;
   border-radius: 50%;
-  background: linear-gradient(145deg, #FF6B35, #FF8F60);
-  box-shadow: 0 12rpx 40rpx rgba(255,107,53,0.4), inset 0 2rpx 4rpx rgba(255,255,255,0.2);
+  background: transparent;
+  box-shadow:
+    0 16rpx 48rpx rgba(255,107,53,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
-/* 图标 */
+/* 图标 — 图片 */
 .btn-circle-icon {
-  font-size: 64rpx;
-  color: #fff;
-  font-weight: 200;
-  line-height: 1;
+  width: 176rpx;
+  height: 176rpx;
+  border-radius: 50%;
 }
 
 /* 按钮下方文字 */
