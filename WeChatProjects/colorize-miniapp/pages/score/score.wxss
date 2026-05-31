@@ -126,6 +126,16 @@
 .btn-choose::after { border: none; }
 .btn-icon { font-size: 36rpx; }
 
+/* 配额提示 */
+.quota-hint {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  color: #bbb;
+  margin-top: 20rpx;
+  position: relative; z-index: 2;
+}
+
 /* ===== 照片展示区 ===== */
 .photo-section {
   padding: 30rpx;

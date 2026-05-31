@@ -1,0 +1,177 @@
+<!-- pages/score/score.wxml - AI 照片打分 -->
+<view class="page">
+  <!-- 隐私授权弹窗 -->
+  <view wx:if="{{showPrivacyPopup}}" class="privacy-overlay">
+    <view class="privacy-mask"></view>
+    <view class="privacy-card">
+      <view class="privacy-title">🔒 隐私授权</view>
+      <view class="privacy-body">为了提供AI照片评估和修复服务，需要获取你的照片信息。请阅读并同意《隐私保护政策》。</view>
+      <button class="privacy-btn-link" bindtap="handleOpenPrivacyContract">查看隐私协议</button>
+      <button class="privacy-btn-agree" id="agree-btn" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handleAgreePrivacy">同意并继续</button>
+    </view>
+  </view>
+
+  <!-- 空白状态 -->
+  <view class="empty-state" wx:if="{{!imagePath && !isUploading}}">
+    <!-- 浮动评语特效 -->
+    <view class="floating-words">
+      <text class="fw f1">光影绝佳</text>
+      <text class="fw f2">情感真挚</text>
+      <text class="fw f3">构图精妙</text>
+      <text class="fw f4">温暖治愈</text>
+      <text class="fw f5">色彩动人</text>
+      <text class="fw f6">瞬间永恒</text>
+      <text class="fw f7">故事感满满</text>
+      <text class="fw f8">氛围拉满</text>
+      <text class="fw f9">胶片质感</text>
+      <text class="fw f10">眼神有光</text>
+      <text class="fw f11">好温柔啊</text>
+      <text class="fw f12">太美了</text>
+      <text class="fw f13">有感觉</text>
+      <text class="fw f14">想收藏</text>
+      <text class="fw f15">拍得好</text>
+    </view>
+    <view class="empty-illustration floating">📸</view>
+    <text class="empty-title">照片打分</text>
+    <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
+    <button class="btn-choose" bindtap="onChooseImage">
+      <text class="btn-icon">🖼️</text>
+      <text>选择照片</text>
+    </button>
+    <text class="quota-hint" wx:if="{{quota}}">今日剩余：点评 {{quota.evaluate.remaining}} 次 · 处理 {{quota.process.remaining}} 次</text>
+  </view>
+
+  <!-- 照片区域 -->
+  <view class="photo-section" wx:if="{{imagePath}}">
+    <view class="photo-frame {{isUploading ? '' : 'floating'}}">
+      <image src="{{imagePath}}" mode="widthFix" class="photo-img"></image>
+    </view>
+    <view class="photo-shadow" wx:if="{{!isUploading}}"></view>
+    
+    <!-- 分析中动画 -->
+    <view class="analyzing-overlay" wx:if="{{showAnalyzing}}">
+      <view class="analyzing-sphere">
+        <view class="sphere-ring"></view>
+        <view class="sphere-ring r2"></view>
+        <view class="sphere-ring r3"></view>
+        <view class="sphere-core">✨</view>
+      </view>
+      <text class="analyzing-text">{{analyzingText}}</text>
+      <view class="analyzing-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 打分结果 -->
+  <view class="eval-section" wx:if="{{evaluation && !showAnalyzing}}">
+    <!-- 紧凑分数卡片 -->
+    <view class="score-card {{showScore ? 'score-show' : ''}}">
+      <view class="score-inline">
+        <text class="score-emoji">{{evaluation.level.emoji}}</text>
+        <view class="score-num-box">
+          <text class="score-num">{{evaluation.score}}</text>
+          <text class="score-unit">分</text>
+        </view>
+        <view class="score-meta">
+          <text class="score-level">{{evaluation.level.title}}</text>
+          <text class="score-desc">{{evaluation.level.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 地点标签 -->
+    <view class="eval-location" wx:if="{{evaluation.location}}">
+      <text class="location-icon">📍</text>
+      <text class="location-text">{{evaluation.location}}</text>
+    </view>
+
+    <!-- AI 评语 -->
+    <view class="eval-text-card">
+      <view class="eval-header">
+        <view class="eval-badge">{{evaluation.reviewer_emoji || '⚡'}}</view>
+        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 说</text>
+      </view>
+      <view class="eval-body">
+        <text class="eval-text">{{typedText}}</text>
+        <text class="cursor" wx:if="{{typingCursor}}">|</text>
+      </view>
+    </view>
+
+    <!-- AI 修图建议（放标签上方） -->
+    <view class="suggestions-section" wx:if="{{evaluation.suggestions && evaluation.suggestions.length > 0}}">
+      <view class="suggestions-header">
+        <text class="suggestions-icon">✨</text>
+        <text class="suggestions-title">我建议你试下</text>
+      </view>
+      <view class="suggestions-list">
+        <view class="suggestion-chip {{item.loading ? 'chip-loading' : ''}} {{item.clicked ? 'chip-clicked' : ''}}" 
+              wx:for="{{evaluation.suggestions}}" wx:key="label" 
+              bindtap="onSuggestionTap" data-suggestion="{{item}}" data-index="{{index}}">
+          <text class="suggestion-type">{{item.type === 'add' ? '➕' : item.type === 'remove' ? '❌' : item.type === 'modify' ? '🔄' : item.type === 'style' ? '🖌️' : item.type === 'color' ? '🌈' : item.type === 'expression' ? '😊' : item.type === 'background' ? '🎨' : '✂️'}}</text>
+          <text class="suggestion-label">{{item.loading ? '处理中…' : item.label}}</text>
+          <text class="suggestion-spinner" wx:if="{{item.loading}}">⏳</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 编辑结果展示（多图叠加） -->
+    <view class="edit-results-list" wx:if="{{editResults.length > 0}}">
+      <view class="edit-result {{item.loading ? '' : 'result-done'}}" wx:for="{{editResults}}" wx:key="id">
+        <!-- loading 骨架 -->
+        <view class="edit-result-loading" wx:if="{{item.loading}}">
+          <view class="result-loading-sphere">
+            <view class="sphere-ring"></view>
+            <view class="sphere-ring r2"></view>
+            <view class="sphere-core">✨</view>
+          </view>
+          <text class="result-loading-text">正在按「{{item.label}}」编辑…</text>
+        </view>
+        <!-- 成功结果 -->
+        <view class="edit-result-done" wx:elif="{{item.success}}">
+          <view class="edit-result-header">
+            <text class="edit-result-icon">✨</text>
+            <text class="edit-result-title">编辑后效果</text>
+          </view>
+          <view class="edit-result-card share-hint">
+            <image src="{{item.result}}" mode="widthFix" class="edit-result-img" show-menu-by-longpress="{{true}}"></image>
+            <view class="edit-result-label">
+              <text class="edit-result-prompt">「{{item.prompt}}」</text>
+              <text class="edit-result-hint">长按分享</text>
+            </view>
+          </view>
+        </view>
+        <!-- 失败 -->
+        <view class="edit-result-error" wx:else>
+          <text class="edit-result-icon">😅</text>
+          <text>{{item.error || '编辑失败'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 标签 -->
+    <view class="eval-tags" wx:if="{{evaluation.tags.length > 0}}">
+      <view class="eval-tag" wx:for="{{evaluation.tags}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <!-- 金句 -->
+    <view class="eval-quote" wx:if="{{evaluation.quote}}">
+      <text>🌸 {{evaluation.quote}}</text>
+    </view>
+
+    <!-- 低分 CTA -->
+    <view class="cta-restore" wx:if="{{showCTA}}">
+      <text class="cta-text">这张照片有点模糊？试试 AI 修复让它重获新生！</text>
+      <button class="btn-cta" bindtap="onRepairNow">✨ AI 修复</button>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="action-bar" wx:if="{{evaluation && !showAnalyzing}}">
+    <button class="btn-retry full" bindtap="onRetry">
+      <text>🔄 换一张</text>
+    </button>
+  </view>
+</view>

@@ -71,10 +71,16 @@ BAIDU_SECRET_KEY = os.getenv("BAIDU_SECRET_KEY", "hTRFeBzKkgricbUyCrPIKeNrMqVo4e
 # 服务器基础 URL（用于构建图片访问地址）
 SERVER_BASE_URL = os.getenv("SERVER_BASE_URL", "https://yushu-264118-8-1438528191.sh.run.tcloudbase.com")
 
-# ===== SQLite 數據庫 =====
+# ===== SQLite 数据库 =====
+
+# 每日配额配置
+DAILY_QUOTA = {
+    "evaluate": 10,   # AI 点评（doubao）
+    "process": 5,     # AI 处理（seededit）
+}
 
 def get_db():
-    """獲取數據庫連接（每次請求新建，用完關閉）"""
+    """获取数据库连接（每次请求新建，用完关闭）"""
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
@@ -82,7 +88,7 @@ def get_db():
     return conn
 
 def init_db():
-    """初始化數據庫表結構"""
+    """初始化数据库表结构"""
     conn = get_db()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS users (
@@ -108,13 +114,75 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
         CREATE INDEX IF NOT EXISTS idx_records_user ON process_records(user_id);
+
+        CREATE TABLE IF NOT EXISTS daily_usage (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            usage_type TEXT NOT NULL,
+            usage_date TEXT NOT NULL,
+            count INTEGER DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE(user_id, usage_type, usage_date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_daily_usage ON daily_usage(user_id, usage_date);
     """)
     conn.commit()
     conn.close()
-    logger.info(f"數據庫已初始化: {DB_PATH}")
+    logger.info(f"数据库已初始化: {DB_PATH}")
 
-# 啟動時初始化
+# 启动时初始化
 init_db()
+
+
+def check_and_use_quota(user_id: int, usage_type: str) -> dict:
+    """检查并消耗每日配额。返回 {allowed: bool, remaining: int, limit: int}"""
+    today = datetime.now().strftime("%Y-%m-%d")
+    limit = DAILY_QUOTA.get(usage_type, 5)
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT count FROM daily_usage WHERE user_id=? AND usage_type=? AND usage_date=?",
+            (user_id, usage_type, today)
+        ).fetchone()
+        current = row["count"] if row else 0
+
+        if current >= limit:
+            return {"allowed": False, "remaining": 0, "limit": limit}
+
+        # 递增计数
+        if row:
+            conn.execute(
+                "UPDATE daily_usage SET count=count+1 WHERE user_id=? AND usage_type=? AND usage_date=?",
+                (user_id, usage_type, today)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO daily_usage (user_id, usage_type, usage_date, count) VALUES (?,?,?,1)",
+                (user_id, usage_type, today)
+            )
+        conn.commit()
+        remaining = limit - current - 1
+        return {"allowed": True, "remaining": remaining, "limit": limit}
+    finally:
+        conn.close()
+
+
+def get_user_quota(user_id: int) -> dict:
+    """获取用户当前剩余配额"""
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = get_db()
+    try:
+        result = {}
+        for usage_type, limit in DAILY_QUOTA.items():
+            row = conn.execute(
+                "SELECT count FROM daily_usage WHERE user_id=? AND usage_type=? AND usage_date=?",
+                (user_id, usage_type, today)
+            ).fetchone()
+            used = row["count"] if row else 0
+            result[usage_type] = {"used": used, "remaining": max(0, limit - used), "limit": limit}
+        return result
+    finally:
+        conn.close()
 
 
 # ===== 工具函數 =====
@@ -286,9 +354,14 @@ def get_random_reviewer():
     return random.choice(REVIEWERS)
 
 @app.post("/api/evaluate")
-async def evaluate_photo(data: FileInput):
+async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_current_user)):
     """AI 点评照片：豆包多模态主观评分 + 修图建议"""
     try:
+        # 配额检查
+        if user:
+            quota = check_and_use_quota(user["id"], "evaluate")
+            if not quota["allowed"]:
+                raise HTTPException(429, f"今日点评次数已用完（{quota['limit']}次/天），明天再来吧～")
         image_data = base64.b64decode(data.file)
         if len(image_data) > 10 * 1024 * 1024:
             raise HTTPException(400, "图片大小不能超过10MB")
@@ -343,6 +416,8 @@ async def evaluate_photo(data: FileInput):
         response.update(evaluation)
         response["reviewer"] = reviewer["name"]
         response["reviewer_emoji"] = reviewer["emoji"]
+        if user:
+            response["quota"] = get_user_quota(user["id"])
         
         return response
         
@@ -466,12 +541,25 @@ async def get_user_info(user: dict = Depends(require_user)):
     }
 
 
+@app.get("/api/user/usage")
+async def get_usage(user: dict = Depends(require_user)):
+    """获取用户每日配额使用情况"""
+    quota = get_user_quota(user["id"])
+    return {"success": True, "quota": quota}
+
+
 @app.post("/api/process")
 async def process_photo(
     data: FileInput,
     user: Optional[dict] = Depends(get_current_user)
 ):
     """统一处理端点"""
+    
+    # 配额检查
+    if user:
+        quota = check_and_use_quota(user["id"], "process")
+        if not quota["allowed"]:
+            raise HTTPException(429, f"今日处理次数已用完（{quota['limit']}次/天），明天再来吧～")
     
     content = base64.b64decode(data.file)
     if len(content) > 10 * 1024 * 1024:
@@ -598,8 +686,14 @@ async def process_photo(
 
 
 @app.post("/api/suggest-edit")
-async def suggest_edit_photo(data: FileInput):
+async def suggest_edit_photo(data: FileInput, user: Optional[dict] = Depends(get_current_user)):
     """AI 图片编辑（seededit）"""
+    # 配额检查（与 /api/process 共享配额）
+    if user:
+        quota = check_and_use_quota(user["id"], "process")
+        if not quota["allowed"]:
+            raise HTTPException(429, f"今日处理次数已用完（{quota['limit']}次/天），明天再来吧～")
+    
     from volc_visual_engine import suggest_edit
 
     try:
