@@ -96,6 +96,7 @@ def init_db():
             openid TEXT UNIQUE NOT NULL,
             session_key TEXT DEFAULT '',
             nickname TEXT DEFAULT '',
+            avatar TEXT DEFAULT '',
             total_used INTEGER DEFAULT 0,
             privacy_agreed INTEGER DEFAULT 0,
             agreement_agreed INTEGER DEFAULT 0,
@@ -126,6 +127,12 @@ def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_daily_usage ON daily_usage(user_id, usage_date);
     """)
+    # 迁移：已有数据库添加 avatar 列
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT ''")
+        logger.info("数据库迁移: 添加 avatar 列")
+    except sqlite3.OperationalError:
+        pass  # 列已存在
     conn.commit()
     conn.close()
     logger.info(f"数据库已初始化: {DB_PATH}")
@@ -519,7 +526,8 @@ async def wechat_login(request: Request):
         "token": openid,
         "user": {
             "id": user["id"],
-            "nickname": user["nickname"],
+            "nickname": user.get("nickname", ""),
+            "avatar": ("/api/avatar/" + str(user["id"])) if user.get("avatar") else "",
             "total_used": user["total_used"],
             "privacy_agreed": bool(user["privacy_agreed"]),
             "agreement_agreed": bool(user["agreement_agreed"])
@@ -529,16 +537,88 @@ async def wechat_login(request: Request):
 
 @app.get("/api/user/info")
 async def get_user_info(user: dict = Depends(require_user)):
+    avatar = user.get("avatar", "")
     return {
         "success": True,
         "user": {
             "id": user["id"],
-            "nickname": user["nickname"],
+            "nickname": user.get("nickname", ""),
+            "avatar": ("/api/avatar/" + str(user["id"])) if avatar else "",
             "total_used": user["total_used"],
             "privacy_agreed": bool(user["privacy_agreed"]),
             "agreement_agreed": bool(user["agreement_agreed"])
         }
     }
+
+
+@app.post("/api/user/profile")
+async def update_profile(
+    request: Request,
+    user: dict = Depends(require_user)
+):
+    """更新用户头像和昵称。avatar: base64, nickname: string"""
+    try:
+        data = await request.json()
+    except:
+        raise HTTPException(400, "请求体必须为 JSON")
+    
+    nickname = data.get("nickname", "").strip()
+    avatar_b64 = data.get("avatar", "")
+    
+    conn = get_db()
+    
+    if nickname:
+        # 合规：限制昵称长度
+        nickname = nickname[:32]
+        conn.execute(
+            "UPDATE users SET nickname = ?, updated_at = ? WHERE id = ?",
+            (nickname, time.time(), user["id"])
+        )
+    
+    if avatar_b64:
+        try:
+            import base64 as b64
+            avatar_data = b64.b64decode(avatar_b64)
+            if len(avatar_data) > 2 * 1024 * 1024:
+                raise HTTPException(400, "头像大小不能超过2MB")
+            avatar_dir = os.path.join(os.path.dirname(__file__), "avatars")
+            os.makedirs(avatar_dir, exist_ok=True)
+            avatar_path = os.path.join(avatar_dir, f"{user['id']}.jpg")
+            with open(avatar_path, "wb") as f:
+                f.write(avatar_data)
+            conn.execute(
+                "UPDATE users SET avatar = ?, updated_at = ? WHERE id = ?",
+                (f"{user['id']}.jpg", time.time(), user["id"])
+            )
+        except Exception as e:
+            logger.error(f"保存头像失败: {e}")
+            raise HTTPException(400, f"头像保存失败: {str(e)}")
+    
+    conn.commit()
+    
+    # 返回更新后的用户信息
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (user["id"],)).fetchone()
+    avatar = row["avatar"] if row["avatar"] else ""
+    return {
+        "success": True,
+        "user": {
+            "id": row["id"],
+            "nickname": row["nickname"],
+            "avatar": ("/api/avatar/" + str(row["id"])) if avatar else "",
+            "total_used": row["total_used"]
+        }
+    }
+
+
+@app.get("/api/avatar/{user_id}")
+async def get_avatar(user_id: int):
+    """获取用户头像图片"""
+    avatar_dir = os.path.join(os.path.dirname(__file__), "avatars")
+    avatar_path = os.path.join(avatar_dir, f"{user_id}.jpg")
+    if not os.path.exists(avatar_path):
+        # 返回默认头像占位
+        raise HTTPException(404, "头像不存在")
+    return FileResponse(avatar_path, media_type="image/jpeg")
 
 
 @app.get("/api/user/usage")
