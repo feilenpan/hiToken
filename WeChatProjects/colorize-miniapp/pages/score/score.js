@@ -60,7 +60,7 @@ Page({
     }).catch(function() {});
   },
 
-  // 隐私授权回调
+  // 隐私授权回调（按钮 open-type="agreePrivacyAuthorization" 自动 resolve）
   handleAgreePrivacy: function() {
     this.setData({ showPrivacyPopup: false });
     app.handleAgreePrivacy();

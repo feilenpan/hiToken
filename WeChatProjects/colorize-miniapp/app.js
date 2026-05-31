@@ -23,13 +23,16 @@ App({
       this.globalData.agreementAgreed = userInfo.agreement_agreed || false
     }
 
+    // 自动登录：无 token 或 token 过期时静默登录
+    this._autoLogin()
+
     // 隐私授权全局监听
     var that = this
     if (wx.onNeedPrivacyAuthorization) {
-      wx.onNeedPrivacyAuthorization(function(resolve) {
-        that.globalData._privacyResolve = resolve
+      wx.onNeedPrivacyAuthorization(function(resolve, eventInfo) {
+        // 新版基础库：open-type="agreePrivacyAuthorization" 按钮会自动 resolve
+        // 这里只负责显示弹窗，不再手动存 resolve
         that.globalData._showPrivacyPopup = true
-        // 通知当前页面
         var pages = getCurrentPages()
         if (pages.length > 0) {
           var page = pages[pages.length - 1]
@@ -41,13 +44,8 @@ App({
     }
   },
 
-  // 用户同意隐私协议
+  // 用户同意隐私协议（由 agreePrivacyAuthorization 按钮自动触发）
   handleAgreePrivacy() {
-    var resolve = this.globalData._privacyResolve
-    if (resolve) {
-      resolve({ event: 'agree', buttonId: 'agree-btn' })
-      this.globalData._privacyResolve = null
-    }
     this.globalData._showPrivacyPopup = false
   },
 
@@ -159,6 +157,17 @@ App({
         },
         fail: reject
       })
+    })
+  },
+
+  // 静默自动登录，失败不报错
+  _autoLogin() {
+    var that = this
+    this.login().then(function(user) {
+      console.log('自动登录成功:', user.nickname)
+    }).catch(function(err) {
+      console.log('自动登录跳过:', err.message || err)
+      // 本地开发/无网络时不阻塞
     })
   },
 
