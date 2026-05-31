@@ -542,8 +542,13 @@ async def get_user_info(user: dict = Depends(require_user)):
 
 
 @app.get("/api/user/usage")
-async def get_usage(user: dict = Depends(require_user)):
-    """获取用户每日配额使用情况"""
+async def get_usage(user: Optional[dict] = Depends(get_current_user)):
+    """获取用户每日配额使用情况（未登录返回全零）"""
+    if not user:
+        return {"success": True, "quota": {
+            "evaluate": {"used": 0, "remaining": 10, "limit": 10},
+            "process": {"used": 0, "remaining": 5, "limit": 5}
+        }}
     quota = get_user_quota(user["id"])
     return {"success": True, "quota": quota}
 

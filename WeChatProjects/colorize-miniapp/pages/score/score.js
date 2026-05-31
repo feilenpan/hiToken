@@ -52,7 +52,6 @@ Page({
   },
 
   _fetchQuota: function() {
-    if (!app.globalData.token) return;
     var that = this;
     app.cloudGet('/api/user/usage').then(function(res) {
       if (res.data && res.data.success) {
