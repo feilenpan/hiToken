@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir \
     passlib[bcrypt]==1.7.4
 
 COPY app_full.py volc_visual_engine.py ./
+COPY legal/ ./legal/
 
 RUN mkdir -p /app/results /app/data /app/temp /app/uploads
 

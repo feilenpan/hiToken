@@ -441,10 +441,10 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
 async def health():
     return {
         "status": "ok",
-        "service": "時光修復",
+        "service": "鱼数修照",
         "storage": "sqlite",
         "engine": "volcengine",
-        "features": ["colorize", "enhance", "upscale", "restore"],
+        "features": ["evaluate", "restore", "suggest-edit"],
         "timestamp": int(time.time())
     }
 
