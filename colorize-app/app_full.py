@@ -834,22 +834,38 @@ async def agree_agreement(user: dict = Depends(require_user)):
 
 @app.get("/api/privacy")
 async def get_privacy_policy():
-    """返回隐私保护政策（读取前端 markdown 文件）"""
-    privacy_path = BASE_DIR.parent / "WeChatProjects" / "colorize-miniapp" / "pkg-legal" / "pages" / "privacy" / "privacy.md"
-    try:
-        content = privacy_path.read_text(encoding="utf-8")
-    except Exception:
+    """返回隐私保护政策"""
+    paths = [
+        BASE_DIR / "legal" / "privacy.md",
+        BASE_DIR.parent / "WeChatProjects" / "colorize-miniapp" / "pkg-legal" / "pages" / "privacy" / "privacy.md",
+    ]
+    content = ""
+    for p in paths:
+        try:
+            content = p.read_text(encoding="utf-8")
+            break
+        except Exception:
+            continue
+    if not content:
         content = "# 隐私保护政策\n\n加载失败，请稍后重试。"
     return {"success": True, "content": content}
 
 
 @app.get("/api/agreement")
 async def get_user_agreement():
-    """返回用户服务协议（读取前端 markdown 文件）"""
-    agreement_path = BASE_DIR.parent / "WeChatProjects" / "colorize-miniapp" / "pkg-legal" / "pages" / "agreement" / "agreement.md"
-    try:
-        content = agreement_path.read_text(encoding="utf-8")
-    except Exception:
+    """返回用户服务协议"""
+    paths = [
+        BASE_DIR / "legal" / "agreement.md",
+        BASE_DIR.parent / "WeChatProjects" / "colorize-miniapp" / "pkg-legal" / "pages" / "agreement" / "agreement.md",
+    ]
+    content = ""
+    for p in paths:
+        try:
+            content = p.read_text(encoding="utf-8")
+            break
+        except Exception:
+            continue
+    if not content:
         content = "# 用户服务协议\n\n加载失败，请稍后重试。"
     return {"success": True, "content": content}
 
