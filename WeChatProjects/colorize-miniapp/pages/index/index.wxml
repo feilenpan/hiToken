@@ -1,0 +1,113 @@
+<!-- pages/index/index.wxml -->
+<view class="page">
+  <!-- 隐私授权弹窗 -->
+  <view wx:if="{{showPrivacyPopup}}" class="privacy-overlay">
+    <view class="privacy-mask"></view>
+    <view class="privacy-card">
+      <view class="privacy-title">🔒 隐私授权</view>
+      <view class="privacy-body">为了提供AI照片修复服务，需要获取你的照片信息。请阅读并同意《隐私保护政策》。</view>
+      <button class="privacy-btn-link" bindtap="handleOpenPrivacyContract">查看隐私协议</button>
+      <button class="privacy-btn-agree" id="agree-btn" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handleAgreePrivacy">同意并继续</button>
+    </view>
+  </view>
+
+  <!-- 效果展示 -->
+  <view class="hero-section">
+    <image src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content-section">
+    <!-- 功能标题 -->
+    <view class="section-title">智能修复</view>
+    <view class="section-description">
+      让褪色的老照片重获新生。去除折痕划痕，还原模糊细节，唤醒沉睡在相册里的旧时光。
+    </view>
+
+    <!-- 超大 CTA -->
+    <view class="cta-button" bindtap="onChooseImage">
+      <text class="cta-icon">📸</text>
+      <text class="cta-text">选择照片，开始修复</text>
+    </view>
+
+    <view class="secondary-text">💡 完全免费</view>
+
+    <!-- 优势卡片 -->
+    <view class="benefits-section">
+      <view class="benefit-card">
+        <view class="benefit-icon">✨</view>
+        <view class="benefit-content">
+          <view class="benefit-title">智能修复</view>
+          <view class="benefit-desc">去除划痕噪点，修复折痕损伤，还原清晰细节</view>
+        </view>
+      </view>
+      <view class="benefit-card">
+        <view class="benefit-icon">⚡</view>
+        <view class="benefit-content">
+          <view class="benefit-title">极速处理</view>
+          <view class="benefit-desc">平均 10 秒完成，无需等待</view>
+        </view>
+      </view>
+      <view class="benefit-card">
+        <view class="benefit-icon">🔒</view>
+        <view class="benefit-content">
+          <view class="benefit-title">数据安全</view>
+          <view class="benefit-desc">照片即时处理即删，数据不出境</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部协议入口 -->
+    <view class="legal-links">
+      <text class="legal-link" bindtap="onViewPrivacy">《隐私保护政策》</text>
+      <text class="legal-sep">|</text>
+      <text class="legal-link" bindtap="onViewAgreement">《用户服务协议》</text>
+    </view>
+  </view>
+
+  <!-- 首次使用：服务协议弹窗（隐私协议由微信官方弹窗处理） -->
+  <view class="modal-mask" wx:if="{{showAgreementModal}}">
+    <view class="modal-container">
+      <view class="modal-header">
+        <text class="modal-title">📋 用户服务协议</text>
+        <text class="modal-subtitle">请阅读并同意以下协议后开始使用</text>
+      </view>
+      <scroll-view scroll-y class="modal-body">
+        <view class="agreement-summary">
+          <view class="summary-card">
+            <view class="summary-icon">📄</view>
+            <view class="summary-text">
+              <view class="summary-title">服务说明</view>
+              <view class="summary-desc">本服务提供 AI 照片打分点评和 AI 照片修复功能。AI 结果由人工智能自动生成，仅供娱乐参考。目前服务完全免费。</view>
+            </view>
+          </view>
+          <view class="summary-card">
+            <view class="summary-icon">🛡️</view>
+            <view class="summary-text">
+              <view class="summary-title">使用规范</view>
+              <view class="summary-desc">请遵守中华人民共和国法律法规。请勿上传违法违规内容或侵犯他人权益的照片。您上传的照片知识产权归您所有，处理完成后立即删除。</view>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="modal-footer">
+        <view class="checkbox-row">
+          <checkbox-group bindchange="onAgreementCheckboxChange">
+            <label class="checkbox-label">
+              <checkbox value="agree" checked="{{agreementChecked}}" color="#FF6B35"/>
+              <text>我已阅读并同意</text>
+              <text class="link" bindtap="onViewAgreement">《用户服务协议》</text>
+              <text>和</text>
+              <text class="link" bindtap="onViewPrivacy">《隐私保护政策》</text>
+            </label>
+          </checkbox-group>
+        </view>
+        <button 
+          class="btn-agree {{agreementChecked ? 'active' : ''}}" 
+          bindtap="onAgreeAgreement"
+          disabled="{{!agreementChecked}}"
+        >同意并开始使用</button>
+      </view>
+    </view>
+  </view>
+</view>

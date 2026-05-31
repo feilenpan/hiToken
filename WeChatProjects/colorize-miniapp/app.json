@@ -1,0 +1,63 @@
+{
+  "pages": [
+    "pages/score/score",
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/preview/preview",
+    "pages/result/result"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FAFAFA",
+    "navigationBarTitleText": "时光修复",
+    "navigationBarTextStyle": "black"
+  },
+  "__usePrivacyCheck__": false,
+  "networkTimeout": {
+    "request": 120000,
+    "uploadFile": 180000,
+    "downloadFile": 120000
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF6B35",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/score/score",
+        "text": "照片打分",
+        "iconPath": "static/images/tab-score.png",
+        "selectedIconPath": "static/images/tab-score-active.png"
+      },
+      {
+        "pagePath": "pages/index/index",
+        "text": "修复照片",
+        "iconPath": "static/images/tab-restore.png",
+        "selectedIconPath": "static/images/tab-restore-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "static/images/tab-mine.png",
+        "selectedIconPath": "static/images/tab-mine-active.png"
+      }
+    ]
+  },
+  "subpackages": [
+    {
+      "root": "pkg-user",
+      "pages": ["pages/history/history"]
+    },
+    {
+      "root": "pkg-legal",
+      "pages": ["pages/privacy/privacy", "pages/agreement/agreement"]
+    }
+  ],
+  "preloadRule": {
+    "pages/score/score": { "packages": ["pkg-user"] },
+    "pages/index/index": { "packages": ["pkg-user"] }
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

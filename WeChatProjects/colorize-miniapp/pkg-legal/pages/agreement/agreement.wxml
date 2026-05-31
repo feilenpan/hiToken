@@ -1,0 +1,14 @@
+<!-- pages/agreement/agreement.wxml -->
+<view class="page">
+  <view class="page-header">
+    <text class="page-title">用户服务协议</text>
+  </view>
+  <scroll-view scroll-y class="content-scroll">
+    <view class="content" wx:if="{{content}}">
+      <text class="content-text" selectable="true">{{content}}</text>
+    </view>
+    <view class="loading" wx:else>
+      <text>加载中...</text>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,60 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "shiguang-xiufu",
+  "description": "时光修复 - AI老照片修复小程序",
+  "appid": "wxefdb56243e2bcc21",
+  "setting": {
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "enhance": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.16.0",
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "**/*.md",
+        "type": "file"
+      },
+      {
+        "value": "**/*.psd",
+        "type": "file"
+      },
+      {
+        "value": "**/*.sketch",
+        "type": "file"
+      },
+      {
+        "value": "**/*.map",
+        "type": "file"
+      },
+      {
+        "value": "**/.vscode/**",
+        "type": "file"
+      }
+    ],
+    "include": []
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

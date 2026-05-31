@@ -1,0 +1,67 @@
+<!-- pages/profile/profile.wxml -->
+<view class="page">
+  <view class="page-header">
+    <text class="page-title">我的</text>
+  </view>
+
+  <!-- 用户卡片 -->
+  <view class="user-card">
+    <view class="user-avatar">
+      <text class="avatar-text">😊</text>
+    </view>
+    <view class="user-info">
+      <text class="user-name">{{nickname}}</text>
+      <text class="user-desc">已处理 {{totalUsed}} 张照片</text>
+    </view>
+  </view>
+
+  <!-- 每日配额 -->
+  <view class="quota-card" wx:if="{{quota}}">
+    <view class="quota-header">
+      <text class="quota-title">📊 今日剩余次数</text>
+    </view>
+    <view class="quota-grid">
+      <view class="quota-item">
+        <text class="quota-value">{{quota.evaluate.remaining}}</text>
+        <text class="quota-label">AI 点评</text>
+      </view>
+      <view class="quota-divider"></view>
+      <view class="quota-item">
+        <text class="quota-value">{{quota.process.remaining}}</text>
+        <text class="quota-label">AI 处理</text>
+      </view>
+    </view>
+    <text class="quota-hint">每日 0 点重置</text>
+  </view>
+
+  <!-- 分享 -->
+  <view class="share-card">
+    <view class="share-icon">🎁</view>
+    <view class="share-info">
+      <text class="share-title">分享给好友</text>
+      <text class="share-desc">AI 智能修复老照片</text>
+    </view>
+    <button class="btn btn-outline btn-xs" open-type="share">分享</button>
+  </view>
+
+  <!-- 设置列表 -->
+  <view class="setting-list">
+    <view class="setting-item" bindtap="goPrivacy">
+      <text class="setting-text">隐私保护政策</text>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-item" bindtap="goAgreement">
+      <text class="setting-text">用户服务协议</text>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-item" bindtap="requestDataDeletion">
+      <text class="setting-text" style="color: #FF4D4F;">申请删除数据</text>
+      <text class="setting-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 客服 -->
+  <view class="support-link" bindtap="contactSupport">
+    <text class="support-text">联系客服</text>
+  </view>
+</view>
