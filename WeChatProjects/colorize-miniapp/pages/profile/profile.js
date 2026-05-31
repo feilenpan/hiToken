@@ -1,16 +1,21 @@
 // pages/profile/profile.js
 const app = getApp()
 
+// 判断是否为后端自动生成的默认昵称（如 "用戶oNuo"）
+function isDefaultNickname(name) {
+  if (!name) return true
+  return /^用戶[a-zA-Z0-9]{4}$/.test(name)
+}
+
 Page({
   data: {
-    nickname: '时光用户',
+    nickname: '',
     avatarUrl: '',
     totalUsed: 0,
     quota: null
   },
 
   onShow() {
-    // 等待自动登录完成再加载用户信息
     var that = this
     var loginPromise = app._loginReady || Promise.resolve()
     loginPromise.then(function() {
@@ -21,32 +26,26 @@ Page({
 
   loadUserInfo() {
     var that = this
-    // 优先用缓存
     var cached = app.globalData.userInfo
     if (cached && cached.nickname) {
+      var nick = isDefaultNickname(cached.nickname) ? '' : cached.nickname
       that.setData({
-        nickname: cached.nickname,
+        nickname: nick,
         avatarUrl: cached.avatar || '',
         totalUsed: cached.total_used || 0
       })
     }
     app.cloudGet('/api/user/info').then(function(res) {
       if (res.data && res.data.success && res.data.user) {
+        var nick = res.data.user.nickname || ''
+        if (isDefaultNickname(nick)) nick = ''
         that.setData({
-          nickname: res.data.user.nickname || '时光用户',
+          nickname: nick,
           avatarUrl: res.data.user.avatar || '',
           totalUsed: res.data.user.total_used || 0
         })
-      } else {
-        that.setData({
-          totalUsed: app.globalData.totalUsed || 0
-        })
       }
-    }).catch(function() {
-      that.setData({
-        totalUsed: app.globalData.totalUsed || 0
-      })
-    })
+    }).catch(function() {})
   },
 
   fetchQuota() {
@@ -58,16 +57,12 @@ Page({
     }).catch(function() {})
   },
 
-  // 用户选择头像
   onChooseAvatar(e) {
     var that = this
     var avatarPath = e.detail.avatarUrl
     if (!avatarPath) return
-
-    // 先本地预览
     that.setData({ avatarUrl: avatarPath })
 
-    // 上传到后端
     wx.getFileSystemManager().readFile({
       filePath: avatarPath,
       encoding: 'base64',
@@ -78,9 +73,8 @@ Page({
           if (resp.data && resp.data.success && resp.data.user) {
             that.setData({
               avatarUrl: resp.data.user.avatar || avatarPath,
-              nickname: resp.data.user.nickname || that.data.nickname
+              nickname: resp.data.user.nickname || ''
             })
-            // 更新全局缓存
             app.globalData.userInfo = resp.data.user
             wx.setStorageSync('userInfo', resp.data.user)
             wx.showToast({ title: '头像已更新', icon: 'success' })
@@ -95,28 +89,24 @@ Page({
     })
   },
 
-  // 用户修改昵称（失焦时保存）
   onNicknameBlur(e) {
     var nickname = (e.detail.value || '').trim()
     if (!nickname || nickname === this.data.nickname) return
-
     var that = this
-    app.cloudPost('/api/user/profile', {
-      nickname: nickname
-    }).then(function(resp) {
-      if (resp.data && resp.data.success) {
-        wx.showToast({ title: '昵称已更新', icon: 'success' })
-        // 更新全局缓存
-        if (resp.data.user) {
-          app.globalData.userInfo = resp.data.user
-          wx.setStorageSync('userInfo', resp.data.user)
+    app.cloudPost('/api/user/profile', { nickname: nickname })
+      .then(function(resp) {
+        if (resp.data && resp.data.success) {
+          wx.showToast({ title: '昵称已更新', icon: 'success' })
+          if (resp.data.user) {
+            app.globalData.userInfo = resp.data.user
+            wx.setStorageSync('userInfo', resp.data.user)
+          }
         }
-      }
-    }).catch(function() {
-      // 失败时恢复旧昵称
-      that.setData({ nickname: that.data.nickname })
-      wx.showToast({ title: '保存失败', icon: 'none' })
-    })
+      })
+      .catch(function() {
+        that.setData({ nickname: that.data.nickname })
+        wx.showToast({ title: '保存失败', icon: 'none' })
+      })
   },
 
   onShareAppMessage() {

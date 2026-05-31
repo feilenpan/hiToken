@@ -3,9 +3,9 @@
   <!-- 用户卡片 — 居中头像 -->
   <view class="user-card">
     <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-      <image class="avatar-img" src="{{avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-      <view class="avatar-edit-hint" wx:if="{{!avatarUrl}}">
-        <text class="avatar-edit-icon">📷</text>
+      <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="avatar-placeholder">
+        <text class="avatar-camera">📷</text>
       </view>
     </button>
     <input class="nickname-input" type="nickname" placeholder="点击设置昵称" value="{{nickname}}" bindblur="onNicknameBlur" maxlength="32" />

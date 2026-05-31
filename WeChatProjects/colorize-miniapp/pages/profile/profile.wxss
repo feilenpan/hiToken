@@ -37,18 +37,19 @@
   border-radius: 50%;
 }
 
-/* 相机提示 */
-.avatar-edit-hint {
-  position: absolute;
-  inset: 0;
+/* 无头像占位 */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  background: #F0F0F0;
 }
-.avatar-edit-icon {
+.avatar-camera {
   font-size: 36rpx;
-  opacity: 0.25;
+  opacity: 0.3;
 }
 
 /* 昵称 */
