@@ -502,17 +502,16 @@ async def wechat_login(request: Request):
         )
         user = dict(row)
     else:
-        # 新用戶
-        nickname = "用戶" + openid[:4]
+        # 新用戶，nickname 留空等待用户自行设置
         conn.execute(
-            "INSERT INTO users (openid, session_key, nickname) VALUES (?, ?, ?)",
-            (openid, session_key, nickname)
+            "INSERT INTO users (openid, session_key) VALUES (?, ?)",
+            (openid, session_key)
         )
         user_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         user = {
             "id": user_id,
             "openid": openid,
-            "nickname": nickname,
+            "nickname": "",
             "total_used": 0,
             "privacy_agreed": 0,
             "agreement_agreed": 0
