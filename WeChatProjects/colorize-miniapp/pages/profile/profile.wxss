@@ -19,6 +19,8 @@
 .avatar-btn {
   width: 140rpx;
   height: 140rpx;
+  min-width: 140rpx;
+  min-height: 140rpx;
   padding: 0;
   margin: 0 0 20rpx 0;
   border-radius: 50%;
@@ -28,8 +30,21 @@
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
+  box-sizing: border-box;
+  line-height: 0;
+  font-size: 0;
 }
-.avatar-btn::after { border: none; }
+.avatar-btn::after {
+  border: none;
+  border-radius: 50%;
+  width: 140rpx;
+  height: 140rpx;
+  padding: 0;
+  margin: 0;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+}
 
 .avatar-img {
   width: 100%;
