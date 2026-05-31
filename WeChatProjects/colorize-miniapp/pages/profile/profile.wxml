@@ -2,12 +2,13 @@
 <view class="page">
   <!-- 用户卡片 — 居中头像 -->
   <view class="user-card">
-    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-      <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
-      <view wx:else class="avatar-placeholder">
-        <text class="avatar-camera">📷</text>
+    <view class="avatar-wrap">
+      <view class="avatar-circle">
+        <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+        <text wx:else class="avatar-camera">📷</text>
       </view>
-    </button>
+      <button class="avatar-tap" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar"></button>
+    </view>
     <input class="nickname-input" type="nickname" placeholder="点击设置昵称" value="{{nickname}}" bindblur="onNicknameBlur" maxlength="32" />
     <text class="user-desc">已处理 {{totalUsed}} 张照片</text>
   </view>

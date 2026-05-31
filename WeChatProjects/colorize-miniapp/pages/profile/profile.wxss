@@ -15,56 +15,53 @@
   margin-bottom: 24rpx;
 }
 
-/* Avatar — 顶部居中大圆 */
-.avatar-btn {
+/* Avatar 容器 */
+.avatar-wrap {
+  position: relative;
   width: 140rpx;
   height: 140rpx;
-  min-width: 140rpx;
-  min-height: 140rpx;
-  padding: 0;
   margin: 0 0 20rpx 0;
+  flex-shrink: 0;
+}
+
+/* 视觉圆 — pure view */
+.avatar-circle {
+  width: 140rpx;
+  height: 140rpx;
   border-radius: 50%;
   background: #F0F0F0;
-  border: none;
   box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.08);
   overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  line-height: 0;
-  font-size: 0;
-}
-.avatar-btn::after {
-  border: none;
-  border-radius: 50%;
-  width: 140rpx;
-  height: 140rpx;
-  padding: 0;
-  margin: 0;
-  left: 0;
-  top: 0;
-  box-sizing: border-box;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-
-/* 无头像占位 */
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F0F0F0;
 }
+
+.avatar-img {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+}
+
 .avatar-camera {
   font-size: 36rpx;
   opacity: 0.3;
+}
+
+/* 透明按钮覆盖层 */
+.avatar-tap {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 0;
+}
+.avatar-tap::after {
+  border: none;
+  border-radius: 50%;
 }
 
 /* 昵称 */
