@@ -48,7 +48,6 @@
         <image class="btn-circle-icon" src="/images/btn-camera.png" mode="aspectFit"></image>
       </view>
     </view>
-    <text class="circle-label">选择照片</text>
     <text class="quota-hint" wx:if="{{quota}}">今日剩余：点评 {{quota.evaluate.remaining}} 次 · 处理 {{quota.process.remaining}} 次</text>
   </view>
 
