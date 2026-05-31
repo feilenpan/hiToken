@@ -1,0 +1,99 @@
+<!-- pages/result/result.wxml - 修复结果 + AI 点评 -->
+<view class="page">
+  <!-- 隐私授权弹窗 -->
+  <view wx:if="{{showPrivacyPopup}}" class="privacy-overlay">
+    <view class="privacy-mask"></view>
+    <view class="privacy-card">
+      <view class="privacy-title">🔒 隐私授权</view>
+      <view class="privacy-body">为了提供AI照片修复服务，需要获取你的照片信息。</view>
+      <button class="privacy-btn-link" bindtap="handleOpenPrivacyContract">查看隐私协议</button>
+      <button class="privacy-btn-agree" id="agree-btn" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handleAgreePrivacy">同意并继续</button>
+    </view>
+  </view>
+
+  <!-- 顶部照片区域 -->
+  <view class="photo-section">
+    <image src="{{resultImage || originalImage}}" mode="aspectFill" class="photo-img"></image>
+    <view class="photo-loading" wx:if="{{isLoading}}">
+      <view class="loading-spinner">⏳</view>
+      <text class="loading-text">AI 修复中...</text>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{progress}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- AI 点评区域 -->
+  <view class="eval-section" wx:if="{{showEvalCard}}">
+    <view class="eval-loading" wx:if="{{evalLoading}}">
+      <view class="eval-loading-icon">✨</view>
+      <text class="eval-loading-text">AI 正在品读你的照片...</text>
+    </view>
+
+    <view class="eval-content" wx:if="{{evaluation && !evalLoading}}">
+      <view class="eval-header">
+        <view class="eval-badge">{{evaluation.reviewer_emoji || '⚡'}}</view>
+        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 说</text>
+      </view>
+      <view class="eval-text">
+        <text>{{evaluation.text}}</text>
+      </view>
+      <view class="eval-tags">
+        <view class="eval-tag" wx:for="{{evaluation.tags}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="eval-score-section">
+        <text class="eval-score-label">动人指数</text>
+        <text class="eval-score-num">{{evaluation.score}}</text>
+        <text class="eval-score-fen">分</text>
+      </view>
+      <view class="eval-quote" wx:if="{{evaluation.quote}}">
+        <text>🌸 {{evaluation.quote}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 对比滑动（修复完成后显示） -->
+  <view class="compare-section" wx:if="{{!isLoading && resultImage}}">
+    <view class="compare-header">
+      <text class="compare-title">修复效果</text>
+    </view>
+    <view class="compare-container"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+    >
+      <view class="compare-wrapper" id="compareWrapper">
+        <image src="{{resultImage}}" mode="widthFix" class="compare-img"></image>
+        <view class="compare-before-clip" style="width: {{compareX}}px;">
+          <image src="{{originalImage}}" mode="widthFix" class="compare-img"></image>
+        </view>
+        <view class="compare-line" style="left: {{compareX}}px">
+          <view class="compare-handle">
+            <text class="handle-icon">◀▶</text>
+          </view>
+        </view>
+      </view>
+      <view class="compare-labels">
+        <text class="label-before">← 处理前</text>
+        <text class="label-after">处理后 →</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作按钮 -->
+  <view class="action-bar">
+    <button class="btn-save" bindtap="onSave" wx:if="{{!isLoading && resultImage}}">
+      <text class="btn-icon">💾</text>
+      <text>保存到相册</text>
+    </button>
+    <button class="btn-share" open-type="share" wx:if="{{!isLoading && resultImage}}">
+      <text class="btn-icon">📤</text>
+      <text>分享</text>
+    </button>
+    <button class="btn-retry" bindtap="onRetry" wx:if="{{!isLoading}}">
+      <text class="btn-icon">🔄</text>
+      <text>换一张</text>
+    </button>
+  </view>
+
+  <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+</view>

@@ -263,35 +263,10 @@ def call_baidu_colorize(image_data: bytes) -> dict:
 
 
 # ===== AI 照片点评 (豆包多模态) =====
-from concurrent.futures import ThreadPoolExecutor
-import uuid
 
 TEMP_DIR = BASE_DIR / "temp"
 TEMP_DIR.mkdir(exist_ok=True)
 app.mount("/temp", StaticFiles(directory=str(TEMP_DIR)), name="temp")
-
-# 火山引擎图像质量评估
-EVAL_QUALITY_URL = "https://mediakit.cn-beijing.volces.com/api/v1/tools/evaluate-image-quality/sync"
-EVAL_QUALITY_ITEMS = ["vqscore", "aesthetic", "noise", "blur", "brightness", "contrast", "overexposure", "saturation", "texture"]
-
-def call_volc_evaluate_quality(image_url: str) -> dict:
-    VOLC_API_KEY = os.getenv("VOLC_API_KEY", "VOLC_API_KEY_NOT_SET")
-    if not VOLC_API_KEY:
-        return {"success": False, "error": "火山引擎 API Key 未配置"}
-    payload = {"image_url": image_url, "tool_version": "standard", "standard_evaluate_items": EVAL_QUALITY_ITEMS}
-    try:
-        data = json.dumps(payload).encode()
-        logger.info(f"质量评估请求: url={image_url}")
-        req = urllib.request.Request(EVAL_QUALITY_URL, data=data,
-            headers={"Content-Type": "application/json", "Authorization": f"Bearer {VOLC_API_KEY}"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            resp_data = json.loads(resp.read().decode())
-        if resp_data.get("success"):
-            return {"success": True, "quality": resp_data.get("result", {})}
-        return {"success": False, "error": resp_data.get("error", {}).get("message", "未知错误")}
-    except Exception as e:
-        logger.error(f"质量评估请求异常: {e}")
-        return {"success": False, "error": str(e)}
 
 SEED_API_KEY = os.getenv("SEED_API_KEY", "SEED_API_KEY_NOT_SET")
 SEED_API_URL = "https://ark.cn-beijing.volces.com/api/v3/responses"
@@ -299,12 +274,12 @@ SEED_MODEL = "doubao-seed-2-0-mini-260428"
 
 # 点评师角色库
 REVIEWERS = [
-    {"name": "老张", "emoji": "😂", "persona": "风趣幽默的老照片点评师", "tone": "感叹词开头（哟！哇塞！），口语化，3-5句，长短句交替"},
-    {"name": "小鱼", "emoji": "💕", "persona": "温柔治愈的文艺女青年", "tone": "细腻感性，多用比喻和拟人，像写信一样娓娓道来，3-4句"},
-    {"name": "阿Ken", "emoji": "🎨", "persona": "毒舌但心地善良的艺术评论家", "tone": "一针见血点评，先挑刺再夸，带点冷幽默，3-4句"},
-    {"name": "老王", "emoji": "📸", "persona": "资深摄影老法师", "tone": "专业角度点评构图光影，术语夹杂白话，惜字如金，2-3句"},
-    {"name": "丫丫", "emoji": "🌟", "persona": "元气满满的少女点评师", "tone": "活泼可爱，善用emoji，网络热词，元气满满，3-4句"},
-    {"name": "老周", "emoji": "🧙", "persona": "阅片无数的神秘老法师", "tone": "玄学风格，从照片看故事和人生，带禅意，3-4句"},
+    {"name": "老张", "emoji": "😂", "persona": "风趣幽默的老照片点评师", "tone": "口语化像老友唠嗑，带点调侃但暖心，3-5句，长短句交替"},
+    {"name": "小鱼", "emoji": "💕", "persona": "温柔治愈的文艺女青年", "tone": "以「这张照片让我想起…」起头，细腻感性，多用比喻和拟人，像写信一样娓娓道来，3-4句"},
+    {"name": "阿Ken", "emoji": "🎨", "persona": "毒舌但心地善良的艺术评论家", "tone": "以「嗯…」沉吟起头，先挑刺再夸，带点冷幽默，3-4句"},
+    {"name": "老王", "emoji": "📸", "persona": "资深摄影老法师", "tone": "以专业术语起头如「这个构图…」「这光线…」，术语夹杂白话，惜字如金，2-3句"},
+    {"name": "丫丫", "emoji": "🌟", "persona": "元气满满的少女点评师", "tone": "以「哇！这张好…」惊叹起头，活泼可爱，善用emoji，网络热词，元气满满，3-4句"},
+    {"name": "老周", "emoji": "🧙", "persona": "阅片无数的神秘老法师", "tone": "以「细细看来…」沉吟起头，玄学风格，从照片看故事和人生，带禅意，3-4句"},
 ]
 
 def get_random_reviewer():
@@ -312,71 +287,28 @@ def get_random_reviewer():
 
 @app.post("/api/evaluate")
 async def evaluate_photo(data: FileInput):
-    """AI 点评照片：豆包主观评分 + 火山质量评估 + 修图建议"""
+    """AI 点评照片：豆包多模态主观评分 + 修图建议"""
     try:
         image_data = base64.b64decode(data.file)
         if len(image_data) > 10 * 1024 * 1024:
             raise HTTPException(400, "图片大小不能超过10MB")
         
-        # 保存临时图片
-        temp_filename = f"{uuid.uuid4().hex}.jpg"
-        temp_path = TEMP_DIR / temp_filename
-        temp_path.write_bytes(image_data)
-        
-        # 构建临时 URL（8888端口供外网访问）
-        temp_url = f"http://13.125.93.195:8888/temp/{temp_filename}"
-        
-        # 并行调用：质量评估 + 豆包点评
-        executor = ThreadPoolExecutor(max_workers=2)
-        
-        # 质量评估
-        fq = executor.submit(call_volc_evaluate_quality, temp_url)
-        quality_result = {"success": False}
-        try:
-            quality_result = fq.result(timeout=45)
-        except Exception as e:
-            logger.error(f"质量评估超时或失败: {e}")
-        
-        # 豆包多模态点评
+        # 豆包多模态点评（直接 data URI，无需保存临时文件）
         import base64 as b64
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
         reviewer = get_random_reviewer()
-
-        # 构建质量诊断提示
-        quality_hint = ""
-        if quality_result.get("success") and quality_result.get("quality"):
-            q = quality_result["quality"]
-            issues = []
-            # 各项阈值检测，生成中文诊断
-            if isinstance(q.get("blur"), (int, float)) and q["blur"] < 0.6:
-                issues.append(f"模糊度偏高({q['blur']:.2f})，建议去模糊/清晰增强")
-            if isinstance(q.get("noise"), (int, float)) and q["noise"] < 0.5:
-                issues.append(f"噪点较多({q['noise']:.2f})，建议降噪")
-            if isinstance(q.get("overexposure"), (int, float)) and q["overexposure"] > 0.3:
-                issues.append(f"存在过曝({q['overexposure']:.2f})，建议修复过曝")
-            if isinstance(q.get("brightness"), (int, float)) and q["brightness"] < 0.35:
-                issues.append(f"画面偏暗({q['brightness']:.2f})，建议提亮")
-            if isinstance(q.get("contrast"), (int, float)) and q["contrast"] < 0.4:
-                issues.append(f"对比度不足({q['contrast']:.2f})，建议增强对比")
-            if isinstance(q.get("saturation"), (int, float)) and q["saturation"] < 0.3:
-                issues.append(f"色彩偏淡({q['saturation']:.2f})，建议色彩增强")
-            if isinstance(q.get("texture"), (int, float)) and q["texture"] < 0.5:
-                issues.append(f"细节不足({q['texture']:.2f})，建议细节增强")
-            if isinstance(q.get("aesthetic"), (int, float)) and q["aesthetic"] < 0.5:
-                issues.append(f"构图可优化({q['aesthetic']:.2f})，建议构图调整")
-            if issues:
-                quality_hint = "质量诊断：" + "；".join(issues) + "。"
-            logger.info(f"质量诊断: {quality_hint if quality_hint else '各项指标正常'}")
 
         prompt_text = f"""你是一个{reviewer['persona']}。
 语气：{reviewer['tone']}。所有输出必须是简体中文！
 看细节，能识别地点就提。
 评分严格按质量分散：95-98 惊为天人（极少），85-94 非常好看（少数），75-84 不错，65-74 普通，55-64 随意，40-54 朴实记录。
 重要：大部分普通照片应在60-82分之间，不要集中给高分！只有光影构图情绪都出色的才能给90+。
-{quality_hint}
-修图建议要求：根据照片实际情况和质量诊断，给出1-3个最需要的修图建议。高分照片用「锦上添花」语气，低分照片用「焕然一新」语气。每个提示词≤15字。优先针对质量诊断中的问题给出建议，如果质量正常则给出锦上添花的美化建议。
+修图建议要求：给出1-3个修图建议，类型要多样化，不要全是质量修复——
+  • 质量修复类：降噪、去模糊、提亮、增强对比、色彩增强、细节增强（针对老照片/模糊/暗淡的照片）
+  • 创意编辑类：去背景换纯色、移除路人/杂物、转漫画/手绘/油画风格、黑白转彩色、添加复古胶片滤镜
+  高分照片多用创意编辑（锦上添花），低分照片质量修复+创意编辑混合（焕然一新）。每个提示词≤20字。
 金句要求：根据场景/天气/人物/地点等元素，创作一句有画面感的原创短句，≤15字。
-返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"类型","label":"按钮文字≤8字","prompt":"提示词≤20字"}}]}}"""
+返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"quality/creative","label":"按钮文字≤10字","prompt":"提示词≤20字"}}]}}"""
         
         if not SEED_API_KEY:
             raise HTTPException(500, "豆包 API Key 未配置")
@@ -411,13 +343,6 @@ async def evaluate_photo(data: FileInput):
         response.update(evaluation)
         response["reviewer"] = reviewer["name"]
         response["reviewer_emoji"] = reviewer["emoji"]
-        response["quality"] = quality_result.get("quality") if quality_result.get("success") else None
-        
-        # 清理临时文件
-        try:
-            temp_path.unlink()
-        except:
-            pass
         
         return response
         
@@ -425,10 +350,10 @@ async def evaluate_photo(data: FileInput):
         raise
     except json.JSONDecodeError as e:
         logger.error(f"豆包返回非JSON: {e}")
-        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True, "quality": None}
+        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True}
     except Exception as e:
         logger.error(f"点评异常: {e}")
-        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True, "quality": None}
+        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True}
 
 @app.get("/api/health")
 async def health():

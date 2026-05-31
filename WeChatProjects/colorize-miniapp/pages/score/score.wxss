@@ -551,14 +551,13 @@
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: linear-gradient(135deg, #FF6B35, #FF8F65);
-  color: #fff;
+  background: #F0F0F0;
+  color: #555;
   border: none;
   border-radius: 44rpx;
   font-size: 28rpx;
   font-weight: 600;
   text-align: center;
-  box-shadow: 0 6rpx 24rpx rgba(255,107,53,0.25);
 }
 .btn-retry::after { border: none; }
 .btn-retry.full { width: 100%; }
