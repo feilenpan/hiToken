@@ -39,13 +39,16 @@
       <text class="fw fw-heart fh3">💗</text>
       <text class="fw fw-heart fh4">💖</text>
     </view>
-    <view class="empty-illustration floating">📸</view>
+    <view class="empty-illustration floating">📷</view>
     <text class="empty-title">照片打分</text>
     <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
-    <button class="btn-choose" bindtap="onChooseImage">
-      <text class="btn-icon">🖼️</text>
-      <text>选择照片</text>
-    </button>
+    <view class="btn-circle-wrap" bindtap="onChooseImage">
+      <view class="btn-circle-ring"></view>
+      <view class="btn-circle-core">
+        <text class="btn-circle-icon">＋</text>
+      </view>
+    </view>
+    <text class="circle-label">选择照片</text>
     <text class="quota-hint" wx:if="{{quota}}">今日剩余：点评 {{quota.evaluate.remaining}} 次 · 处理 {{quota.process.remaining}} 次</text>
   </view>
 
