@@ -2,12 +2,12 @@
 // 通过微信云调用直连云托管，不走公网域名
 
 wx.cloud.init({
-  env: 'yushu-264118-8'
+  env: 'yushucolor-d6gd4kytb9000e446'
 })
 
 App({
   globalData: {
-    envId: 'yushu-264118-8',
+    envId: 'yushucolor-d6gd4kytb9000e446',
     userInfo: null,
     token: null,
     totalUsed: 0,
