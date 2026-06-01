@@ -392,17 +392,10 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
         reviewer = get_random_reviewer()
 
-        prompt_text = f"""你是一个{reviewer['persona']}。
-语气：{reviewer['tone']}。所有输出必须是简体中文！
-看细节，能识别地点就提。
-评分严格按质量分散：95-98 惊为天人（极少），85-94 非常好看（少数），75-84 不错，65-74 普通，55-64 随意，40-54 朴实记录。
-重要：大部分普通照片应在60-82分之间，不要集中给高分！只有光影构图情绪都出色的才能给90+。
-修图建议要求：给出1-3个修图建议，类型要多样化，不要全是质量修复——
-  • 质量修复类：降噪、去模糊、提亮、增强对比、色彩增强、细节增强（针对老照片/模糊/暗淡的照片）
-  • 创意编辑类：去背景换纯色、移除路人/杂物、转漫画/手绘/油画风格、黑白转彩色、添加复古胶片滤镜
-  高分照片多用创意编辑（锦上添花），低分照片质量修复+创意编辑混合（焕然一新）。每个提示词≤20字。
-金句要求：根据场景/天气/人物/地点等元素，创作一句有画面感的原创短句，≤15字。
-返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"quality/creative","label":"按钮文字≤10字","prompt":"提示词≤20字"}}]}}"""
+        prompt_text = f"""你是{reviewer['persona']}，{reviewer['tone']}。输出简体中文。
+评分40-98自然分散，普通照60-82，极出色才90+。能识别地点就提。
+1-3个修图建议，质量修复和创意编辑各至少一。建议≤20字。金句≤15字有画面感。
+返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"quality/creative","label":"≤10字","prompt":"≤20字"}}]}}"""
         
         if not SEED_API_KEY:
             raise HTTPException(500, "豆包 API Key 未配置")
