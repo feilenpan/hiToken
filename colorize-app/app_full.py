@@ -373,6 +373,20 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         if len(image_data) > 10 * 1024 * 1024:
             raise HTTPException(400, "图片大小不能超过10MB")
         
+        # 图片预处理：缩放到最长边1024px，压缩体积加速火山API调用
+        import io
+        from PIL import Image
+        img = Image.open(io.BytesIO(image_data))
+        img = img.convert("RGB")
+        w, h = img.size
+        MAX_DIM = 1024
+        if max(w, h) > MAX_DIM:
+            ratio = MAX_DIM / max(w, h)
+            img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=75)
+        image_data = buf.getvalue()
+        
         # 豆包多模态点评（直接 data URI，无需保存临时文件）
         import base64 as b64
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
