@@ -1,11 +1,13 @@
 // app.js - 时光修复
-// 通过 HTTPS 直连云托管测试域名
+// 通过微信云调用直连云托管，不走公网域名
 
-const API_BASE = 'https://yushu-264118-8-1438528191.sh.run.tcloudbase.com'
+wx.cloud.init({
+  env: 'yushu-264118-8'
+})
 
 App({
   globalData: {
-    API_BASE: API_BASE,
+    envId: 'yushu-264118-8',
     userInfo: null,
     token: null,
     totalUsed: 0,
@@ -73,8 +75,8 @@ App({
   cloudGet(path) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.request({
-        url: API_BASE + path,
+      wx.cloud.callContainer({
+        path: path,
         method: 'GET',
         header: that._getHeaders(),
         success: (res) => resolve({ data: res.data }),
@@ -87,11 +89,12 @@ App({
   cloudPost(path, data) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.request({
-        url: API_BASE + path,
+      wx.cloud.callContainer({
+        path: path,
         method: 'POST',
         header: that._getHeaders(),
         data: data,
+        timeout: 120000,
         success: (res) => {
           if (res.statusCode === 429) {
             wx.showToast({ title: res.data.detail || '今日次数已用完', icon: 'none', duration: 2500 })

@@ -143,7 +143,7 @@ Page({
     var that = this;
     that.setData({ isLoading: true, progress: 0 });
     
-    console.log('[result] process start, API:', app.globalData.API_BASE);
+    console.log('[result] process start, env:', app.globalData.envId);
     
     var doUpload = function() {
       var progressInterval = setInterval(function() {
