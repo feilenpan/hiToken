@@ -379,7 +379,7 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         img = Image.open(io.BytesIO(image_data))
         img = img.convert("RGB")
         w, h = img.size
-        MAX_DIM = 1024
+        MAX_DIM = 768
         if max(w, h) > MAX_DIM:
             ratio = MAX_DIM / max(w, h)
             img = img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
