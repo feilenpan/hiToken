@@ -75,11 +75,10 @@ App({
   cloudGet(path) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.cloud.callContainer({
-        path: path,
-        method: 'GET',
-        header: that._getHeaders(),
-        success: (res) => resolve({ data: res.data }),
+      wx.cloud.callFunction({
+        name: 'api-proxy',
+        data: { path: path, method: 'GET', headers: that._getHeaders() },
+        success: (res) => resolve({ data: res.result.data }),
         fail: reject
       })
     })
@@ -89,18 +88,15 @@ App({
   cloudPost(path, data) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.cloud.callContainer({
-        path: path,
-        method: 'POST',
-        header: that._getHeaders(),
-        data: data,
-        timeout: 120000,
+      wx.cloud.callFunction({
+        name: 'api-proxy',
+        data: { path: path, method: 'POST', data: data, headers: that._getHeaders() },
         success: (res) => {
-          if (res.statusCode === 429) {
-            wx.showToast({ title: res.data.detail || '今日次数已用完', icon: 'none', duration: 2500 })
+          if (res.result.statusCode === 429) {
+            wx.showToast({ title: res.result.data.detail || '今日次数已用完', icon: 'none', duration: 2500 })
             reject(new Error('QUOTA_EXCEEDED'))
           } else {
-            resolve({ data: res.data })
+            resolve({ data: res.result.data })
           }
         },
         fail: reject
