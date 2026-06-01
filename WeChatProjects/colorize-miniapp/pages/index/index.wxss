@@ -83,53 +83,6 @@
   margin-bottom: 48rpx;
 }
 
-/* ========== 优势卡片 ========== */
-.benefits-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-  margin-bottom: 40rpx;
-}
-
-.benefit-card {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 32rpx;
-  display: flex;
-  align-items: flex-start;
-  gap: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
-}
-
-.benefit-icon {
-  width: 72rpx;
-  height: 72rpx;
-  background: linear-gradient(135deg, #FFE5DC 0%, #FFD4C4 100%);
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40rpx;
-  flex-shrink: 0;
-}
-
-.benefit-content {
-  flex: 1;
-}
-
-.benefit-title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 8rpx;
-}
-
-.benefit-desc {
-  font-size: 26rpx;
-  color: #666;
-  line-height: 1.5;
-}
-
 /* ========== 底部协议入口 ========== */
 .legal-links {
   text-align: center;

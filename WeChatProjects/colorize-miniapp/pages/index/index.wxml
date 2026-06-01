@@ -32,31 +32,6 @@
 
     <view class="secondary-text">💡 完全免费</view>
 
-    <!-- 优势卡片 -->
-    <view class="benefits-section">
-      <view class="benefit-card">
-        <view class="benefit-icon">✨</view>
-        <view class="benefit-content">
-          <view class="benefit-title">智能修复</view>
-          <view class="benefit-desc">去除划痕噪点，修复折痕损伤，还原清晰细节</view>
-        </view>
-      </view>
-      <view class="benefit-card">
-        <view class="benefit-icon">⚡</view>
-        <view class="benefit-content">
-          <view class="benefit-title">极速处理</view>
-          <view class="benefit-desc">平均 10 秒完成，无需等待</view>
-        </view>
-      </view>
-      <view class="benefit-card">
-        <view class="benefit-icon">🔒</view>
-        <view class="benefit-content">
-          <view class="benefit-title">数据安全</view>
-          <view class="benefit-desc">照片即时处理即删，数据不出境</view>
-        </view>
-      </view>
-    </view>
-
     <!-- 底部协议入口 -->
     <view class="legal-links">
       <text class="legal-link" bindtap="onViewPrivacy">《隐私保护政策》</text>
