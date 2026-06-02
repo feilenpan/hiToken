@@ -203,14 +203,23 @@ def get_user_by_token(token: str) -> Optional[dict]:
         return dict(row)
     return None
 
-def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[dict]:
-    if not authorization:
+def get_current_user(
+    authorization: Optional[str] = Header(None),
+    x_auth_token: Optional[str] = Header(None, alias="X-Auth-Token")
+) -> Optional[dict]:
+    # X-Auth-Token 优先（云托管网关兼容），fallback 到 Authorization Bearer
+    token = x_auth_token
+    if not token and authorization:
+        token = authorization.replace("Bearer ", "")
+    if not token:
         return None
-    token = authorization.replace("Bearer ", "")
     return get_user_by_token(token)
 
-def require_user(authorization: Optional[str] = Header(None)) -> dict:
-    user = get_current_user(authorization)
+def require_user(
+    authorization: Optional[str] = Header(None),
+    x_auth_token: Optional[str] = Header(None, alias="X-Auth-Token")
+) -> dict:
+    user = get_current_user(authorization, x_auth_token)
     if not user:
         raise HTTPException(401, "請先登錄")
     return user
