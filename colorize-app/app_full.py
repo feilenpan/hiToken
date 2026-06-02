@@ -33,12 +33,22 @@ import uvicorn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 云调用 base64 文件输入模型
+# 云调用文件输入模型（支持 base64 + 云存储 URL）
 class FileInput(BaseModel):
-    file: str       # base64 编码的图片数据
+    file: str = ""        # base64 编码的图片数据（向后兼容，wx.request 旧方式）
+    file_url: str = ""    # 云存储临时 URL（callContainer 新方式，绕过 100KB 限制）
     prompt: str = ""
     function: str = "restore"
-    process_type: str = "restore"
+
+def _get_image_bytes(data: FileInput) -> bytes:
+    """从 file_url（云存储）或 file（base64）获取图片字节"""
+    if data.file_url:
+        resp = requests.get(data.file_url, timeout=30)
+        resp.raise_for_status()
+        return resp.content
+    if data.file:
+        return base64.b64decode(data.file)
+    raise HTTPException(400, "请提供图片（file_url 或 file）")
 
 app = FastAPI(title="时光修复", description="AI老照片修复工具")
 
@@ -378,7 +388,7 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
             quota = check_and_use_quota(user["id"], "evaluate")
             if not quota["allowed"]:
                 raise HTTPException(429, f"今日点评次数已用完（{quota['limit']}次/天），明天再来吧～")
-        image_data = base64.b64decode(data.file)
+        image_data = _get_image_bytes(data)
         if len(image_data) > 10 * 1024 * 1024:
             raise HTTPException(400, "图片大小不能超过10MB")
         
@@ -661,7 +671,7 @@ async def process_photo(
         if not quota["allowed"]:
             raise HTTPException(429, f"今日处理次数已用完（{quota['limit']}次/天），明天再来吧～")
     
-    content = base64.b64decode(data.file)
+    content = _get_image_bytes(data)
     if len(content) > 10 * 1024 * 1024:
         raise HTTPException(400, "图片大小不能超过10MB")
     
@@ -797,7 +807,7 @@ async def suggest_edit_photo(data: FileInput, user: Optional[dict] = Depends(get
     from volc_visual_engine import suggest_edit
 
     try:
-        image_bytes = base64.b64decode(data.file)
+        image_bytes = _get_image_bytes(data)
         if len(image_bytes) > 10 * 1024 * 1024:
             raise HTTPException(400, "图片大小不能超过10MB")
 
