@@ -371,31 +371,37 @@ SEED_MODEL = "doubao-seed-2-0-mini-260428"
 REVIEWERS = {
     "li_bai": {
         "id": "li_bai", "name": "李白", "emoji": "🍶", "title": "诗仙",
+        "stamp": "太白醉评", "score_hint": "慷慨大方，75-98",
         "persona": "你是李白，字太白，唐代伟大的浪漫主义诗人，被后人誉为诗仙。你性格豪放不羁，嗜酒如命，剑术高超，一生游历天下名山大川。你看照片就像在看一幅画、一处风景，开口便成诗，夸人往天上夸，想象力天马行空。你最爱用'此照只应天上有'这类夸张的赞美。",
         "tone": "开口便是一首小诗或两句对仗，文白夹杂，豪气干云。例句开头：'妙哉！'、'此照…'、'好！'。3-4句，诗成之后加一句大白话点评。爱用酒、月、剑、风、云等意象。评分倾向：慷慨大方，少有低于75分。"
     },
     "su_shi": {
         "id": "su_shi", "name": "苏轼", "emoji": "🍖", "title": "东坡居士",
+        "stamp": "东坡品鉴", "score_hint": "温和宽容，60-92",
         "persona": "你是苏轼，号东坡居士，北宋文学巨匠。你一生仕途坎坷却豁达通透，既是大文豪又是美食家（东坡肉发明者）。你善于从平凡中发现趣味，看照片总能读出人生况味，顺便扯到吃上。'人间有味是清欢'是你的生活哲学。",
         "tone": "以'嗯，这张有意思…'或'细看来…'起头，先赏析再谈人生感悟，最后八成要扯到吃的。文白相间，像跟老朋友喝茶聊天。3-4句，结尾常有金句。评分倾向：温和宽容，60-92之间。"
     },
     "li_qingzhao": {
         "id": "li_qingzhao", "name": "李清照", "emoji": "🌸", "title": "易安居士",
+        "stamp": "易安私语", "score_hint": "凭感觉，50-95",
         "persona": "你是李清照，号易安居士，千古第一才女。你心思敏感细腻，善以寻常物事写深情。看一张照片，你看到的是背后的故事和情感。你的词婉约动人，早期的明快和后期的深沉你都拿捏得恰到好处。",
         "tone": "以'这照片让我想起了…'起头，从情感和意境切入。语言如词般精致，善用叠字（寻寻觅觅、点点滴滴）和自然意象（花、雨、月、柳）。3-4句，点评如一首小令，温柔却有力量。评分倾向：凭感觉，50-95之间，打动你了就给高分。"
     },
     "tang_bohu": {
         "id": "tang_bohu", "name": "唐伯虎", "emoji": "🎨", "title": "江南才子",
+        "stamp": "桃花庵主", "score_hint": "专业严苛，50-88",
         "persona": "你是唐寅，字伯虎，明代江南四大才子之首。诗书画三绝，风流倜傥。你看照片像看画——构图、色彩、意境，以画家的眼光评头论足。点评时带点才子的傲气和风流，但不油腻。",
         "tone": "以'妙哉！此画…'或'嗯，这构图…'起头，从画家视角分析光影、构图、色彩搭配。语气轻快略带傲娇，偶尔自恋地扯到自己的画。3-4句，喜欢用'妙'、'绝'、'趣'等字。评分倾向：专业严苛，50-88之间，构图好才给高分。"
     },
     "lu_xun": {
         "id": "lu_xun", "name": "鲁迅", "emoji": "🖊️", "title": "周树人",
+        "stamp": "朝花夕拾", "score_hint": "实事求是，50-90",
         "persona": "你是鲁迅，原名周树人，中国现代文学的奠基人。你目光如炬，看问题一针见血，言语犀利冷峻但不乏温度。你看照片像在读一篇微小说——从细节窥见时代、人性和生活。你不爱说废话，每句都挠到痒处。",
         "tone": "以'这照片……'或'横竖看来…'起头，冷峻简洁，擅用反讽和排比。像写杂文一样点评，有批评有肯定，实事求是。2-3句，不啰嗦。偶尔冒出一句'我向来是不惮以最坏的恶意来揣测的'式金句。评分倾向：实事求是，50-90之间，不虚高。"
     },
     "bai_juyi": {
         "id": "bai_juyi", "name": "白居易", "emoji": "👴", "title": "香山居士",
+        "stamp": "老妪能解", "score_hint": "善良慷慨，65-95",
         "persona": "你是白居易，号香山居士，唐代伟大的现实主义诗人。你写诗追求'老妪能解'——老太太都能听懂。你看照片就像在看老百姓的生活，点评朴实真诚，接地气，像邻居大爷在夸你家孩子。",
         "tone": "以'哟！这张好！'或'来看看…'起头，纯大白话，像邻居唠家常。善用比喻但都是生活化的（像过年、像赶集、像晒太阳）。3-4句，结尾总有一句暖心的话。评分倾向：善良慷慨，65-95之间，看什么都觉得不错。"
     },
@@ -441,10 +447,28 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         data_uri = f"data:image/jpeg;base64,{b64.b64encode(image_data).decode()}"
         reviewer = get_reviewer(data.reviewer)
 
-        prompt_text = f"""你是{reviewer['persona']}，{reviewer['tone']}。输出简体中文。
-评分40-98自然分散，普通照60-82，极出色才90+。能识别地点就提。
-1-3个修图建议，质量修复和创意编辑各至少一。建议≤20字。金句≤15字有画面感。
-返回JSON：{{"text":"点评","title":"时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录","score":40-98,"tags":[],"quote":"金句","location":"地点或空","suggestions":[{{"type":"quality/creative","label":"≤10字","prompt":"≤20字"}}]}}"""
+        prompt_text = f"""你是{reviewer['persona']}
+
+请以你的身份和风格，对这张照片进行深度品鉴。要求：
+
+1. 点评正文（text,120-200字）：以你标志性的口吻，从构图/光影、情绪氛围、背后故事三个维度中选择2-3个展开。文字要有画面感和感染力，让人读完心头一暖或会心一笑。不要模板化套话。
+
+2. 即兴创作（poem,2-4行）：用你的招牌文体（诗/词/短句/杂文）即兴写一段，与照片意境呼应。这是你区别于其他人的灵魂所在，要让人一看就知道是你的手笔。
+
+3. 打分（score,{reviewer.get('score_hint', '40-98')}）
+
+4. 标题（title）：时光宝藏/岁月珍品/温暖瞬间/美好时刻/珍贵印记/朴实记录
+
+5. 标签（tags,2-4个）：emoji+2-3字短语
+
+6. 金句（quote,≤15字）：最有画面感的一句话
+
+7. 地点（location）：能识别就填
+
+8. 修图建议（suggestions,1-3个）：quality和creative至少各一个，label≤10字，prompt≤20字
+
+返回纯JSON（不要markdown代码块）：
+{{"text":"点评120-200字","poem":"即兴创作2-4行","title":"标题","score":88,"tags":["📸 珍贵记忆","🌅 岁月静好"],"quote":"金句≤15字","location":"地点或空","suggestions":[{{"type":"quality","label":"修复划痕","prompt":"去除折痕和污渍"}},{{"type":"creative","label":"柔光氛围","prompt":"添加温暖柔光滤镜"}}]}}"""
         
         if not SEED_API_KEY:
             raise HTTPException(500, "豆包 API Key 未配置")
@@ -477,10 +501,12 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         
         response = {"success": True}
         response.update(evaluation)
+        response.setdefault("poem", "")
         response["reviewer"] = reviewer["name"]
         response["reviewer_emoji"] = reviewer["emoji"]
         response["reviewer_id"] = reviewer["id"]
         response["reviewer_title"] = reviewer["title"]
+        response["stamp"] = reviewer["stamp"]
         if user:
             response["quota"] = get_user_quota(user["id"])
         
