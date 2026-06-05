@@ -16,13 +16,18 @@
   background: #FAFAFA;
   height: 100vh;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .page-scroll {
-  flex: 1;
-  height: 100%;
+  height: 100vh;
+  width: 100%;
+}
+
+/* 首屏区：撑满一屏，确保历史记录被折到下方 */
+.above-fold {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ========== 效果展示区 ========== */
@@ -153,6 +158,10 @@
 /* ========== 内容区 ========== */
 .content-section {
   padding: 48rpx 40rpx;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* 功能标题 */
@@ -258,7 +267,7 @@
 /* ========== 底部协议入口 ========== */
 .legal-links {
   text-align: center;
-  padding: 32rpx 0 60rpx;
+  padding: 32rpx 0 80rpx;
 }
 
 .legal-link {
