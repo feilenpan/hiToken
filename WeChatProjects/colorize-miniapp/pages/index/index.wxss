@@ -23,17 +23,16 @@
   width: 100%;
 }
 
-/* 首屏区：撑满一屏，确保历史记录被折到下方 */
+/* 首屏区：占 85% 屏高，让历史区标题始终露出一截 */
 .above-fold {
-  min-height: 100vh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* ========== 效果展示区 ========== */
 .hero-section {
   position: relative;
-  height: 960rpx;
+  height: 860rpx;
   overflow: hidden;
   padding: 0 24rpx;
 }
