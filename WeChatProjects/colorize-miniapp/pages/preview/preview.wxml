@@ -4,7 +4,6 @@
   <!-- ====== 默认态：未选图 ====== -->
   <block wx:if="{{!imagePath}}">
     <view class="hero-section">
-      <!-- 品牌标识区 -->
       <view class="brand-card">
         <view class="brand-icon">📸</view>
         <text class="brand-title">时光修复</text>
@@ -12,20 +11,44 @@
         <view class="brand-divider"></view>
         <text class="brand-feature">去除折痕 · 修复划痕 · 还原细节</text>
       </view>
-
-      <!-- CTA -->
       <view class="cta-button" bindtap="onPickImage">
         <text class="cta-icon">📸</text>
         <text class="cta-text">选择照片</text>
       </view>
-
       <text class="free-hint">💡 完全免费</text>
+    </view>
+
+    <!-- 📜 历史记录 — 仅首页默认态，上滑可见 -->
+    <view class="history-section">
+      <view class="history-header">
+        <text class="history-title">处理记录</text>
+        <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
+          <text>查看全部</text>
+          <text class="history-arrow">›</text>
+        </view>
+      </view>
+
+      <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
+        <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
+          <view class="gallery-track">
+            <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
+              <view class="gallery-thumb">
+                <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
+              </view>
+              <text class="gallery-time">{{item.timeStr}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="history-empty" wx:else>
+        <text class="empty-text-history">暂无修复记录</text>
+      </view>
     </view>
   </block>
 
-  <!-- ====== 已选图 ====== -->
+  <!-- ====== 已选图：纯修复流程 ====== -->
   <block wx:else>
-    <!-- 照片区 -->
     <view class="photo-section">
       <view class="photo-container">
         <image src="{{imagePath}}" mode="aspectFit" class="photo-img" />
@@ -34,7 +57,6 @@
         <text class="photo-sparkle sparkle-tr">✨</text>
       </view>
 
-      <!-- 修复中动画 -->
       <view class="repairing-overlay" wx:if="{{isRepairing}}">
         <view class="repairing-sphere">
           <view class="sphere-ring"></view>
@@ -45,7 +67,6 @@
         <text class="repairing-text">AI 正在修复中…</text>
       </view>
 
-      <!-- 修复结果 -->
       <view class="repair-result" wx:if="{{repairResult && !isRepairing}}">
         <view class="result-header">
           <text class="result-icon">✨</text>
@@ -59,7 +80,6 @@
         </view>
       </view>
 
-      <!-- 修复失败 -->
       <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
         <text class="error-icon">😅</text>
         <text class="error-text">{{repairError}}</text>
@@ -67,41 +87,10 @@
       </view>
     </view>
 
-    <!-- 固定底部按钮栏 -->
     <view class="fixed-bottom-bar">
       <button class="btn-change" bindtap="onChangeImage">换一张</button>
       <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
     </view>
   </block>
-
-  <!-- ========== 📜 历史记录区（默认态 & 修完结果都在底部） ========== -->
-  <view class="history-section">
-    <view class="history-header">
-      <text class="history-title">处理记录</text>
-      <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
-        <text>查看全部</text>
-        <text class="history-arrow">›</text>
-      </view>
-    </view>
-
-    <!-- 有记录：横向缩略图 -->
-    <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
-      <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
-        <view class="gallery-track">
-          <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
-            <view class="gallery-thumb">
-              <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
-            </view>
-            <text class="gallery-time">{{item.timeStr}}</text>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
-
-    <!-- 无记录 -->
-    <view class="history-empty" wx:else>
-      <text class="empty-text-history">暂无修复记录</text>
-    </view>
-  </view>
 
 </view>
