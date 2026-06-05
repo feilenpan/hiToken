@@ -121,6 +121,16 @@ Page({
     this._startRepair()
   },
 
+  onBackHome() {
+    this.setData({
+      imagePath: '',
+      repairResult: null,
+      repairError: null,
+      isRepairing: false
+    })
+    this.loadHistory()
+  },
+
   // ========== 📜 历史记录 ==========
 
   loadHistory() {

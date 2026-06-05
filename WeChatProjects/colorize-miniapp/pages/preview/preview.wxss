@@ -116,6 +116,17 @@ page {
 }
 
 /* ===== 已选图状态 ===== */
+.back-link {
+  width: 100%;
+  padding: 16rpx 32rpx 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+.back-arrow { font-size: 40rpx; line-height: 1; margin-top: -2rpx; }
+
 .photo-section {
   flex: 1;
   position: relative;

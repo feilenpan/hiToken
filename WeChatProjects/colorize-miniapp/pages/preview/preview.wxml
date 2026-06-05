@@ -50,6 +50,11 @@
   <!-- ====== 已选图：纯修复 ====== -->
   <block wx:else>
     <view class="photo-section">
+      <!-- 返回首页 -->
+      <view class="back-link" bindtap="onBackHome">
+        <text class="back-arrow">‹</text>
+        <text>返回</text>
+      </view>
       <view class="photo-container">
         <image src="{{imagePath}}" mode="aspectFit" class="photo-img" />
         <view class="photo-glow"></view>
