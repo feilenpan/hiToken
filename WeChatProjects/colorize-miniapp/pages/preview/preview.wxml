@@ -1,53 +1,53 @@
-<!-- pages/preview/preview.wxml - 默认态 + 选图即修 + 历史记录 -->
+<!-- pages/preview/preview.wxml -->
 <view class="page">
 
   <!-- ====== 默认态：未选图 ====== -->
   <block wx:if="{{!imagePath}}">
-    <view class="hero-section">
-      <view class="brand-card">
-        <view class="brand-icon">📸</view>
-        <text class="brand-title">时光修复</text>
-        <text class="brand-desc">让褪色的老照片重获新生</text>
-        <view class="brand-divider"></view>
-        <text class="brand-feature">去除折痕 · 修复划痕 · 还原细节</text>
+    <scroll-view scroll-y enhanced class="default-scroll">
+      <view class="hero-section">
+        <view class="brand-card">
+          <view class="brand-icon">📸</view>
+          <text class="brand-title">时光修复</text>
+          <text class="brand-desc">让褪色的老照片重获新生</text>
+          <view class="brand-divider"></view>
+          <text class="brand-feature">去除折痕 · 修复划痕 · 还原细节</text>
+        </view>
+        <view class="cta-button" bindtap="onPickImage">
+          <text class="cta-icon">📸</text>
+          <text class="cta-text">选择照片</text>
+        </view>
+        <text class="free-hint">💡 完全免费</text>
       </view>
-      <view class="cta-button" bindtap="onPickImage">
-        <text class="cta-icon">📸</text>
-        <text class="cta-text">选择照片</text>
-      </view>
-      <text class="free-hint">💡 完全免费</text>
-    </view>
 
-    <!-- 📜 历史记录 — 仅首页默认态，上滑可见 -->
-    <view class="history-section">
-      <view class="history-header">
-        <text class="history-title">处理记录</text>
-        <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
-          <text>查看全部</text>
-          <text class="history-arrow">›</text>
+      <!-- 历史记录 — 上滑可见 -->
+      <view class="history-section">
+        <view class="history-header">
+          <text class="history-title">处理记录</text>
+          <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
+            <text>查看全部</text>
+            <text class="history-arrow">›</text>
+          </view>
+        </view>
+        <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
+          <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
+            <view class="gallery-track">
+              <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
+                <view class="gallery-thumb">
+                  <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
+                </view>
+                <text class="gallery-time">{{item.timeStr}}</text>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+        <view class="history-empty" wx:else>
+          <text class="empty-text-history">暂无修复记录</text>
         </view>
       </view>
-
-      <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
-        <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
-          <view class="gallery-track">
-            <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
-              <view class="gallery-thumb">
-                <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
-              </view>
-              <text class="gallery-time">{{item.timeStr}}</text>
-            </view>
-          </view>
-        </scroll-view>
-      </view>
-
-      <view class="history-empty" wx:else>
-        <text class="empty-text-history">暂无修复记录</text>
-      </view>
-    </view>
+    </scroll-view>
   </block>
 
-  <!-- ====== 已选图：纯修复流程 ====== -->
+  <!-- ====== 已选图：纯修复 ====== -->
   <block wx:else>
     <view class="photo-section">
       <view class="photo-container">
@@ -56,17 +56,13 @@
         <text class="photo-sparkle sparkle-tl">✨</text>
         <text class="photo-sparkle sparkle-tr">✨</text>
       </view>
-
       <view class="repairing-overlay" wx:if="{{isRepairing}}">
         <view class="repairing-sphere">
-          <view class="sphere-ring"></view>
-          <view class="sphere-ring r2"></view>
-          <view class="sphere-ring r3"></view>
+          <view class="sphere-ring"></view><view class="sphere-ring r2"></view><view class="sphere-ring r3"></view>
           <view class="sphere-core">✨</view>
         </view>
         <text class="repairing-text">AI 正在修复中…</text>
       </view>
-
       <view class="repair-result" wx:if="{{repairResult && !isRepairing}}">
         <view class="result-header">
           <text class="result-icon">✨</text>
@@ -74,19 +70,15 @@
         </view>
         <view class="result-card share-hint">
           <image src="{{repairResult}}" mode="widthFix" class="result-img" show-menu-by-longpress="{{true}}"></image>
-          <view class="result-label">
-            <text class="result-hint">长按图片可分享或保存</text>
-          </view>
+          <view class="result-label"><text class="result-hint">长按图片可分享或保存</text></view>
         </view>
       </view>
-
       <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
         <text class="error-icon">😅</text>
         <text class="error-text">{{repairError}}</text>
         <button class="btn-retry" bindtap="onRetryRepair">🔄 重试</button>
       </view>
     </view>
-
     <view class="fixed-bottom-bar">
       <button class="btn-change" bindtap="onChangeImage">换一张</button>
       <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
