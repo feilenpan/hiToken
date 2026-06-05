@@ -308,7 +308,8 @@
 }
 
 .modal-body {
-  max-height: 45vh;
+  height: 360rpx;
+  overflow-y: auto;
   padding: 16rpx 24rpx;
 }
 
