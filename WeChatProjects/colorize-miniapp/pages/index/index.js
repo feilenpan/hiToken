@@ -14,7 +14,10 @@ Page({
     isRepairing: false,
     repairResult: '',
     repairError: '',
-    progress: 0
+    progress: 0,
+    // 历史记录
+    historyRecords: [],
+    hasHistory: false
   },
 
   onLoad() {
@@ -40,6 +43,7 @@ Page({
   },
 
   onShow() {
+    this.loadHistory()
     var pending = app.globalData.pendingRestore
     if (pending) {
       app.globalData.pendingRestore = null
@@ -187,6 +191,7 @@ Page({
         var data = res.data
         if (data && data.success && data.result) {
           that.setData({ isRepairing: false, progress: 100, repairResult: data.result, repairError: '' })
+          that._saveToHistory(data.result)
         } else {
           var msg = (data && data.detail) || '修复失败，请稍后重试'
           that.setData({ isRepairing: false, progress: 0, repairResult: '', repairError: msg })
@@ -266,6 +271,122 @@ Page({
   },
 
   onGoHistory() {
+    wx.navigateTo({ url: '/pkg-user/pages/history/history' })
+  },
+
+  // ========== 📜 历史记录 ==========
+
+  /** 从本地加载历史记录 */
+  loadHistory() {
+    var records = wx.getStorageSync('history_records') || []
+    var display = records.slice(0, 10).map(function(r) {
+      return {
+        taskId: r.taskId,
+        localPath: r.localPath,
+        timeStr: r.timeStr || this._formatHistoryTime(r.time)
+      }
+    }.bind(this))
+    this.setData({
+      historyRecords: display,
+      hasHistory: records.length > 0
+    })
+  },
+
+  /** 修复成功后保存到本地历史 */
+  _saveToHistory(imageSource) {
+    if (!imageSource) return
+    var that = this
+    var taskId = 'r_' + Date.now()
+    var now = Date.now()
+
+    function persistRecord(localPath) {
+      var records = wx.getStorageSync('history_records') || []
+      records.unshift({
+        taskId: taskId,
+        type: 'restore',
+        time: now,
+        localPath: localPath,
+        timeStr: that._formatHistoryTime(now)
+      })
+      // 保留最近 50 条
+      while (records.length > 50) records.pop()
+      wx.setStorageSync('history_records', records)
+      that.loadHistory()
+    }
+
+    // base64 data URI
+    if (imageSource.indexOf('data:') === 0) {
+      var b64 = imageSource.replace(/^data:image\/\w+;base64,/, '')
+      var savePath = wx.env.USER_DATA_PATH + '/history/' + taskId + '.jpg'
+      try {
+        var fs = wx.getFileSystemManager()
+        // ensure directory
+        try { fs.accessSync(wx.env.USER_DATA_PATH + '/history') } catch (e) {
+          fs.mkdirSync(wx.env.USER_DATA_PATH + '/history')
+        }
+        fs.writeFileSync(savePath, b64, 'base64')
+        persistRecord(savePath)
+      } catch (e) {
+        console.error('[index] 保存历史失败(base64):', e)
+      }
+      return
+    }
+
+    // HTTP URL — 下载后保存
+    if (imageSource.indexOf('http') === 0) {
+      wx.downloadFile({
+        url: imageSource,
+        success: function(res) {
+          if (res.statusCode === 200) {
+            var savePath = wx.env.USER_DATA_PATH + '/history/' + taskId + '.jpg'
+            try {
+              var fs = wx.getFileSystemManager()
+              try { fs.accessSync(wx.env.USER_DATA_PATH + '/history') } catch (e) {
+                fs.mkdirSync(wx.env.USER_DATA_PATH + '/history')
+              }
+              fs.saveFileSync(res.tempFilePath, savePath)
+              persistRecord(savePath)
+            } catch (e) {
+              console.error('[index] 保存历史失败(http):', e)
+            }
+          }
+        },
+        fail: function(err) {
+          console.error('[index] 下载历史图片失败:', err)
+        }
+      })
+      return
+    }
+
+    // 本地文件路径 — 直接复制
+    persistRecord(imageSource)
+  },
+
+  /** 格式化时间戳 */
+  _formatHistoryTime(timestamp) {
+    if (!timestamp) return ''
+    var d = new Date(timestamp)
+    var m = (d.getMonth() + 1).toString()
+    var day = d.getDate().toString()
+    if (m.length < 2) m = '0' + m
+    if (day.length < 2) day = '0' + day
+    return m + '-' + day
+  },
+
+  /** 点击缩略图预览 */
+  onPreviewHistory(e) {
+    var index = e.currentTarget.dataset.index
+    var record = this.data.historyRecords[index]
+    if (record && record.localPath) {
+      wx.previewImage({
+        urls: [record.localPath],
+        current: record.localPath
+      })
+    }
+  },
+
+  /** 查看全部历史 */
+  onViewAllHistory() {
     wx.navigateTo({ url: '/pkg-user/pages/history/history' })
   },
 
