@@ -18,12 +18,12 @@ page {
 }
 
 .hero-section {
-  height: 85vh;
+  height: 1100rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 80rpx 48rpx 40rpx;
+  justify-content: flex-start;
+  padding: 160rpx 48rpx 0;
 }
 
 /* 品牌卡片 */
