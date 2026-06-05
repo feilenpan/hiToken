@@ -48,11 +48,6 @@ Page({
   // === 默认态：点击选照片 ===
   onPickImage() {
     var that = this
-    var agreed = wx.getStorageSync('agreementAgreed') || false
-    if (!agreed) {
-      wx.showToast({ title: '请先同意用户服务协议', icon: 'none' })
-      return
-    }
     app.requirePrivacy(function() {
       wx.chooseMedia({
         count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'],
