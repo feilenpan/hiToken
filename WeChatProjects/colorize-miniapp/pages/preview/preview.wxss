@@ -404,7 +404,7 @@ page {
    信息板
    ============================================ */
 .info-board {
-  margin: 0 32rpx 0;
+  margin: 120rpx 32rpx 0;
   background: #fff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.05);
@@ -437,7 +437,7 @@ page {
 
 /* 当天照片横滑 */
 .board-photos {
-  padding: 28rpx 0 36rpx;
+  padding: 28rpx 0 20rpx;
 }
 .board-gallery {
   width: 100%;
@@ -466,7 +466,7 @@ page {
 
 /* 空状态 */
 .board-empty {
-  padding: 48rpx 40rpx 44rpx;
+  padding: 48rpx 40rpx 24rpx;
   text-align: center;
 }
 .board-empty-text {

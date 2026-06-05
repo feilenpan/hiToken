@@ -47,7 +47,7 @@
           <text class="board-empty-hint">选择一张照片开始吧</text>
         </view>
       </view>
-      <view style="height:40rpx;"></view>
+      <view style="height:16rpx;"></view>
     </scroll-view>
   </block>
 
