@@ -19,31 +19,35 @@
         <text class="free-hint">💡 完全免费</text>
       </view>
 
-      <!-- 历史记录 — 上滑可见 -->
-      <view class="history-section">
-        <view class="history-header">
-          <text class="history-title">处理记录</text>
-          <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
-            <text>查看全部</text>
-            <text class="history-arrow">›</text>
-          </view>
+      <!-- 信息板 -->
+      <view class="info-board">
+        <!-- 日期区 -->
+        <view class="board-date">
+          <text class="board-date-num">{{todayDate}}</text>
+          <text class="board-date-week">{{todayWeekday}}</text>
         </view>
-        <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
-          <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
-            <view class="gallery-track">
-              <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
-                <view class="gallery-thumb">
-                  <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
+        <view class="board-divider"></view>
+
+        <!-- 当天修复照片 -->
+        <view class="board-photos" wx:if="{{todayRecords.length > 0}}">
+          <scroll-view scroll-x enhanced class="board-gallery" show-scrollbar="{{false}}">
+            <view class="board-track">
+              <view class="board-item" wx:for="{{todayRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
+                <view class="board-thumb">
+                  <image src="{{item.localPath}}" mode="aspectFill" class="board-thumb-img" lazy-load></image>
                 </view>
-                <text class="gallery-time">{{item.timeStr}}</text>
               </view>
             </view>
           </scroll-view>
         </view>
-        <view class="history-empty" wx:else>
-          <text class="empty-text-history">暂无修复记录</text>
+
+        <!-- 无记录 -->
+        <view class="board-empty" wx:else>
+          <text class="board-empty-text">今天还没有修复记录</text>
+          <text class="board-empty-hint">选择一张照片开始吧</text>
         </view>
       </view>
+      <view style="height:200rpx;"></view>
     </scroll-view>
   </block>
 

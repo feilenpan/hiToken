@@ -12,7 +12,10 @@ Page({
     repairError: null,
     // 历史记录
     historyRecords: [],
-    hasHistory: false
+    hasHistory: false,
+    todayDate: '',
+    todayWeekday: '',
+    todayRecords: []
   },
 
   onLoad(options) {
@@ -136,16 +139,31 @@ Page({
   loadHistory() {
     var records = wx.getStorageSync('history_records') || []
     var that = this
-    var display = records.slice(0, 10).map(function(r) {
-      return {
-        taskId: r.taskId,
-        localPath: r.localPath,
-        timeStr: r.timeStr || that._formatHistoryTime(r.time)
-      }
-    })
+
+    // 格式化今天日期
+    var now = new Date()
+    var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+    var m = (now.getMonth() + 1), d = now.getDate()
+    var todayStr = (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
     this.setData({
-      historyRecords: display,
-      hasHistory: records.length > 0
+      todayDate: m + '月' + d + '日',
+      todayWeekday: weekdays[now.getDay()]
+    })
+
+    // 筛选今天记录
+    var todayList = []
+    var allList = []
+    records.forEach(function(r) {
+      var ts = r.timeStr || that._formatHistoryTime(r.time)
+      var item = { taskId: r.taskId, localPath: r.localPath, timeStr: ts }
+      allList.push(item)
+      if (ts === todayStr) todayList.push(item)
+    })
+
+    this.setData({
+      historyRecords: allList.slice(0, 10),
+      hasHistory: allList.length > 0,
+      todayRecords: todayList
     })
   },
 
