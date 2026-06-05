@@ -12,18 +12,21 @@ page {
 }
 
 /* ===== 默认态 ===== */
-.default-scroll {
+.default-container {
   flex: 1;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .hero-section {
-  height: 580rpx;
+  flex: 1;
+  min-height: 480rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 120rpx 48rpx 0;
+  justify-content: center;
+  padding: 60rpx 48rpx 0;
 }
 
 /* 品牌卡片 */
@@ -404,11 +407,12 @@ page {
    信息板
    ============================================ */
 .info-board {
-  margin: 120rpx 32rpx 0;
+  margin: 0 32rpx;
   background: #fff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.05);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* 日期区 */
@@ -429,6 +433,24 @@ page {
   color: #999;
 }
 
+/* 前一天日期区 */
+.board-prev-date {
+  padding: 24rpx 40rpx 16rpx;
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+.board-prev-date-num {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #666;
+  line-height: 1;
+}
+.board-prev-date-week {
+  font-size: 24rpx;
+  color: #bbb;
+}
+
 .board-divider {
   height: 1rpx;
   background: #f5f5f5;
@@ -437,7 +459,10 @@ page {
 
 /* 当天照片横滑 */
 .board-photos {
-  padding: 28rpx 0 20rpx;
+  padding: 28rpx 0 36rpx;
+}
+.board-photos-prev {
+  padding: 12rpx 0 28rpx;
 }
 .board-gallery {
   width: 100%;
@@ -466,7 +491,7 @@ page {
 
 /* 空状态 */
 .board-empty {
-  padding: 48rpx 40rpx 24rpx;
+  padding: 48rpx 40rpx 44rpx;
   text-align: center;
 }
 .board-empty-text {

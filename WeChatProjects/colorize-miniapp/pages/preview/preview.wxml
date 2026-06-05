@@ -3,7 +3,7 @@
 
   <!-- ====== 默认态：未选图 ====== -->
   <block wx:if="{{!imagePath}}">
-    <scroll-view scroll-y enhanced class="default-scroll">
+    <view class="default-container">
       <view class="hero-section">
         <view class="brand-card">
           <view class="brand-icon">📸</view>
@@ -19,20 +19,19 @@
         <text class="free-hint">💡 完全免费</text>
       </view>
 
-      <!-- 信息板 -->
+      <!-- 信息板 — 被 flex 推到底部 -->
       <view class="info-board">
-        <!-- 日期区 -->
+        <!-- === 今天 === -->
         <view class="board-date">
           <text class="board-date-num">{{todayDate}}</text>
           <text class="board-date-week">{{todayWeekday}}</text>
         </view>
-        <view class="board-divider"></view>
+        <view class="board-divider" wx:if="{{todayRecords.length > 0 || previousSections.length > 0}}"></view>
 
-        <!-- 当天修复照片 -->
         <view class="board-photos" wx:if="{{todayRecords.length > 0}}">
           <scroll-view scroll-x enhanced class="board-gallery" show-scrollbar="{{false}}">
             <view class="board-track">
-              <view class="board-item" wx:for="{{todayRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
+              <view class="board-item" wx:for="{{todayRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-date="{{todayDate}}" data-index="{{index}}">
                 <view class="board-thumb">
                   <image src="{{item.localPath}}" mode="aspectFill" class="board-thumb-img" lazy-load></image>
                 </view>
@@ -41,14 +40,41 @@
           </scroll-view>
         </view>
 
-        <!-- 无记录 -->
-        <view class="board-empty" wx:else>
+        <!-- 今天没记录但有历史：显示提示 -->
+        <view class="board-empty" wx:if="{{todayRecords.length === 0 && previousSections.length > 0}}">
+          <text class="board-empty-text">今天还没有修复记录</text>
+        </view>
+
+        <!-- 完全没记录 -->
+        <view class="board-empty" wx:if="{{todayRecords.length === 0 && previousSections.length === 0}}">
           <text class="board-empty-text">今天还没有修复记录</text>
           <text class="board-empty-hint">选择一张照片开始吧</text>
         </view>
+
+        <!-- === 之前的日子 === -->
+        <block wx:if="{{previousSections.length > 0}}">
+          <view class="board-divider"></view>
+          <view wx:for="{{previousSections}}" wx:key="dateKey" wx:for-item="sec">
+            <view class="board-prev-date">
+              <text class="board-prev-date-num">{{sec.date}}</text>
+              <text class="board-prev-date-week">{{sec.weekday}}</text>
+            </view>
+            <view class="board-photos board-photos-prev">
+              <scroll-view scroll-x enhanced class="board-gallery" show-scrollbar="{{false}}">
+                <view class="board-track">
+                  <view class="board-item" wx:for="{{sec.records}}" wx:key="taskId" wx:for-item="r" bindtap="onPreviewHistoryByDate" data-date="{{sec.dateKey}}" data-index="{{index}}">
+                    <view class="board-thumb">
+                      <image src="{{r.localPath}}" mode="aspectFill" class="board-thumb-img" lazy-load></image>
+                    </view>
+                  </view>
+                </view>
+              </scroll-view>
+            </view>
+          </view>
+        </block>
       </view>
-      <view style="height:16rpx;"></view>
-    </scroll-view>
+      <view style="height:120rpx; flex-shrink:0;"></view>
+    </view>
   </block>
 
   <!-- ====== 已选图：纯修复 ====== -->

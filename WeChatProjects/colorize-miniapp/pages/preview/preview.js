@@ -11,11 +11,10 @@ Page({
     repairResult: null,
     repairError: null,
     // 历史记录
-    historyRecords: [],
-    hasHistory: false,
     todayDate: '',
     todayWeekday: '',
-    todayRecords: []
+    todayRecords: [],
+    previousSections: []     // [{ dateKey, date, weekday, records }]
   },
 
   onLoad(options) {
@@ -138,32 +137,48 @@ Page({
 
   loadHistory() {
     var records = wx.getStorageSync('history_records') || []
-    var that = this
-
-    // 格式化今天日期
-    var now = new Date()
     var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-    var m = (now.getMonth() + 1), d = now.getDate()
-    var todayStr = (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
+    var now = new Date()
+
+    // 今天
+    var m = now.getMonth() + 1, d = now.getDate()
+    var todayKey = now.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
+
     this.setData({
       todayDate: m + '月' + d + '日',
       todayWeekday: weekdays[now.getDay()]
     })
 
-    // 筛选今天记录
-    var todayList = []
-    var allList = []
+    // 按日期分组
+    var groups = {}  // dateKey -> { date, weekday, records: [] }
     records.forEach(function(r) {
-      var ts = r.timeStr || that._formatHistoryTime(r.time)
-      var item = { taskId: r.taskId, localPath: r.localPath, timeStr: ts }
-      allList.push(item)
-      if (ts === todayStr) todayList.push(item)
+      var ts = r.time || 0
+      var dt = new Date(ts)
+      var key = dt.getFullYear() + '-' + ('0' + (dt.getMonth() + 1)).slice(-2) + '-' + ('0' + dt.getDate()).slice(-2)
+      if (!groups[key]) {
+        groups[key] = {
+          dateKey: key,
+          date: (dt.getMonth() + 1) + '月' + dt.getDate() + '日',
+          weekday: weekdays[dt.getDay()],
+          records: []
+        }
+      }
+      groups[key].records.push({ taskId: r.taskId, localPath: r.localPath })
     })
 
+    // 分离今天 vs 之前
+    var todayRecords = groups[todayKey] ? groups[todayKey].records : []
+    var previousSections = []
+    var keys = Object.keys(groups).sort().reverse() // 最新在前
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i] !== todayKey) {
+        previousSections.push(groups[keys[i]])
+      }
+    }
+
     this.setData({
-      historyRecords: allList.slice(0, 10),
-      hasHistory: allList.length > 0,
-      todayRecords: todayList
+      todayRecords: todayRecords,
+      previousSections: previousSections
     })
   },
 
@@ -175,7 +190,7 @@ Page({
 
     function persist(localPath) {
       var records = wx.getStorageSync('history_records') || []
-      records.unshift({ taskId: taskId, type: 'restore', time: now, localPath: localPath, timeStr: that._formatHistoryTime(now) })
+      records.unshift({ taskId: taskId, type: 'restore', time: now, localPath: localPath })
       while (records.length > 50) records.pop()
       wx.setStorageSync('history_records', records)
       that.loadHistory()
@@ -226,7 +241,27 @@ Page({
   },
 
   onPreviewHistory(e) {
-    var r = this.data.historyRecords[e.currentTarget.dataset.index]
+    var date = e.currentTarget.dataset.date
+    var idx = e.currentTarget.dataset.index
+    var list = this.data.todayRecords
+    this._openHistoryPreview(list, idx)
+  },
+
+  onPreviewHistoryByDate(e) {
+    var dateKey = e.currentTarget.dataset.date
+    var idx = e.currentTarget.dataset.index
+    var sections = this.data.previousSections
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].dateKey === dateKey) {
+        this._openHistoryPreview(sections[i].records, idx)
+        return
+      }
+    }
+  },
+
+  _openHistoryPreview(list, idx) {
+    if (!list || idx === undefined || idx === null) return
+    var r = list[idx]
     if (r && r.localPath) wx.previewImage({ urls: [r.localPath] })
   },
 
