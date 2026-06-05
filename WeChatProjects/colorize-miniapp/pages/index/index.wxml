@@ -1,6 +1,6 @@
 <!-- pages/index/index.wxml -->
 <view class="page">
-  <!-- 隐私授权弹窗（scroll-view 外，fixed 定位覆盖全屏） -->
+  <!-- 隐私授权弹窗 -->
   <view wx:if="{{showPrivacyPopup}}" class="privacy-overlay">
     <view class="privacy-mask"></view>
     <view class="privacy-card">
@@ -11,128 +11,113 @@
     </view>
   </view>
 
-  <!-- 可滚动内容区 -->
-  <scroll-view scroll-y enhanced class="page-scroll" scroll-with-animation>
-    <!-- 首屏区：hero + 内容，min-height 撑满一屏 -->
-    <view class="above-fold">
-    <!-- ========== 效果展示区 ========== -->
-    <view class="hero-section">
-      <image wx:if="{{!originalImage && !repairResult}}" src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
-      <image wx:elif="{{!repairResult}}" src="{{originalImage}}" mode="aspectFill" class="hero-img dim"></image>
-      <image wx:else src="{{repairResult}}" mode="aspectFill" class="hero-img" show-menu-by-longpress="{{true}}"></image>
+  <!-- ========== 效果展示区 ========== -->
+  <view class="hero-section">
+    <image wx:if="{{!originalImage && !repairResult}}" src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
+    <image wx:elif="{{!repairResult}}" src="{{originalImage}}" mode="aspectFill" class="hero-img dim"></image>
+    <image wx:else src="{{repairResult}}" mode="aspectFill" class="hero-img" show-menu-by-longpress="{{true}}"></image>
 
-      <!-- 修复中覆盖层 -->
-      <view class="repair-overlay" wx:if="{{isRepairing}}">
-        <view class="repair-sphere">
-          <view class="sphere-ring"></view>
-          <view class="sphere-ring r2"></view>
-          <view class="sphere-ring r3"></view>
-          <view class="sphere-core">✨</view>
-        </view>
-        <text class="repair-text">AI 正在修复中…</text>
-        <view class="repair-progress">
-          <view class="progress-bar">
-            <view class="progress-fill" style="width: {{progress}}%"></view>
-          </view>
-          <text class="progress-num">{{progress}}%</text>
-        </view>
+    <!-- 修复中覆盖层 -->
+    <view class="repair-overlay" wx:if="{{isRepairing}}">
+      <view class="repair-sphere">
+        <view class="sphere-ring"></view>
+        <view class="sphere-ring r2"></view>
+        <view class="sphere-ring r3"></view>
+        <view class="sphere-core">✨</view>
       </view>
-
-      <!-- 修复失败 -->
-      <view class="repair-overlay" wx:if="{{repairError && !isRepairing}}">
-        <text class="error-icon">😅</text>
-        <text class="error-text">{{repairError}}</text>
+      <text class="repair-text">AI 正在修复中…</text>
+      <view class="repair-progress">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{progress}}%"></view>
+        </view>
+        <text class="progress-num">{{progress}}%</text>
       </view>
     </view>
 
-    <!-- ========== 内容区 ========== -->
-    <view class="content-section">
-      <!-- 默认状态 -->
-      <block wx:if="{{!originalImage}}">
-        <view class="section-title">智能修复</view>
-        <view class="section-description">
-          让褪色的老照片重获新生。去除折痕划痕，还原模糊细节，唤醒沉睡在相册里的旧时光。
-        </view>
-        <view class="cta-button" bindtap="onChooseImage">
-          <text class="cta-icon">📸</text>
-          <text class="cta-text">选择照片，开始修复</text>
-        </view>
-        <view class="secondary-text">💡 完全免费</view>
-      </block>
+    <!-- 修复失败 -->
+    <view class="repair-overlay" wx:if="{{repairError && !isRepairing}}">
+      <text class="error-icon">😅</text>
+      <text class="error-text">{{repairError}}</text>
+    </view>
+  </view>
 
-      <!-- 修复中/有结果：操作按钮 -->
-      <block wx:else>
-        <view class="action-bar">
-          <button class="btn-change" bindtap="onChangeImage">换一张</button>
-          <button class="btn-retry" bindtap="onRetryRepair" wx:if="{{!isRepairing}}">
-            🔄 重新修复
-          </button>
-        </view>
-        <button class="btn-save" bindtap="onSaveResult" wx:if="{{repairResult && !isRepairing}}">
-          💾 保存到相册
+  <!-- ========== 内容区 ========== -->
+  <view class="content-section">
+    <!-- 默认状态 -->
+    <block wx:if="{{!originalImage}}">
+      <view class="section-title">智能修复</view>
+      <view class="section-description">
+        让褪色的老照片重获新生。去除折痕划痕，还原模糊细节，唤醒沉睡在相册里的旧时光。
+      </view>
+      <view class="cta-button" bindtap="onChooseImage">
+        <text class="cta-icon">📸</text>
+        <text class="cta-text">选择照片，开始修复</text>
+      </view>
+      <view class="secondary-text">💡 完全免费</view>
+    </block>
+
+    <!-- 修复中/有结果：操作按钮 -->
+    <block wx:else>
+      <view class="action-bar">
+        <button class="btn-change" bindtap="onChangeImage">换一张</button>
+        <button class="btn-retry" bindtap="onRetryRepair" wx:if="{{!isRepairing}}">
+          🔄 重新修复
         </button>
-      </block>
+      </view>
+      <button class="btn-save" bindtap="onSaveResult" wx:if="{{repairResult && !isRepairing}}">
+        💾 保存到相册
+      </button>
+    </block>
 
-      <!-- 底部协议入口 -->
-      <view class="legal-links">
-        <text class="legal-link" bindtap="onViewPrivacy">《隐私保护政策》</text>
-        <text class="legal-sep">|</text>
-        <text class="legal-link" bindtap="onViewAgreement">《用户服务协议》</text>
+    <!-- 底部协议入口 -->
+    <view class="legal-links">
+      <text class="legal-link" bindtap="onViewPrivacy">《隐私保护政策》</text>
+      <text class="legal-sep">|</text>
+      <text class="legal-link" bindtap="onViewAgreement">《用户服务协议》</text>
+    </view>
+  </view>
+
+  <!-- ========== 📜 历史记录区 ========== -->
+  <view class="history-section">
+    <view class="history-header">
+      <text class="history-title">处理记录</text>
+      <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
+        <text>查看全部</text>
+        <text class="history-arrow">›</text>
       </view>
     </view>
-    </view>
-    <!-- ★ above-fold 结束 ★ -->
 
-    <!-- ========== 📜 历史记录区 ========== -->
-    <view class="history-section">
-      <!-- 区头 -->
-      <view class="history-header">
-        <text class="history-title">处理记录</text>
-        <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
-          <text>查看全部</text>
-          <text class="history-arrow">›</text>
-        </view>
-      </view>
-
-      <!-- 有记录：横向滚动缩略图 -->
-      <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
-        <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
-          <view class="gallery-track">
-            <view
-              class="gallery-item"
-              wx:for="{{historyRecords}}"
-              wx:key="taskId"
-              bindtap="onPreviewHistory"
-              data-index="{{index}}"
-            >
-              <view class="gallery-thumb">
-                <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
-              </view>
-              <text class="gallery-time">{{item.timeStr}}</text>
+    <!-- 有记录：横向滚动缩略图 -->
+    <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
+      <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
+        <view class="gallery-track">
+          <view
+            class="gallery-item"
+            wx:for="{{historyRecords}}"
+            wx:key="taskId"
+            bindtap="onPreviewHistory"
+            data-index="{{index}}"
+          >
+            <view class="gallery-thumb">
+              <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
             </view>
+            <text class="gallery-time">{{item.timeStr}}</text>
           </view>
-        </scroll-view>
-      </view>
-
-      <!-- 无记录：空状态 -->
-      <view class="history-empty" wx:else>
-        <text class="empty-icon-history">🕰️</text>
-        <text class="empty-text-history">还没有修复记录</text>
-        <view class="empty-cta" bindtap="onChooseImage">
-          <text class="empty-cta-icon">📸</text>
-          <text>上传第一张照片</text>
         </view>
-      </view>
+      </scroll-view>
+    </view>
 
-      <!-- 上滑提示（仅首次无记录时显示） -->
-      <view class="scroll-hint" wx:if="{{!hasHistory}}">
-        <text class="scroll-hint-text">上滑查看更多</text>
-        <text class="scroll-hint-arrow">↑</text>
+    <!-- 无记录：空状态 -->
+    <view class="history-empty" wx:else>
+      <text class="empty-icon-history">🕰️</text>
+      <text class="empty-text-history">还没有修复记录</text>
+      <view class="empty-cta" bindtap="onChooseImage">
+        <text>📸 上传第一张照片</text>
       </view>
     </view>
-  </scroll-view>
+  </view>
 
-  <!-- 服务协议弹窗（scroll-view 外） -->
+  <!-- 服务协议弹窗 -->
   <view class="modal-mask" wx:if="{{showAgreementModal}}">
     <view class="modal-container">
       <view class="modal-header">

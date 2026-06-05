@@ -11,30 +11,20 @@
 .privacy-btn-agree { width: 100%; height: 88rpx; line-height: 88rpx; background: linear-gradient(135deg, #FF6B35, #FF8F65); color: #fff; font-size: 32rpx; font-weight: 600; border-radius: 44rpx; border: none; }
 .privacy-btn-agree::after { border: none; }
 
-/* 页面基础 */
+/* 页面基础 — 自然滚动，不设高度限制 */
 .page {
   background: #FAFAFA;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-.page-scroll {
-  height: 100vh;
-  width: 100%;
-}
-
-/* 首屏区：占 85% 屏高，让历史区标题始终露出一截 */
-.above-fold {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
+/* ========== 效果展示区 ========== */
 .hero-section {
   position: relative;
+  width: 100%;
   height: 860rpx;
   overflow: hidden;
   padding: 0 24rpx;
+  box-sizing: border-box;
 }
 
 .hero-img {
@@ -157,10 +147,6 @@
 /* ========== 内容区 ========== */
 .content-section {
   padding: 48rpx 40rpx;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 /* 功能标题 */
@@ -266,7 +252,7 @@
 /* ========== 底部协议入口 ========== */
 .legal-links {
   text-align: center;
-  padding: 32rpx 0 80rpx;
+  padding: 32rpx 0 24rpx;
 }
 
 .legal-link {
@@ -409,7 +395,7 @@
 }
 
 /* ============================================
-   历史记录区 — 上滑暴露
+   历史记录区
    ============================================ */
 .history-section {
   padding: 40rpx 40rpx 60rpx;
@@ -417,7 +403,6 @@
   background: #FAFAFA;
 }
 
-/* 区头 */
 .history-header {
   display: flex;
   align-items: center;
@@ -444,7 +429,7 @@
   line-height: 1;
 }
 
-/* ========== 横向滚动缩略图 ========== */
+/* 横向滚动缩略图 */
 .history-gallery-wrap {
   margin: 0 -40rpx;
   padding: 0 40rpx;
@@ -493,7 +478,7 @@
   white-space: nowrap;
 }
 
-/* ========== 空状态 ========== */
+/* 空状态 */
 .history-empty {
   display: flex;
   flex-direction: column;
@@ -524,34 +509,4 @@
   padding: 20rpx 48rpx;
   border-radius: 48rpx;
   box-shadow: 0 8rpx 24rpx rgba(255, 107, 53, 0.3);
-}
-
-.empty-cta-icon {
-  font-size: 32rpx;
-}
-
-/* ========== 上滑提示 ========== */
-.scroll-hint {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40rpx 0 0;
-  opacity: 0.35;
-  animation: hintBounce 2s ease-in-out infinite;
-}
-
-.scroll-hint-text {
-  font-size: 22rpx;
-  color: #999;
-}
-
-.scroll-hint-arrow {
-  font-size: 28rpx;
-  color: #999;
-  margin-top: 4rpx;
-}
-
-@keyframes hintBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8rpx); }
 }
