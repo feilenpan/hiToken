@@ -40,10 +40,16 @@
       <text class="fw fw-heart fh4">💖</text>
     </view>
     <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
-    <!-- 点评师选择器 — 纯文字 -->
+    <!-- 点评师选择器 -->
     <view class="reviewer-picker">
-      <text class="reviewer-text {{selectedReviewer === '' ? 'reviewer-active' : ''}}" bindtap="onSelectReviewer" data-id="">🎲 随缘</text>
-      <text class="reviewer-text {{selectedReviewer === item.id ? 'reviewer-active' : ''}}" wx:for="{{reviewers}}" wx:key="id" bindtap="onSelectReviewer" data-id="{{item.id}}">{{item.emoji}} {{item.name}}</text>
+      <view class="reviewer-chip {{selectedReviewer === '' ? 'reviewer-active' : ''}}" bindtap="onSelectReviewer" data-id="">
+        <text class="reviewer-emoji">🎲</text>
+        <text class="reviewer-name">随缘</text>
+      </view>
+      <view class="reviewer-chip {{selectedReviewer === item.id ? 'reviewer-active' : ''}}" wx:for="{{reviewers}}" wx:key="id" bindtap="onSelectReviewer" data-id="{{item.id}}">
+        <text class="reviewer-emoji">{{item.emoji}}</text>
+        <text class="reviewer-name">{{item.name}}</text>
+      </view>
     </view>
     <view class="btn-circle-wrap" bindtap="onChooseImage">
       <view class="btn-circle-outer"></view>

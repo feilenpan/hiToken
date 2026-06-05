@@ -62,25 +62,20 @@
 .fe7 { left: 48%; animation-delay: 3.1s; animation-duration: 5.8s; }
 .fe8 { left: 82%; animation-delay: 1.5s; font-size: 40rpx; }
 
-/* 评语文字 — 暖色药丸背景，直线上飘 */
+/* 评语文字 — 纯文字无背景，暖色渐变 */
 .fw-praise {
   font-size: 24rpx;
-  color: #fff;
-  background: linear-gradient(135deg, rgba(255,107,53,0.55), rgba(255,107,53,0.25));
-  padding: 8rpx 20rpx;
-  border-radius: 26rpx;
   white-space: nowrap;
-  backdrop-filter: blur(8rpx);
   animation: bubbleUp 5.5s ease-in infinite;
 }
-.fp1 { left: 5%;  animation-delay: 0.2s; animation-duration: 5s; }
-.fp2 { left: 25%; animation-delay: 1.0s; font-size: 28rpx; }
-.fp3 { left: 42%; animation-delay: 1.8s; animation-duration: 6s; }
-.fp4 { left: 60%; animation-delay: 0.7s; }
-.fp5 { left: 78%; animation-delay: 2.3s; font-size: 22rpx; }
-.fp6 { left: 12%; animation-delay: 3.0s; animation-duration: 5.3s; }
-.fp7 { left: 35%; animation-delay: 3.6s; font-size: 26rpx; }
-.fp8 { left: 68%; animation-delay: 2.8s; }
+.fp1 { left: 5%;  animation-delay: 0.2s; animation-duration: 5s;   color: #FF6B35; }
+.fp2 { left: 25%; animation-delay: 1.0s; font-size: 28rpx;          color: #FF8F65; }
+.fp3 { left: 42%; animation-delay: 1.8s; animation-duration: 6s;   color: #E8734A; }
+.fp4 { left: 60%; animation-delay: 0.7s;                            color: #FF9A76; }
+.fp5 { left: 78%; animation-delay: 2.3s; font-size: 22rpx;          color: #F4845F; }
+.fp6 { left: 12%; animation-delay: 3.0s; animation-duration: 5.3s;  color: #FF7B54; }
+.fp7 { left: 35%; animation-delay: 3.6s; font-size: 26rpx;          color: #FFB088; }
+.fp8 { left: 68%; animation-delay: 2.8s;                            color: #FF9F4B; }
 
 /* 小爱心点缀 — 半透明，缓缓上飘 */
 .fw-heart {
@@ -142,23 +137,40 @@
   position: relative; z-index: 2;
 }
 
-/* 点评师选择器 — 纯文字 */
+/* 点评师选择器 */
 .reviewer-picker {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 32rpx;
+  gap: 16rpx;
   padding: 0 30rpx;
-  margin-bottom: 40rpx;
+  margin-bottom: 30rpx;
   position: relative; z-index: 2;
 }
-.reviewer-text {
-  font-size: 26rpx;
-  color: rgba(255,255,255,0.65);
+.reviewer-chip {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 40rpx;
+  background: rgba(255,255,255,0.15);
+  border: 2rpx solid rgba(255,255,255,0.2);
   transition: all 0.2s;
 }
-.reviewer-text.reviewer-active {
-  color: #FF6B35;
+.reviewer-active {
+  background: rgba(255,107,53,0.25);
+  border-color: #FF6B35;
+  box-shadow: 0 0 20rpx rgba(255,107,53,0.3);
+}
+.reviewer-emoji {
+  font-size: 28rpx;
+}
+.reviewer-name {
+  font-size: 24rpx;
+  color: #ddd;
+}
+.reviewer-active .reviewer-name {
+  color: #fff;
   font-weight: 600;
 }
 
