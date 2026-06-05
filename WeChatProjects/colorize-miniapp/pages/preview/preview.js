@@ -9,7 +9,10 @@ Page({
     processType: 'restore',
     isRepairing: false,
     repairResult: null,
-    repairError: null
+    repairError: null,
+    // 历史记录
+    historyRecords: [],
+    hasHistory: false
   },
 
   onLoad(options) {
@@ -22,6 +25,7 @@ Page({
   },
 
   onShow() {
+    this.loadHistory()
     var pending = app.globalData.pendingRestore
     if (pending) {
       app.globalData.pendingRestore = null
@@ -88,6 +92,7 @@ Page({
         var data = res.data
         if (data && data.success && data.result) {
           that.setData({ isRepairing: false, repairResult: data.result, repairError: null })
+          that._saveToHistory(data.result)
         } else {
           that.setData({ isRepairing: false, repairResult: null, repairError: (data && data.detail) || '修复失败，请稍后重试' })
         }
@@ -119,5 +124,90 @@ Page({
 
   onRetryRepair() {
     this._startRepair()
+  },
+
+  // ========== 📜 历史记录 ==========
+
+  loadHistory() {
+    var records = wx.getStorageSync('history_records') || []
+    var that = this
+    var display = records.slice(0, 10).map(function(r) {
+      return {
+        taskId: r.taskId,
+        localPath: r.localPath,
+        timeStr: r.timeStr || that._formatHistoryTime(r.time)
+      }
+    })
+    this.setData({
+      historyRecords: display,
+      hasHistory: records.length > 0
+    })
+  },
+
+  _saveToHistory(imageSource) {
+    if (!imageSource) return
+    var that = this
+    var taskId = 'r_' + Date.now()
+    var now = Date.now()
+
+    function persist(localPath) {
+      var records = wx.getStorageSync('history_records') || []
+      records.unshift({ taskId: taskId, type: 'restore', time: now, localPath: localPath, timeStr: that._formatHistoryTime(now) })
+      while (records.length > 50) records.pop()
+      wx.setStorageSync('history_records', records)
+      that.loadHistory()
+    }
+
+    // base64 data URI
+    if (imageSource.indexOf('data:') === 0) {
+      var b64 = imageSource.replace(/^data:image\/\w+;base64,/, '')
+      var sp = wx.env.USER_DATA_PATH + '/history/' + taskId + '.jpg'
+      try {
+        var fs = wx.getFileSystemManager()
+        try { fs.accessSync(wx.env.USER_DATA_PATH + '/history') } catch (e) { fs.mkdirSync(wx.env.USER_DATA_PATH + '/history') }
+        fs.writeFileSync(sp, b64, 'base64')
+        persist(sp)
+      } catch (e) { console.error('[preview] 保存历史失败:', e) }
+      return
+    }
+
+    // HTTP URL
+    if (imageSource.indexOf('http') === 0) {
+      wx.downloadFile({
+        url: imageSource,
+        success: function(res) {
+          if (res.statusCode === 200) {
+            var sp = wx.env.USER_DATA_PATH + '/history/' + taskId + '.jpg'
+            try {
+              var fs = wx.getFileSystemManager()
+              try { fs.accessSync(wx.env.USER_DATA_PATH + '/history') } catch (e) { fs.mkdirSync(wx.env.USER_DATA_PATH + '/history') }
+              fs.saveFileSync(res.tempFilePath, sp)
+              persist(sp)
+            } catch (e) { console.error('[preview] 保存历史失败:', e) }
+          }
+        }
+      })
+      return
+    }
+
+    persist(imageSource)
+  },
+
+  _formatHistoryTime(ts) {
+    if (!ts) return ''
+    var d = new Date(ts)
+    var m = (d.getMonth() + 1).toString(), day = d.getDate().toString()
+    if (m.length < 2) m = '0' + m
+    if (day.length < 2) day = '0' + day
+    return m + '-' + day
+  },
+
+  onPreviewHistory(e) {
+    var r = this.data.historyRecords[e.currentTarget.dataset.index]
+    if (r && r.localPath) wx.previewImage({ urls: [r.localPath] })
+  },
+
+  onViewAllHistory() {
+    wx.navigateTo({ url: '/pkg-user/pages/history/history' })
   }
 })

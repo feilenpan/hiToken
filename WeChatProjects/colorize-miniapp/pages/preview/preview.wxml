@@ -1,4 +1,4 @@
-<!-- pages/preview/preview.wxml - 默认态 + 选图即修 -->
+<!-- pages/preview/preview.wxml - 默认态 + 选图即修 + 历史记录 -->
 <view class="page">
 
   <!-- ====== 默认态：未选图 ====== -->
@@ -65,9 +65,6 @@
         <text class="error-text">{{repairError}}</text>
         <button class="btn-retry" bindtap="onRetryRepair">🔄 重试</button>
       </view>
-
-      <!-- 底部留白 -->
-      <view class="bottom-spacer"></view>
     </view>
 
     <!-- 固定底部按钮栏 -->
@@ -76,5 +73,39 @@
       <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
     </view>
   </block>
+
+  <!-- ========== 📜 历史记录区（默认态 & 修完结果都在底部） ========== -->
+  <view class="history-section">
+    <view class="history-header">
+      <text class="history-title">处理记录</text>
+      <view class="history-view-all" bindtap="onViewAllHistory" wx:if="{{hasHistory}}">
+        <text>查看全部</text>
+        <text class="history-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 有记录：横向缩略图 -->
+    <view class="history-gallery-wrap" wx:if="{{hasHistory}}">
+      <scroll-view scroll-x enhanced class="history-gallery" show-scrollbar="{{false}}">
+        <view class="gallery-track">
+          <view class="gallery-item" wx:for="{{historyRecords}}" wx:key="taskId" bindtap="onPreviewHistory" data-index="{{index}}">
+            <view class="gallery-thumb">
+              <image src="{{item.localPath}}" mode="aspectFill" class="gallery-img" lazy-load></image>
+            </view>
+            <text class="gallery-time">{{item.timeStr}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 无记录 -->
+    <view class="history-empty" wx:else>
+      <text class="empty-icon-history">🕰️</text>
+      <text class="empty-text-history">还没有修复记录</text>
+      <view class="empty-cta" bindtap="onPickImage">
+        <text>📸 上传第一张照片</text>
+      </view>
+    </view>
+  </view>
 
 </view>
