@@ -65,7 +65,7 @@
         </view>
       </view>
 
-      <view style="height:120rpx; flex-shrink:0;"></view>
+      <view style="height:12rpx; flex-shrink:0;"></view>
     </view>
   </block>
 

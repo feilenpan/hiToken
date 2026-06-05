@@ -411,7 +411,7 @@ page {
    信息板
    ============================================ */
 .info-board {
-  margin: 0 32rpx 16rpx;
+  margin: 0 32rpx 8rpx;
   background: #fff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.05);
@@ -421,7 +421,7 @@ page {
 
 /* 日期区 */
 .board-date {
-  padding: 36rpx 40rpx 24rpx;
+  padding: 28rpx 40rpx 20rpx;
   display: flex;
   align-items: baseline;
   gap: 16rpx;
@@ -495,7 +495,7 @@ page {
 
 /* 空状态 */
 .board-empty {
-  padding: 48rpx 40rpx 44rpx;
+  padding: 36rpx 40rpx 28rpx;
   text-align: center;
 }
 .board-empty-text {
