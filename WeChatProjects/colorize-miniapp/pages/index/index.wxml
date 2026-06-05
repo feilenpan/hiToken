@@ -13,6 +13,8 @@
 
   <!-- ========== 效果展示区 ========== -->
   <view class="hero-section">
+    <!-- 🔴 DEBUG: 如果看到这行红字说明代码已加载 -->
+    <text style="color:red;font-size:40rpx;position:absolute;top:20rpx;left:40rpx;z-index:99;background:white;padding:8rpx 16rpx;border-radius:8rpx;">🔴 HISTORY V6</text>
     <image wx:if="{{!originalImage && !repairResult}}" src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
     <image wx:elif="{{!repairResult}}" src="{{originalImage}}" mode="aspectFill" class="hero-img dim"></image>
     <image wx:else src="{{repairResult}}" mode="aspectFill" class="hero-img" show-menu-by-longpress="{{true}}"></image>
@@ -28,7 +30,7 @@
       <text class="repair-text">AI 正在修复中…</text>
       <view class="repair-progress">
         <view class="progress-bar">
-          <view class="progress-fill" style="width: {{progress}}%"></view>
+          <view class="progress-fill" style="width: {{progress}}"></view>
         </view>
         <text class="progress-num">{{progress}}%</text>
       </view>
