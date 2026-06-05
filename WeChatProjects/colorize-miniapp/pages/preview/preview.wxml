@@ -19,8 +19,6 @@
         <text class="free-hint">💡 完全免费</text>
       </view>
 
-      <view class="hero-spacer"></view>
-
       <!-- === 今天信息板 === -->
       <view class="info-board">
         <view class="board-date">

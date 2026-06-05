@@ -20,17 +20,12 @@ page {
 }
 
 .hero-section {
-  min-height: 480rpx;
+  min-height: 88vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60rpx 48rpx 0;
-}
-
-.hero-spacer {
-  flex: 1;
-  min-height: 0;
 }
 
 /* 品牌卡片 */
