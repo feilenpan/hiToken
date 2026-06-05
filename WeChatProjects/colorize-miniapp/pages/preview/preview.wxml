@@ -100,11 +100,7 @@
 
     <!-- 无记录 -->
     <view class="history-empty" wx:else>
-      <text class="empty-icon-history">🕰️</text>
-      <text class="empty-text-history">还没有修复记录</text>
-      <view class="empty-cta" bindtap="onPickImage">
-        <text>📸 上传第一张照片</text>
-      </view>
+      <text class="empty-text-history">暂无修复记录</text>
     </view>
   </view>
 

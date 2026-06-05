@@ -12,12 +12,12 @@ page {
 
 /* ===== 默认态 ===== */
 .hero-section {
-  min-height: 100vh;
+  min-height: 88vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100rpx 48rpx 60rpx;
+  padding: 100rpx 48rpx 100rpx;
 }
 
 /* 品牌卡片 */
