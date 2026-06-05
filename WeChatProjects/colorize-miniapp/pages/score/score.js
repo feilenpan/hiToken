@@ -27,6 +27,7 @@ Page({
     isUploading: false,
     showAnalyzing: false,
     analyzingText: '正在仔细端详...',
+    analyzingReviewer: null,
     evaluation: null,
     typedText: '',
     showScore: false,
@@ -36,7 +37,17 @@ Page({
     activeSuggestion: null,
     editResults: [],
     showPrivacyPopup: false,
-    quota: null
+    quota: null,
+    // 点评师选择
+    selectedReviewer: '',
+    reviewers: [
+      { id: 'li_bai', name: '李白', emoji: '🍶', title: '诗仙' },
+      { id: 'su_shi', name: '苏轼', emoji: '🍖', title: '东坡居士' },
+      { id: 'li_qingzhao', name: '李清照', emoji: '🌸', title: '易安居士' },
+      { id: 'tang_bohu', name: '唐伯虎', emoji: '🎨', title: '江南才子' },
+      { id: 'lu_xun', name: '鲁迅', emoji: '🖊️', title: '周树人' },
+      { id: 'bai_juyi', name: '白居易', emoji: '👴', title: '香山居士' }
+    ]
   },
 
   onShow: function() {
@@ -53,11 +64,13 @@ Page({
 
   _fetchQuota: function() {
     var that = this;
-    app.cloudGet('/api/user/usage').then(function(res) {
+    app.cloudGet('/api/user/usage', true).then(function(res) {
       if (res.data && res.data.success) {
         that.setData({ quota: res.data.quota });
       }
-    }).catch(function() {});
+    }).catch(function(err) {
+      console.log('[score] quota fetch failed:', err);
+    });
   },
 
   // 隐私授权回调（按钮 open-type="agreePrivacyAuthorization" 自动 resolve）
@@ -70,6 +83,12 @@ Page({
   },
   showPrivacyPopup: function() {
     this.setData({ showPrivacyPopup: true });
+  },
+
+  // 选择点评师
+  onSelectReviewer: function(e) {
+    var id = e.currentTarget.dataset.id;
+    this.setData({ selectedReviewer: id === this.data.selectedReviewer ? '' : id });
   },
 
   onChooseImage: function() {
@@ -116,6 +135,20 @@ Page({
 
   _startAnalyzeAnim: function() {
     var that = this;
+    // 确定点评师：选中 → 展示；随机 → 从列表中随机取一个展示
+    var reviewer = null;
+    if (that.data.selectedReviewer) {
+      for (var i = 0; i < that.data.reviewers.length; i++) {
+        if (that.data.reviewers[i].id === that.data.selectedReviewer) {
+          reviewer = that.data.reviewers[i]; break;
+        }
+      }
+    }
+    if (!reviewer) {
+      reviewer = that.data.reviewers[Math.floor(Math.random() * that.data.reviewers.length)];
+    }
+    that.setData({ analyzingReviewer: reviewer });
+
     if (that._txtTimer) clearInterval(that._txtTimer);
     var idx = 0;
     that._txtTimer = setInterval(function() {
@@ -129,12 +162,17 @@ Page({
 
     console.log('[score] evaluate start');
 
-    app.cloudUpload('/api/evaluate', path)
+    app.cloudUpload('/api/evaluate', path, { reviewer: that.data.selectedReviewer }, true)
       .then(function(res) {
         if (that._txtTimer) clearInterval(that._txtTimer);
         that.setData({ isUploading: false, showAnalyzing: false });
 
         console.log('[score] evaluate success');
+        console.log('[score] raw res.data type:', typeof res.data);
+        console.log('[score] res.data keys:', res.data ? Object.keys(res.data).join(',') : 'NULL');
+        console.log('[score] GATEWAY code:', res.data && res.data.code);
+        console.log('[score] GATEWAY message:', res.data && res.data.message);
+        console.log('[score] success:', res.data && res.data.success, '| text len:', res.data && res.data.text ? res.data.text.length : 0);
 
         var data = res.data;
         if (data && data.success && data.text) {
@@ -174,6 +212,10 @@ Page({
       if (ev.score >= LEVELS[i].min) { level = LEVELS[i]; break; }
     }
     ev.level = level;
+    // WXML 不支持 .split()，预先拆成数组
+    if (ev.poem && typeof ev.poem === 'string') {
+      ev.poemLines = ev.poem.split('\n');
+    }
     
     that.setData({ evaluation: ev });
     that._typewriter(ev.text || '');
@@ -230,6 +272,7 @@ Page({
   // === 低分 CTA → 原地 AI 修复 ===
   onRepairNow: function() {
     var that = this;
+    console.log('[score] onRepairNow CLICKED');
     var editId = ++_editId;
     var prompt = '修复这张老照片，去除噪点和划痕，增强人脸清晰度，还原肤色';
     var label = 'AI 修复';
@@ -244,10 +287,11 @@ Page({
     });
     that.setData({ editResults: results });
 
-    console.log('[score] repair-now #' + editId);
+    console.log('[score] repair-now #' + editId, 'uploading...');
 
-    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: prompt })
+    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: prompt }, true)
       .then(function(res) {
+        console.log('[score] repair-now #' + editId + ' GOT RESPONSE:', JSON.stringify(res.data).substring(0, 200));
         var data = res.data;
         var results = that.data.editResults || [];
         for (var i = 0; i < results.length; i++) {
@@ -267,8 +311,10 @@ Page({
           }
         }
         that.setData({ editResults: results });
+        console.log('[score] repair-now #' + editId + ' DONE, success=' + (data && data.success));
       })
       .catch(function(err) {
+        console.error('[score] repair-now #' + editId + ' FAIL:', JSON.stringify(err));
         var results = that.data.editResults || [];
         for (var i = 0; i < results.length; i++) {
           if (results[i].id === editId) {
@@ -302,12 +348,19 @@ Page({
   // === 建议点击 → 原地编辑（多图叠加） ===
   onSuggestionTap: function(e) {
     var that = this;
+    console.log('[score] onSuggestionTap CLICKED, dataset:', JSON.stringify(e.currentTarget.dataset));
     var item = e.currentTarget.dataset.suggestion;
     var index = e.currentTarget.dataset.index;
-    if (!item || !item.prompt) return;
+    if (!item || !item.prompt) {
+      console.log('[score] onSuggestionTap SKIP: no item or prompt');
+      return;
+    }
 
     // 防重复：已点击或处理中不可再点
-    if (item.clicked || item.loading) return;
+    if (item.clicked || item.loading) {
+      console.log('[score] onSuggestionTap SKIP: already clicked/loading');
+      return;
+    }
 
     // 生成唯一 ID
     var editId = ++_editId;
@@ -332,10 +385,11 @@ Page({
       editResults: results
     });
 
-    console.log('[score] suggest-edit #' + editId, 'prompt:', item.prompt);
+    console.log('[score] suggest-edit #' + editId, 'prompt:', item.prompt, 'uploading...');
 
-    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: item.prompt })
+    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: item.prompt }, true)
       .then(function(res) {
+        console.log('[score] suggest-edit #' + editId + ' GOT RESPONSE:', JSON.stringify(res.data).substring(0, 200));
         suggestions[index].loading = false;
         that.setData({ 'evaluation.suggestions': suggestions });
 
@@ -358,12 +412,12 @@ Page({
           }
         }
         that.setData({ editResults: results });
+        console.log('[score] suggest-edit #' + editId + ' DONE, success=' + (data && data.success));
       })
       .catch(function(err) {
+        console.error('[score] suggest-edit #' + editId + ' FAIL:', JSON.stringify(err));
         suggestions[index].loading = false;
         that.setData({ 'evaluation.suggestions': suggestions });
-
-        console.error('[score] suggest-edit #' + editId + ' fail:', JSON.stringify(err));
 
         var results = that.data.editResults || [];
         for (var i = 0; i < results.length; i++) {

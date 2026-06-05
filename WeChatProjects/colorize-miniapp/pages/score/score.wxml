@@ -40,6 +40,17 @@
       <text class="fw fw-heart fh4">💖</text>
     </view>
     <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
+    <!-- 点评师选择器 -->
+    <view class="reviewer-picker">
+      <view class="reviewer-chip {{selectedReviewer === '' ? 'reviewer-active' : ''}}" bindtap="onSelectReviewer" data-id="">
+        <text class="reviewer-emoji">🎲</text>
+        <text class="reviewer-name">随缘</text>
+      </view>
+      <view class="reviewer-chip {{selectedReviewer === item.id ? 'reviewer-active' : ''}}" wx:for="{{reviewers}}" wx:key="id" bindtap="onSelectReviewer" data-id="{{item.id}}">
+        <text class="reviewer-emoji">{{item.emoji}}</text>
+        <text class="reviewer-name">{{item.name}}</text>
+      </view>
+    </view>
     <view class="btn-circle-wrap" bindtap="onChooseImage">
       <view class="btn-circle-outer"></view>
       <view class="btn-circle-ring"></view>
@@ -75,8 +86,8 @@
     </view>
   </view>
 
-  <!-- 打分结果 -->
-  <view class="eval-section" wx:if="{{evaluation && !showAnalyzing}}">
+  <!-- 打分结果 — 带主题配色 -->
+  <view class="eval-section theme-{{evaluation.reviewer_id || 'random'}}" wx:if="{{evaluation && !showAnalyzing}}">
     <!-- 紧凑分数卡片 -->
     <view class="score-card {{showScore ? 'score-show' : ''}}">
       <view class="score-inline">
@@ -102,15 +113,28 @@
     <view class="eval-text-card">
       <view class="eval-header">
         <view class="eval-badge">{{evaluation.reviewer_emoji || '⚡'}}</view>
-        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 说</text>
+        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 的品鉴</text>
       </view>
       <view class="eval-body">
         <text class="eval-text">{{typedText}}</text>
         <text class="cursor" wx:if="{{typingCursor}}">|</text>
       </view>
+      <!-- 诗词即兴创作 -->
+      <view class="eval-poem" wx:if="{{evaluation.poem}}">
+        <view class="poem-lines">
+          <text class="poem-line" wx:for="{{evaluation.poemLines}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="poem-author">—— {{evaluation.reviewer}} · {{evaluation.reviewer_title}}</view>
+      </view>
+      <!-- 印章落款 -->
+      <view class="eval-stamp">
+        <view class="stamp-border">
+          <text class="stamp-text">{{evaluation.stamp || '时光印记'}}</text>
+        </view>
+      </view>
     </view>
 
-    <!-- AI 修图建议（放标签上方） -->
+    <!-- AI 修图建议 -->
     <view class="suggestions-section" wx:if="{{evaluation.suggestions && evaluation.suggestions.length > 0}}">
       <view class="suggestions-header">
         <text class="suggestions-icon">✨</text>
@@ -130,7 +154,6 @@
     <!-- 编辑结果展示（多图叠加） -->
     <view class="edit-results-list" wx:if="{{editResults.length > 0}}">
       <view class="edit-result {{item.loading ? '' : 'result-done'}}" wx:for="{{editResults}}" wx:key="id">
-        <!-- loading 骨架 -->
         <view class="edit-result-loading" wx:if="{{item.loading}}">
           <view class="result-loading-sphere">
             <view class="sphere-ring"></view>
@@ -139,7 +162,6 @@
           </view>
           <text class="result-loading-text">正在按「{{item.label}}」编辑…</text>
         </view>
-        <!-- 成功结果 -->
         <view class="edit-result-done" wx:elif="{{item.success}}">
           <view class="edit-result-header">
             <text class="edit-result-icon">✨</text>
@@ -153,7 +175,6 @@
             </view>
           </view>
         </view>
-        <!-- 失败 -->
         <view class="edit-result-error" wx:else>
           <text class="edit-result-icon">😅</text>
           <text>{{item.error || '编辑失败'}}</text>

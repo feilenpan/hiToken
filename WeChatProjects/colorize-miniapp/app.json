@@ -31,7 +31,7 @@
         "selectedIconPath": "static/images/tab-score-active.png"
       },
       {
-        "pagePath": "pages/index/index",
+        "pagePath": "pages/preview/preview",
         "text": "修复照片",
         "iconPath": "static/images/tab-restore.png",
         "selectedIconPath": "static/images/tab-restore-active.png"

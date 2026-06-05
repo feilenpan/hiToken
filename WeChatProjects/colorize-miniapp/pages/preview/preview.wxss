@@ -1,4 +1,4 @@
-/* pages/preview/preview.wxss - 照片撑满 + 固定按钮 */
+/* pages/preview/preview.wxss - 默认态 + 选图即修 */
 
 page {
   background: #FAFAFA;
@@ -11,7 +11,106 @@ page {
   flex-direction: column;
 }
 
-/* ===== 照片区（flex:1 撑满剩余空间，可滚动） ===== */
+/* ===== 默认态 ===== */
+.hero-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 48rpx 120rpx;
+}
+
+/* 品牌卡片 */
+.brand-card {
+  width: 100%;
+  max-width: 520rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 56rpx 40rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 36rpx rgba(0,0,0,0.06);
+  animation: brandFloat 4s ease-in-out infinite;
+  margin-bottom: 48rpx;
+}
+
+@keyframes brandFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12rpx); }
+}
+
+.brand-icon {
+  font-size: 72rpx;
+  margin-bottom: 20rpx;
+  display: block;
+  animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.brand-title {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 4rpx;
+  margin-bottom: 12rpx;
+}
+
+.brand-desc {
+  display: block;
+  font-size: 28rpx;
+  color: #888;
+  line-height: 1.5;
+  margin-bottom: 24rpx;
+}
+
+.brand-divider {
+  width: 80rpx;
+  height: 3rpx;
+  background: linear-gradient(90deg, transparent, #FF6B35, transparent);
+  margin: 0 auto 20rpx;
+  border-radius: 2rpx;
+}
+
+.brand-feature {
+  font-size: 24rpx;
+  color: #aaa;
+  letter-spacing: 2rpx;
+}
+
+/* CTA */
+.cta-button {
+  width: 480rpx;
+  height: 100rpx;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+  border-radius: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+  box-shadow: 0 12rpx 36rpx rgba(255, 107, 53, 0.35);
+  margin-bottom: 20rpx;
+}
+.cta-button:active { transform: scale(0.97); opacity: 0.9; }
+
+.cta-icon { font-size: 36rpx; }
+
+.cta-text {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.free-hint {
+  font-size: 24rpx;
+  color: #aaa;
+}
+
+/* ===== 已选图状态 ===== */
 .photo-section {
   flex: 1;
   position: relative;
@@ -63,7 +162,6 @@ page {
   height: 100%;
 }
 
-/* 光晕 */
 .photo-glow {
   position: absolute;
   bottom: 40rpx;
@@ -78,9 +176,13 @@ page {
   animation: glowPulse 4s ease-in-out infinite;
 }
 
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
-  50% { opacity: 0.9; transform: translateX(-50%) scale(1.15); }
+.photo-sparkle {
+  position: absolute;
+  font-size: 28rpx;
+  color: #FF6B35;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* 粒子 */
@@ -100,33 +202,6 @@ page {
   30% { opacity: 0.6; transform: translateY(-16rpx) scale(1); }
   60% { opacity: 0.2; transform: translateY(-24rpx) scale(0.7); }
 }
-
-/* 档案信息 + 模糊警告 */
-.photo-meta {
-  width: 100%;
-  padding: 12rpx 8rpx 0;
-  z-index: 2;
-  position: relative;
-}
-
-.file-info {
-  text-align: center;
-  padding: 8rpx 0 4rpx;
-}
-.file-name { font-size: 26rpx; color: #555; display: block; }
-.file-size { font-size: 22rpx; color: #aaa; }
-
-.blur-warning {
-  margin-top: 8rpx;
-  padding: 12rpx 20rpx;
-  background: #FFF9E6;
-  border-radius: 12rpx;
-  text-align: center;
-  font-size: 24rpx;
-  color: #B8860B;
-}
-
-/* ===== 修复中动画 ===== */
 .repairing-overlay {
   width: 100%;
   display: flex;
@@ -144,6 +219,39 @@ page {
   font-size: 28rpx;
   color: #888;
   font-weight: 500;
+}
+
+/* 复用 score 页的 sphere-ring 动画 */
+.sphere-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4rpx solid transparent;
+  border-top-color: #FF6B35;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.sphere-ring.r2 {
+  width: 80%;
+  height: 80%;
+  border-top-color: #FF8F65;
+  animation-direction: reverse;
+  animation-duration: 1.2s;
+}
+.sphere-ring.r3 {
+  width: 60%;
+  height: 60%;
+  border-top-color: #FFB088;
+  animation-duration: 0.6s;
+}
+.sphere-core {
+  font-size: 40rpx;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 /* ===== 修复结果 ===== */

@@ -11,26 +11,66 @@
     </view>
   </view>
 
-  <!-- 效果展示 -->
+  <!-- 动态照片/结果区 -->
   <view class="hero-section">
-    <image src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
+    <!-- 默认：示范图 -->
+    <image wx:if="{{!originalImage && !repairResult}}" src="{{heroImage}}" mode="aspectFill" class="hero-img"></image>
+    <!-- 已选原图 -->
+    <image wx:elif="{{!repairResult}}" src="{{originalImage}}" mode="aspectFill" class="hero-img dim"></image>
+    <!-- 修复结果 -->
+    <image wx:else src="{{repairResult}}" mode="aspectFill" class="hero-img" show-menu-by-longpress="{{true}}"></image>
+
+    <!-- 修复中覆盖层 -->
+    <view class="repair-overlay" wx:if="{{isRepairing}}">
+      <view class="repair-sphere">
+        <view class="sphere-ring"></view>
+        <view class="sphere-ring r2"></view>
+        <view class="sphere-ring r3"></view>
+        <view class="sphere-core">✨</view>
+      </view>
+      <text class="repair-text">AI 正在修复中…</text>
+      <view class="repair-progress">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{progress}}%"></view>
+        </view>
+        <text class="progress-num">{{progress}}%</text>
+      </view>
+    </view>
+
+    <!-- 修复失败 -->
+    <view class="repair-overlay" wx:if="{{repairError && !isRepairing}}">
+      <text class="error-icon">😅</text>
+      <text class="error-text">{{repairError}}</text>
+    </view>
   </view>
 
   <!-- 内容区 -->
   <view class="content-section">
-    <!-- 功能标题 -->
-    <view class="section-title">智能修复</view>
-    <view class="section-description">
-      让褪色的老照片重获新生。去除折痕划痕，还原模糊细节，唤醒沉睡在相册里的旧时光。
-    </view>
+    <!-- 默认状态 -->
+    <block wx:if="{{!originalImage}}">
+      <view class="section-title">智能修复</view>
+      <view class="section-description">
+        让褪色的老照片重获新生。去除折痕划痕，还原模糊细节，唤醒沉睡在相册里的旧时光。
+      </view>
+      <view class="cta-button" bindtap="onChooseImage">
+        <text class="cta-icon">📸</text>
+        <text class="cta-text">选择照片，开始修复</text>
+      </view>
+      <view class="secondary-text">💡 完全免费</view>
+    </block>
 
-    <!-- 超大 CTA -->
-    <view class="cta-button" bindtap="onChooseImage">
-      <text class="cta-icon">📸</text>
-      <text class="cta-text">选择照片，开始修复</text>
-    </view>
-
-    <view class="secondary-text">💡 完全免费</view>
+    <!-- 修复中/有结果：操作按钮 -->
+    <block wx:else>
+      <view class="action-bar">
+        <button class="btn-change" bindtap="onChangeImage">换一张</button>
+        <button class="btn-retry" bindtap="onRetryRepair" wx:if="{{!isRepairing}}">
+          🔄 重新修复
+        </button>
+      </view>
+      <button class="btn-save" bindtap="onSaveResult" wx:if="{{repairResult && !isRepairing}}">
+        💾 保存到相册
+      </button>
+    </block>
 
     <!-- 底部协议入口 -->
     <view class="legal-links">

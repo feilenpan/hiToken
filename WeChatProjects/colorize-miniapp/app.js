@@ -1,8 +1,9 @@
 // app.js - 时光修复
-// 通过微信云调用直连云托管，不走公网域名
+// 通过 wx.cloud.callContainer 云调用直连云托管，免域名配置、体验版可直接使用
 
 wx.cloud.init({
-  env: 'yushucolor-d6gd4kytb9000e446'
+  env: 'yushucolor-d6gd4kytb9000e446',
+  traceUser: true
 })
 
 App({
@@ -70,33 +71,50 @@ App({
   },
 
   // === HTTP 请求封装 ===
+  // 模式：CALL_CONTAINER = callContainer（体验版）| DIRECT = wx.request（开发版，需开启不校验域名）
+  // 当前：DIRECT（callContainer 网关 INVALID_PATH，暂时绕过）
+
+  BASE_URL: 'https://yushu-264118-8-1438528191.sh.run.tcloudbase.com',
+
+  // 安全解析响应
+  _parseResponse(res) {
+    var data = res.data
+    if (typeof data === 'string') {
+      try { data = JSON.parse(data) } catch(e) { data = {} }
+    }
+    return { statusCode: res.statusCode, data: data }
+  },
 
   // GET 请求
-  cloudGet(path) {
+  cloudGet(path, noAuth) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.cloud.callFunction({
-        name: 'api-proxy',
-        data: { path: path, method: 'GET', headers: that._getHeaders() },
-        success: (res) => resolve({ data: res.result.data }),
+      wx.request({
+        url: that.BASE_URL + path,
+        method: 'GET',
+        header: noAuth ? {} : that._getCloudHeaders(),
+        success: (res) => resolve({ data: res.data }),
         fail: reject
       })
     })
   },
 
   // POST JSON 请求
-  cloudPost(path, data) {
+  cloudPost(path, data, noAuth) {
     var that = this
     return new Promise((resolve, reject) => {
-      wx.cloud.callFunction({
-        name: 'api-proxy',
-        data: { path: path, method: 'POST', data: data, headers: that._getHeaders() },
+      wx.request({
+        url: that.BASE_URL + path,
+        method: 'POST',
+        data: data,
+        header: noAuth ? { 'content-type': 'application/json' } : that._getCloudHeaders(),
+        timeout: 120000,
         success: (res) => {
-          if (res.result.statusCode === 429) {
-            wx.showToast({ title: res.result.data.detail || '今日次数已用完', icon: 'none', duration: 2500 })
+          if (res.statusCode === 429) {
+            wx.showToast({ title: (res.data && res.data.detail) || '今日次数已用完', icon: 'none', duration: 2500 })
             reject(new Error('QUOTA_EXCEEDED'))
           } else {
-            resolve({ data: res.result.data })
+            resolve({ data: res.data })
           }
         },
         fail: reject
@@ -104,25 +122,36 @@ App({
     })
   },
 
-  // 文件上传（base64 方式）
-  cloudUpload(path, filePath, extraData) {
+  // 文件上传 — 先上传云存储，再传 file_url 给后端
+  cloudUpload(path, filePath, extraData, noAuth) {
     var that = this
     return new Promise((resolve, reject) => {
-      var fs = wx.getFileSystemManager()
-      try {
-        var base64 = fs.readFileSync(filePath, 'base64')
-        var data = Object.assign({ file: base64 }, extraData || {})
-        that.cloudPost(path, data).then(resolve).catch(reject)
-      } catch(e) {
-        reject(new Error('文件读取失败: ' + (e.message || e)))
-      }
+      var cloudPath = 'uploads/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.jpg'
+      wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: filePath,
+        success: function(uploadRes) {
+          wx.cloud.getTempFileURL({
+            fileList: [uploadRes.fileID],
+            success: function(urlRes) {
+              var fileUrl = urlRes.fileList[0].tempFileURL
+              var data = Object.assign({ file_url: fileUrl }, extraData || {})
+              that.cloudPost(path, data, noAuth).then(resolve).catch(reject)
+            },
+            fail: reject
+          })
+        },
+        fail: reject
+      })
     })
   },
 
-  _getHeaders() {
-    var headers = { 'content-type': 'application/json' }
+  _getCloudHeaders() {
+    var headers = {
+      'content-type': 'application/json'
+    }
     if (this.globalData.token) {
-      headers['Authorization'] = 'Bearer ' + this.globalData.token
+      headers['X-Auth-Token'] = this.globalData.token
     }
     return headers
   },

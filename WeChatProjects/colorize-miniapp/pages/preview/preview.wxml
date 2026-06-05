@@ -1,50 +1,80 @@
-<!-- pages/preview/preview.wxml - 选图即修，结果内联 -->
+<!-- pages/preview/preview.wxml - 默认态 + 选图即修 -->
 <view class="page">
 
-  <!-- 照片区 -->
-  <view class="photo-section">
-    <view class="photo-container" wx:if="{{imagePath}}">
-      <image src="{{imagePath}}" mode="aspectFit" class="photo-img" />
-    </view>
-
-    <!-- 修复中动画 -->
-    <view class="repairing-overlay" wx:if="{{isRepairing}}">
-      <view class="repairing-sphere">
-        <view class="sphere-ring"></view>
-        <view class="sphere-ring r2"></view>
-        <view class="sphere-core">✨</view>
+  <!-- ====== 默认态：未选图 ====== -->
+  <block wx:if="{{!imagePath}}">
+    <view class="hero-section">
+      <!-- 品牌标识区 -->
+      <view class="brand-card">
+        <view class="brand-icon">📸</view>
+        <text class="brand-title">时光修复</text>
+        <text class="brand-desc">让褪色的老照片重获新生</text>
+        <view class="brand-divider"></view>
+        <text class="brand-feature">去除折痕 · 修复划痕 · 还原细节</text>
       </view>
-      <text class="repairing-text">AI 正在修复中…</text>
-    </view>
 
-    <!-- 修复结果 -->
-    <view class="repair-result" wx:if="{{repairResult && !isRepairing}}">
-      <view class="result-header">
-        <text class="result-icon">✨</text>
-        <text class="result-title">修复完成</text>
+      <!-- CTA -->
+      <view class="cta-button" bindtap="onPickImage">
+        <text class="cta-icon">📸</text>
+        <text class="cta-text">选择照片</text>
       </view>
-      <view class="result-card share-hint">
-        <image src="{{repairResult}}" mode="widthFix" class="result-img" show-menu-by-longpress="{{true}}"></image>
-        <view class="result-label">
-          <text class="result-hint">长按图片可分享或保存</text>
+
+      <text class="free-hint">💡 完全免费</text>
+    </view>
+  </block>
+
+  <!-- ====== 已选图 ====== -->
+  <block wx:else>
+    <!-- 照片区 -->
+    <view class="photo-section">
+      <view class="photo-container">
+        <image src="{{imagePath}}" mode="aspectFit" class="photo-img" />
+        <view class="photo-glow"></view>
+        <text class="photo-sparkle sparkle-tl">✨</text>
+        <text class="photo-sparkle sparkle-tr">✨</text>
+      </view>
+
+      <!-- 修复中动画 -->
+      <view class="repairing-overlay" wx:if="{{isRepairing}}">
+        <view class="repairing-sphere">
+          <view class="sphere-ring"></view>
+          <view class="sphere-ring r2"></view>
+          <view class="sphere-ring r3"></view>
+          <view class="sphere-core">✨</view>
+        </view>
+        <text class="repairing-text">AI 正在修复中…</text>
+      </view>
+
+      <!-- 修复结果 -->
+      <view class="repair-result" wx:if="{{repairResult && !isRepairing}}">
+        <view class="result-header">
+          <text class="result-icon">✨</text>
+          <text class="result-title">修复完成</text>
+        </view>
+        <view class="result-card share-hint">
+          <image src="{{repairResult}}" mode="widthFix" class="result-img" show-menu-by-longpress="{{true}}"></image>
+          <view class="result-label">
+            <text class="result-hint">长按图片可分享或保存</text>
+          </view>
         </view>
       </view>
+
+      <!-- 修复失败 -->
+      <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
+        <text class="error-icon">😅</text>
+        <text class="error-text">{{repairError}}</text>
+        <button class="btn-retry" bindtap="onRetryRepair">🔄 重试</button>
+      </view>
+
+      <!-- 底部留白 -->
+      <view class="bottom-spacer"></view>
     </view>
 
-    <!-- 修复失败 -->
-    <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
-      <text class="error-icon">😅</text>
-      <text class="error-text">{{repairError}}</text>
-      <button class="btn-retry" bindtap="onRetryRepair">🔄 重试</button>
+    <!-- 固定底部按钮栏 -->
+    <view class="fixed-bottom-bar">
+      <button class="btn-change" bindtap="onChangeImage">换一张</button>
+      <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
     </view>
-  </view>
+  </block>
 
-  <!-- 底部留白 -->
-  <view class="bottom-spacer"></view>
-</view>
-
-<!-- 固定底部按钮 -->
-<view class="fixed-bottom-bar">
-  <button class="btn-change" bindtap="onChangeImage">换一张</button>
-  <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
 </view>
