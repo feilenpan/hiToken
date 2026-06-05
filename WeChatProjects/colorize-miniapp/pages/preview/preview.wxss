@@ -20,7 +20,7 @@ page {
 }
 
 .hero-section {
-  min-height: 88vh;
+  min-height: 65vh;
   display: flex;
   flex-direction: column;
   align-items: center;
