@@ -7,12 +7,13 @@ page {
 
 .page {
   min-height: 100vh;
-  background: #FAFAFA;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== 默认态 ===== */
 .hero-section {
-  min-height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -111,23 +112,30 @@ page {
 
 /* ===== 已选图状态 ===== */
 .photo-section {
+  flex: 1;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20rpx 24rpx;
-  min-height: 60vh;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .photo-container {
   position: relative;
   z-index: 2;
+  flex: 1;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #fff;
   border-radius: 28rpx;
   box-shadow: 0 12rpx 48rpx rgba(0,0,0,0.1);
   animation: photoFloat 4s ease-in-out infinite;
   overflow: hidden;
+  min-height: 200rpx;
 }
 
 @keyframes photoFloat {
@@ -151,7 +159,7 @@ page {
 
 .photo-img {
   width: 100%;
-  display: block;
+  height: 100%;
 }
 
 .photo-glow {
