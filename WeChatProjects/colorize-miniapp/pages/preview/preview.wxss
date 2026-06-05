@@ -407,7 +407,7 @@ page {
    信息板
    ============================================ */
 .info-board {
-  margin: 0 32rpx;
+  margin: 0 32rpx 16rpx;
   background: #fff;
   border-radius: 24rpx;
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.05);
