@@ -18,7 +18,7 @@ page {
 }
 
 .hero-section {
-  height: 700rpx;
+  height: 580rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
