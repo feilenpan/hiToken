@@ -46,16 +46,15 @@ page {
   50% { transform: translateY(-8rpx); }
 }
 
-.brand-icon {
-  font-size: 60rpx;
-  margin-bottom: 12rpx;
+.brand-avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
   display: block;
-  animation: iconPulse 3s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  margin: 0 auto 16rpx;
+  background: linear-gradient(135deg, #FFF0E8, #FFE0D0);
+  box-shadow: 0 6rpx 24rpx rgba(255,107,53,0.15);
+  animation: brandFloat 4s ease-in-out infinite;
 }
 
 .brand-title {
@@ -115,6 +114,14 @@ page {
 .free-hint {
   font-size: 24rpx;
   color: #aaa;
+}
+
+.quota-hint-preview {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  color: #bbb;
+  margin-top: 4rpx;
 }
 
 /* ===== 已选图状态 ===== */
@@ -401,6 +408,23 @@ page {
 
 .btn-change::after, .btn-start::after { border: none; }
 .btn-start:active { transform: scale(0.97); }
+
+/* 品鉴按钮 */
+.btn-score-preview {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #FF6B35;
+  background: rgba(255,107,53,0.06);
+  border-radius: 44rpx;
+  border: 2rpx solid rgba(255,107,53,0.25);
+  font-weight: 600;
+  margin-top: 24rpx;
+}
+.btn-score-preview::after { border: none; }
+.btn-score-preview:active { transform: scale(0.97); background: rgba(255,107,53,0.12); }
 
 /* ============================================
    信息板

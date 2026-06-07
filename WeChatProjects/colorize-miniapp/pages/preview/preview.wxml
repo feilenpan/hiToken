@@ -6,8 +6,8 @@
     <view class="default-container">
       <view class="hero-section">
         <view class="brand-card">
-          <view class="brand-icon">📸</view>
-          <text class="brand-title">时光修复</text>
+          <image class="brand-avatar" src="/images/master-avatar.png" mode="aspectFit"></image>
+          <text class="brand-title">老照片修复师</text>
           <text class="brand-desc">让褪色的老照片重获新生</text>
           <view class="brand-divider"></view>
           <text class="brand-feature">去除折痕 · 修复划痕 · 还原细节</text>
@@ -16,7 +16,7 @@
           <text class="cta-icon">📸</text>
           <text class="cta-text">选择照片</text>
         </view>
-        <text class="free-hint">💡 完全免费</text>
+        <text class="quota-hint-preview" wx:if="{{quota}}">今日剩余：点评 {{quota.evaluate.remaining}} 次 · 修复 {{quota.process.remaining}} 次</text>
       </view>
 
       <!-- === 今天信息板 === -->
@@ -106,7 +106,7 @@
     </view>
     <view class="fixed-bottom-bar">
       <button class="btn-change" bindtap="onChangeImage">换一张</button>
-      <button class="btn-start" bindtap="onRetryRepair">✨ AI 修复</button>
+      <button class="btn-start" bindtap="{{repairResult ? 'onGoScore' : 'onRetryRepair'}}">{{repairResult ? '🍶 让古人品鉴' : '✨ AI 修复'}}</button>
     </view>
   </block>
 

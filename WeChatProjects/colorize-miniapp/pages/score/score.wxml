@@ -1,4 +1,4 @@
-<!-- pages/score/score.wxml - AI 照片打分 -->
+<!-- pages/score/score.wxml - AI 照片品鉴 -->
 <view class="page">
   <!-- 隐私授权弹窗 -->
   <view wx:if="{{showPrivacyPopup}}" class="privacy-overlay">
@@ -13,9 +13,7 @@
 
   <!-- 空白状态 -->
   <view class="empty-state" wx:if="{{!imagePath && !isUploading}}">
-    <!-- 浮动特效：emoji + 评语 + 爱心 混合冒泡 -->
     <view class="floating-words">
-      <!-- 大号 emoji 无背景 -->
       <text class="fw fw-emoji fe1">🌸</text>
       <text class="fw fw-emoji fe2">👏</text>
       <text class="fw fw-emoji fe3">💕</text>
@@ -24,33 +22,43 @@
       <text class="fw fw-emoji fe6">🔥</text>
       <text class="fw fw-emoji fe7">🌟</text>
       <text class="fw fw-emoji fe8">💫</text>
-      <!-- 评语文字带背景 -->
-      <text class="fw fw-praise fp1">太美了！</text>
-      <text class="fw fw-praise fp2">好温柔~</text>
+      <text class="fw fw-praise fp1">妙哉！</text>
+      <text class="fw fw-praise fp2">好诗~</text>
       <text class="fw fw-praise fp3">绝了！</text>
-      <text class="fw fw-praise fp4">氛围感拉满</text>
-      <text class="fw fw-praise fp5">有故事</text>
-      <text class="fw fw-praise fp6">拍得真好</text>
-      <text class="fw fw-praise fp7">喜欢这张</text>
-      <text class="fw fw-praise fp8">满分！</text>
-      <!-- 小爱心点缀 -->
+      <text class="fw fw-praise fp4">雅致绝伦</text>
+      <text class="fw fw-praise fp5">有韵味</text>
+      <text class="fw fw-praise fp6">写得好</text>
+      <text class="fw fw-praise fp7">喜欢这首</text>
+      <text class="fw fw-praise fp8">千古名句！</text>
       <text class="fw fw-heart fh1">💕</text>
       <text class="fw fw-heart fh2">❤️</text>
       <text class="fw fw-heart fh3">💗</text>
       <text class="fw fw-heart fh4">💖</text>
     </view>
-    <text class="empty-desc">让我品读你的照片，给出温暖的评价</text>
-    <!-- 点评师选择器 -->
-    <view class="reviewer-picker">
-      <view class="reviewer-chip {{selectedReviewer === '' ? 'reviewer-active' : ''}}" bindtap="onSelectReviewer" data-id="">
-        <text class="reviewer-emoji">🎲</text>
-        <text class="reviewer-name">随缘</text>
+    <text class="empty-desc">选一位大师，为您的照片题诗品鉴</text>
+    <!-- 点评师选择器 — 横向滑动人物卡片 -->
+    <scroll-view class="reviewer-scroll" scroll-x enhanced show-scrollbar="{{false}}" enable-flex>
+      <view class="reviewer-cards">
+        <view class="reviewer-card {{selectedReviewer === item.id ? 'card-active' : ''}}" 
+              wx:for="{{reviewers}}" wx:key="id" 
+              bindtap="onSelectReviewer" data-id="{{item.id}}">
+          <view class="card-avatar card-bg-{{item.id}}">
+            <text class="card-emoji">{{item.emoji}}</text>
+          </view>
+          <text class="card-name">{{item.name}}</text>
+          <text class="card-title">{{item.shortTitle}}</text>
+        </view>
+        <!-- 随缘卡 — 视觉区分 -->
+        <view class="reviewer-card random-card {{selectedReviewer === '' ? 'card-active' : ''}}" 
+              bindtap="onSelectReviewer" data-id="">
+          <view class="card-avatar card-bg-random">
+            <text class="card-emoji">🎲</text>
+          </view>
+          <text class="card-name">随缘</text>
+          <text class="card-title">随机邂逅</text>
+        </view>
       </view>
-      <view class="reviewer-chip {{selectedReviewer === item.id ? 'reviewer-active' : ''}}" wx:for="{{reviewers}}" wx:key="id" bindtap="onSelectReviewer" data-id="{{item.id}}">
-        <text class="reviewer-emoji">{{item.emoji}}</text>
-        <text class="reviewer-name">{{item.name}}</text>
-      </view>
-    </view>
+    </scroll-view>
     <view class="btn-circle-wrap" bindtap="onChooseImage">
       <view class="btn-circle-outer"></view>
       <view class="btn-circle-ring"></view>
@@ -86,19 +94,14 @@
     </view>
   </view>
 
-  <!-- 打分结果 — 带主题配色 -->
-  <view class="eval-section theme-{{evaluation.reviewer_id || 'random'}}" wx:if="{{evaluation && !showAnalyzing}}">
-    <!-- 紧凑分数卡片 -->
-    <view class="score-card {{showScore ? 'score-show' : ''}}">
-      <view class="score-inline">
-        <text class="score-emoji">{{evaluation.level.emoji}}</text>
-        <view class="score-num-box">
-          <text class="score-num">{{evaluation.score}}</text>
-          <text class="score-unit">分</text>
-        </view>
-        <view class="score-meta">
-          <text class="score-level">{{evaluation.level.title}}</text>
-          <text class="score-desc">{{evaluation.level.desc}}</text>
+  <!-- 品鉴结果 -->
+  <view class="eval-section" wx:if="{{evaluation && !showAnalyzing}}">
+    <!-- 印章落款（代替数字分数） -->
+    <view class="stamp-seal {{showScore ? 'stamp-show' : ''}}">
+      <view class="stamp-ring">
+        <view class="stamp-inner">
+          <text class="stamp-name">{{evaluation.reviewer || '时光点评师'}}</text>
+          <text class="stamp-label">{{evaluation.stampLevel || '品鉴'}}</text>
         </view>
       </view>
     </view>
@@ -109,36 +112,37 @@
       <text class="location-text">{{evaluation.location}}</text>
     </view>
 
-    <!-- AI 评语 -->
+    <!-- 地点故事 -->
+    <view class="location-story" wx:if="{{evaluation.location_story}}">
+      <text class="story-quote">「</text>
+      <text class="story-text">{{evaluation.location_story}}</text>
+      <text class="story-quote">」</text>
+    </view>
+
+    <!-- 品鉴评语 -->
     <view class="eval-text-card">
       <view class="eval-header">
-        <view class="eval-badge">{{evaluation.reviewer_emoji || '⚡'}}</view>
-        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 的品鉴</text>
+        <text class="eval-badge-emoji">{{evaluation.reviewer_emoji || '🍶'}}</text>
+        <text class="eval-title">{{evaluation.reviewer || '时光点评师'}} 品鉴</text>
       </view>
       <view class="eval-body">
         <text class="eval-text">{{typedText}}</text>
         <text class="cursor" wx:if="{{typingCursor}}">|</text>
       </view>
-      <!-- 诗词即兴创作 -->
+      <!-- 诗词 -->
       <view class="eval-poem" wx:if="{{evaluation.poem}}">
         <view class="poem-lines">
           <text class="poem-line" wx:for="{{evaluation.poemLines}}" wx:key="*this">{{item}}</text>
         </view>
-        <view class="poem-author">—— {{evaluation.reviewer}} · {{evaluation.reviewer_title}}</view>
-      </view>
-      <!-- 印章落款 -->
-      <view class="eval-stamp">
-        <view class="stamp-border">
-          <text class="stamp-text">{{evaluation.stamp || '时光印记'}}</text>
-        </view>
+        <view class="poem-author">—— {{evaluation.reviewer}}</view>
       </view>
     </view>
 
-    <!-- AI 修图建议 -->
+    <!-- 修图建议 -->
     <view class="suggestions-section" wx:if="{{evaluation.suggestions && evaluation.suggestions.length > 0}}">
       <view class="suggestions-header">
         <text class="suggestions-icon">✨</text>
-        <text class="suggestions-title">我建议你试下</text>
+        <text class="suggestions-title">不妨试试</text>
       </view>
       <view class="suggestions-list">
         <view class="suggestion-chip {{item.loading ? 'chip-loading' : ''}} {{item.clicked ? 'chip-clicked' : ''}}" 
@@ -151,7 +155,7 @@
       </view>
     </view>
 
-    <!-- 编辑结果展示（多图叠加） -->
+    <!-- 编辑结果 -->
     <view class="edit-results-list" wx:if="{{editResults.length > 0}}">
       <view class="edit-result {{item.loading ? '' : 'result-done'}}" wx:for="{{editResults}}" wx:key="id">
         <view class="edit-result-loading" wx:if="{{item.loading}}">
@@ -194,8 +198,8 @@
 
     <!-- 低分 CTA -->
     <view class="cta-restore" wx:if="{{showCTA}}">
-      <text class="cta-text">这张照片有点模糊？试试 AI 修复让它重获新生！</text>
-      <button class="btn-cta" bindtap="onRepairNow">✨ AI 修复</button>
+      <text class="cta-text">这位点评师觉得照片需要修复，试试让它重获新生？</text>
+      <button class="btn-cta" bindtap="onRepairNow">✨ 一键修复</button>
     </view>
   </view>
 

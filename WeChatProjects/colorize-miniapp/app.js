@@ -13,7 +13,29 @@ App({
     token: null,
     totalUsed: 0,
     agreementAgreed: false,
-    pendingRestore: null
+    pendingRestore: null,
+    pendingScoreImage: null,
+    quota: null   // 全局配额缓存，操作后立即更新
+  },
+
+  // 同步全局配额（每次 consume quota 后调用）
+  syncQuota: function(newQuota) {
+    if (newQuota) {
+      this.globalData.quota = newQuota
+    }
+  },
+
+  // 从后端拉取最新配额并更新全局缓存
+  fetchAndSyncQuota: function() {
+    var that = this
+    return this.cloudGet('/api/user/usage').then(function(res) {
+      if (res.data && res.data.success) {
+        that.globalData.quota = res.data.quota
+      }
+      return that.globalData.quota
+    }).catch(function() {
+      return that.globalData.quota
+    })
   },
 
   onLaunch() {

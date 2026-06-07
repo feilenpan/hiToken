@@ -12,7 +12,7 @@
     "navigationBarTitleText": "时光修复",
     "navigationBarTextStyle": "black"
   },
-  "__usePrivacyCheck__": false,
+  "__usePrivacyCheck__": true,
   "networkTimeout": {
     "request": 120000,
     "uploadFile": 180000,
@@ -26,7 +26,7 @@
     "list": [
       {
         "pagePath": "pages/score/score",
-        "text": "照片打分",
+        "text": "照片品鉴",
         "iconPath": "static/images/tab-score.png",
         "selectedIconPath": "static/images/tab-score-active.png"
       },

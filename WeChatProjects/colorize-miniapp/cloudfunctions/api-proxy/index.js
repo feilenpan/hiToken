@@ -14,7 +14,7 @@ exports.main = async (event) => {
       timeout: 120000
     }, res => {
       let raw = '';
-      res.on('data', c => raw += c);
+      res.on('data', c => raw += c); 
       res.on('end', () => {
         try {
           resolve({ statusCode: res.statusCode, data: JSON.parse(raw) });

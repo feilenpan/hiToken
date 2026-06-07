@@ -10,6 +10,7 @@ Page({
     isRepairing: false,
     repairResult: null,
     repairError: null,
+    quota: null,
     // 历史记录
     todayDate: '',
     todayWeekday: '',
@@ -27,6 +28,11 @@ Page({
   },
 
   onShow() {
+    var that = this
+    var loginPromise = app._loginReady || Promise.resolve()
+    loginPromise.then(function() {
+      that._refreshQuota()
+    })
     this.loadHistory()
     var pending = app.globalData.pendingRestore
     if (pending) {
@@ -45,6 +51,18 @@ Page({
         }
       })
     }
+  },
+
+  _refreshQuota() {
+    var quota = app.globalData.quota
+    if (quota) {
+      this.setData({ quota: quota })
+      return
+    }
+    var that = this
+    app.fetchAndSyncQuota().then(function(quota) {
+      if (quota) that.setData({ quota: quota })
+    })
   },
 
   // === 默认态：点击选照片 ===
@@ -89,6 +107,10 @@ Page({
         var data = res.data
         if (data && data.success && data.result) {
           that.setData({ isRepairing: false, repairResult: data.result, repairError: null })
+          if (data.quota) {
+            that.setData({ quota: data.quota })
+            app.syncQuota(data.quota)
+          }
           that._saveToHistory(data.result)
         } else {
           that.setData({ isRepairing: false, repairResult: null, repairError: (data && data.detail) || '修复失败，请稍后重试' })
@@ -121,6 +143,47 @@ Page({
 
   onRetryRepair() {
     this._startRepair()
+  },
+
+  // === 跳转品鉴 ===
+  onGoScore() {
+    if (!this.data.repairResult) return
+    var that = this
+    var imageSource = this.data.repairResult
+
+    function go(imagePath) {
+      app.globalData.pendingScoreImage = imagePath
+      wx.switchTab({ url: '/pages/score/score' })
+    }
+
+    // data URI → 写入临时文件
+    if (imageSource.indexOf('data:') === 0) {
+      var b64 = imageSource.replace(/^data:image\/\w+;base64,/, '')
+      var savePath = wx.env.USER_DATA_PATH + '/score_' + Date.now() + '.jpg'
+      var fs = wx.getFileSystemManager()
+      fs.writeFile({
+        filePath: savePath, data: b64, encoding: 'base64',
+        success: function() { go(savePath) },
+        fail: function() { wx.showToast({ title: '图片处理失败', icon: 'none' }) }
+      })
+      return
+    }
+
+    // HTTP URL → 下载
+    if (imageSource.indexOf('http') === 0) {
+      wx.downloadFile({
+        url: imageSource,
+        success: function(res) {
+          if (res.statusCode === 200) go(res.tempFilePath)
+          else wx.showToast({ title: '图片下载失败', icon: 'none' })
+        },
+        fail: function() { wx.showToast({ title: '图片下载失败', icon: 'none' }) }
+      })
+      return
+    }
+
+    // 本地路径 → 直接使用
+    go(imageSource)
   },
 
   onBackHome() {

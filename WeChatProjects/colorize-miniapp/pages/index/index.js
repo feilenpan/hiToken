@@ -262,6 +262,47 @@ Page({
     }
   },
 
+  // === 跳转品鉴 ===
+  onGoScore: function() {
+    if (!this.data.repairResult) return
+    var that = this
+    var imageSource = this.data.repairResult
+
+    function go(imagePath) {
+      app.globalData.pendingScoreImage = imagePath
+      wx.switchTab({ url: '/pages/score/score' })
+    }
+
+    // data URI → 写入临时文件
+    if (imageSource.indexOf('data:') === 0) {
+      var b64 = imageSource.replace(/^data:image\/\w+;base64,/, '')
+      var savePath = wx.env.USER_DATA_PATH + '/score_' + Date.now() + '.jpg'
+      var fs = wx.getFileSystemManager()
+      fs.writeFile({
+        filePath: savePath, data: b64, encoding: 'base64',
+        success: function() { go(savePath) },
+        fail: function() { wx.showToast({ title: '图片处理失败', icon: 'none' }) }
+      })
+      return
+    }
+
+    // HTTP URL → 下载
+    if (imageSource.indexOf('http') === 0) {
+      wx.downloadFile({
+        url: imageSource,
+        success: function(res) {
+          if (res.statusCode === 200) go(res.tempFilePath)
+          else wx.showToast({ title: '图片下载失败', icon: 'none' })
+        },
+        fail: function() { wx.showToast({ title: '图片下载失败', icon: 'none' }) }
+      })
+      return
+    }
+
+    // 本地路径 → 直接使用
+    go(imageSource)
+  },
+
   // === 回到初始状态 ===
   onResetHome: function() {
     this.setData({

@@ -20,8 +20,8 @@ Page({
     var loginPromise = app._loginReady || Promise.resolve()
     loginPromise.then(function() {
       that.loadUserInfo()
+      that.fetchQuota()  // 等登录完成再查配额，确保带 token
     })
-    this.fetchQuota()
   },
 
   loadUserInfo() {
@@ -50,11 +50,10 @@ Page({
 
   fetchQuota() {
     var that = this
-    app.cloudGet('/api/user/usage').then(function(res) {
-      if (res.data && res.data.success) {
-        that.setData({ quota: res.data.quota })
-      }
-    }).catch(function() {})
+    // 我的页是配额权威页面，永远调 API 确保准确
+    app.fetchAndSyncQuota().then(function(quota) {
+      if (quota) that.setData({ quota: quota })
+    })
   },
 
   onChooseAvatar(e) {
