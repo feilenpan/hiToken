@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>家书</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: #f8f4ef;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== 底部导航 ===== */
+  .nav-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+  .nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tab .icon { font-size: 22px; }
+  .nav-tab .label { font-size: 10px; color: #999; }
+  .nav-tab.active .label { color: #c0392b; font-weight: 500; }
+
+  /* ===== 页面容器 ===== */
+  .page { display: none; padding-bottom: 80px; }
+  .page.active { display: block; }
+
+  /* ===== 首页 ===== */
+  .home-header {
+    padding: 60px 24px 24px;
+    text-align: center;
+  }
+  .home-header .logo { font-size: 42px; margin-bottom: 8px; }
+  .home-header h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #3d2b1f;
+    letter-spacing: 6px;
+  }
+  .home-header .slogan {
+    font-size: 13px;
+    color: #a08060;
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  /* 轮播 */
+  .carousel-wrapper {
+    padding: 16px 0;
+    overflow: hidden;
+  }
+  .carousel {
+    display: flex;
+    gap: 16px;
+    padding: 0 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .carousel::-webkit-scrollbar { display: none; }
+  .carousel-item {
+    flex-shrink: 0;
+    width: 85vw;
+    max-width: 360px;
+    scroll-snap-align: center;
+  }
+
+  /* 卡片基础 */
+  .card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(80, 50, 20, 0.1);
+    position: relative;
+  }
+
+  /* 卡片1：经典怀旧 */
+  .card-vintage {
+    background: linear-gradient(170deg, #fef9f0 0%, #fdf2e0 100%);
+  }
+  .card-vintage .card-photo {
+    position: relative;
+    margin: 20px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 3px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transform: rotate(-1.5deg);
+  }
+  .card-vintage .photo-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, #c9a87c 0%, #b8956a 50%, #a07850 100%);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+  }
+  .card-vintage .stamp {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    border: 2px solid rgba(192, 57, 43, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(192, 57, 43, 0.5);
+    font-size: 10px;
+    transform: rotate(12deg);
+    font-family: 'Noto Serif SC', serif;
+    letter-spacing: 1px;
+  }
+  .card-vintage .card-body { padding: 0 24px 20px; }
+  .card-vintage .year-loc {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: #a08060;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .card-vintage .divider {
+    width: 32px;
+    height: 1px;
+    background: #d4a574;
+    margin: 0 auto 14px;
+  }
+  .card-vintage .story {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    line-height: 2;
+    color: #5d4037;
+    text-indent: 2em;
+  }
+  .card-vintage .voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+    padding: 10px 14px;
+    background: rgba(139, 69, 19, 0.05);
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .card-vintage .voice-play {
+    width: 28px;
+    height: 28px;
+    background: #8b4513;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-vintage .voice-play::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 8px solid #fff;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    margin-left: 2px;
+  }
+  .card-vintage .voice-wave {
+    flex: 1;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .card-vintage .voice-wave span {
+    display: block;
+    width: 3px;
+    background: #b8860b;
+    border-radius: 2px;
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  .card-vintage .voice-wave span:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .card-vintage .voice-wave span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+  .card-vintage .voice-wave span:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+  .card-vintage .voice-wave span:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+  .card-vintage .voice-wave span:nth-child(5) { height: 10px; animation-delay: 0.4s; }
+  .card-vintage .voice-wave span:nth-child(6) { height: 18px; animation-delay: 0.5s; }
+  .card-vintage .voice-wave span:nth-child(7) { height: 8px; animation-delay: 0.6s; }
+  .card-vintage .voice-wave span:nth-child(8) { height: 12px; animation-delay: 0.7s; }
+  .card-vintage .voice-wave span:nth-child(9) { height: 6px; animation-delay: 0.8s; }
+  .card-vintage .voice-wave span:nth-child(10) { height: 14px; animation-delay: 0.9s; }
+  .card-vintage .voice-time { font-size: 11px; color: #999; flex-shrink: 0; }
+  .card-vintage .signature {
+    text-align: right;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: #a08060;
+    font-style: italic;
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(2.2); }
+  }
+
+  /* 卡片2：现代简约 */
+  .card-modern { background: #fff; }
+  .card-modern .card-photo { padding: 16px 16px 0; }
+  .card-modern .photo-img {
+    width: 100%;
+    aspect-ratio: 3/2.5;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+  }
+  .card-modern .card-body { padding: 18px 20px 20px; }
+  .card-modern .tag {
+    display: inline-block;
+    background: #f0e6ff;
+    color: #764ba2;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .card-modern .story {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #333;
+  }
+  .card-modern .bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f5f5f5;
+  }
+  .card-modern .author { font-size: 12px; color: #999; }
+  .card-modern .play-circle {
+    width: 34px;
+    height: 34px;
+    background: #764ba2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-modern .play-circle::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 9px solid #fff;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    margin-left: 2px;
+  }
+
+  /* 卡片3：中国风 */
+  .card-chinese {
+    background: #faf6f0;
+    border: 1px solid #e8d5b7;
+  }
+  .card-chinese .red-bar {
+    height: 3px;
+    background: linear-gradient(90deg, transparent 5%, #c0392b 50%, transparent 95%);
+  }
+  .card-chinese .card-photo { padding: 18px 18px 0; }
+  .card-chinese .photo-frame { border: 1px solid #d4a574; padding: 5px; }
+  .card-chinese .photo-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+  }
+  .card-chinese .card-body { padding: 16px 24px 8px; }
+  .card-chinese .ch-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: #8b4513;
+    text-align: center;
+    letter-spacing: 8px;
+    margin-bottom: 14px;
+  }
+  .card-chinese .story {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    line-height: 2.2;
+    color: #5d4037;
+    text-indent: 2em;
+  }
+  .card-chinese .sign-area {
+    padding: 8px 24px 20px;
+    text-align: right;
+  }
+  .card-chinese .sign-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    color: #c0392b;
+    border-bottom: 1px solid #c0392b;
+    display: inline-block;
+    padding-bottom: 1px;
+  }
+  .card-chinese .sign-date {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* 卡片4：时光对比 */
+  .card-compare { background: #fff; }
+  .card-compare .photos-row {
+    display: flex;
+    align-items: stretch;
+  }
+  .card-compare .photo-half {
+    flex: 1;
+    position: relative;
+  }
+  .card-compare .photo-half .photo-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+  }
+  .card-compare .photo-half:first-child .photo-img {
+    background: linear-gradient(135deg, #8b4513, #a0522d);
+  }
+  .card-compare .photo-half:last-child .photo-img {
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+  }
+  .card-compare .photo-tag {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+  .card-compare .arrow-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .card-compare .card-body { padding: 18px 20px 20px; text-align: center; }
+  .card-compare .story { font-size: 14px; line-height: 1.8; color: #333; }
+  .card-compare .timeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .card-compare .timeline span { font-size: 11px; color: #999; }
+  .card-compare .timeline .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ddd;
+  }
+  .card-compare .timeline .line {
+    width: 24px;
+    height: 1px;
+    background: #ddd;
+  }
+
+  /* ===== 轮播指示器 ===== */
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0 8px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: #d4c4b0;
+    transition: all 0.3s;
+  }
+  .dot.active {
+    width: 20px;
+    background: #8b4513;
+  }
+
+  /* ===== 底部CTA ===== */
+  .home-cta {
+    padding: 12px 24px 0;
+    text-align: center;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 14px 40px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(192, 57, 43, 0.3);
+    letter-spacing: 2px;
+  }
+  .cta-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 12px;
+  }
+
+  /* ===== 制作流程页 ===== */
+  .make-header {
+    padding: 56px 24px 20px;
+    text-align: center;
+  }
+  .make-header h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    color: #3d2b1f;
+    font-weight: 600;
+    letter-spacing: 4px;
+  }
+  .make-header .sub { font-size: 13px; color: #999; margin-top: 6px; }
+
+  .steps {
+    padding: 8px 24px;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .step-content h3 { font-size: 15px; color: #333; margin-bottom: 4px; }
+  .step-content p { font-size: 13px; color: #888; line-height: 1.6; }
+
+  .template-grid {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .template-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .template-card:active { transform: scale(0.97); }
+  .template-card.selected { border-color: #c0392b; }
+  .template-card .preview {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .template-card .t-name { font-size: 13px; color: #333; font-weight: 500; }
+  .template-card .t-desc { font-size: 11px; color: #999; margin-top: 2px; }
+  .preview-vintage { background: linear-gradient(170deg, #fef9f0, #e8d5b7); }
+  .preview-modern { background: linear-gradient(135deg, #f0e6ff, #e8e0ff); }
+  .preview-chinese { background: linear-gradient(170deg, #faf6f0, #e8d5b7); border: 1px solid #e8d5b7; }
+  .preview-compare { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+
+  /* ===== 生成页 ===== */
+  .generating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 24px;
+  }
+  .gen-icon { font-size: 60px; margin-bottom: 20px; }
+  .gen-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: #3d2b1f;
+    margin-bottom: 8px;
+  }
+  .gen-sub { font-size: 13px; color: #999; margin-bottom: 32px; }
+  .gen-progress {
+    width: 200px;
+    height: 4px;
+    background: #f0e6d8;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .gen-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #c0392b, #e74c3c);
+    border-radius: 2px;
+    width: 0%;
+    animation: progress 3s ease-out forwards;
+  }
+  @keyframes progress {
+    0% { width: 0%; }
+    30% { width: 40%; }
+    60% { width: 70%; }
+    100% { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 首页 ===== -->
+<div class="page active" id="page-home">
+  <div class="home-header">
+    <div class="logo">✉️</div>
+    <h1>家书</h1>
+    <p class="slogan">把照片变成有温度的故事</p>
+  </div>
+
+  <div class="carousel-wrapper">
+    <div class="carousel" id="carousel">
+      
+      <!-- 卡片1：经典怀旧 -->
+      <div class="carousel-item">
+        <div class="card card-vintage">
+          <div class="stamp">家书</div>
+          <div class="card-photo">
+            <div class="photo-img">修复后的老照片</div>
+          </div>
+          <div class="card-body">
+            <div class="year-loc">1985 · 南京</div>
+            <div class="divider"></div>
+            <p class="story">这是小明3岁的时候，在家门口的梧桐树下。那年夏天特别热，你每天带他去秦淮河边玩水，回家路上总要买一根冰棍。</p>
+            <div class="voice-bar">
+              <div class="voice-play"></div>
+              <div class="voice-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <span class="voice-time">0:23</span>
+            </div>
+            <div class="signature">—— 小明 · 2026年母亲节</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片2：现代简约 -->
+      <div class="carousel-item">
+        <div class="card card-modern">
+          <div class="card-photo">
+            <div class="photo-img">修复后的老照片</div>
+          </div>
+          <div class="card-body">
+            <span class="tag">1990 · 全家福</span>
+            <p class="story">这是我们家第一张全家福。那年搬了新家，你说一定要拍张照。爸穿着他唯一的白衬衫，我穿着过年才舍得穿的新衣服。</p>
+            <div class="bottom-bar">
+              <span class="author">小明 · 2026年5月</span>
+              <div class="play-circle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 卡片3：中国风 -->
+      <div class="carousel-item">
+        <div class="card card-chinese">
+          <div class="red-bar"></div>
+          <div class="card-photo">
+            <div class="photo-frame">
+              <div class="photo-img">修复后的老照片</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="ch-title">岁月如歌</div>
+            <p class="story">这张照片是你两岁时拍的，就在咱家院子里。你穿着姥姥做的红棉袄，笑得眼睛都眯成了一条缝。转眼间，你也有了自己的孩子。</p>
+          </div>
+          <div class="sign-area">
+            <div class="sign-name">小明 敬上</div>
+            <div class="sign-date">二〇二六年五月</div>
+          </div>
+          <div class="red-bar"></div>
+        </div>
+      </div>
+
+      <!-- 卡片4：时光对比 -->
+      <div class="carousel-item">
+        <div class="card card-compare">
+          <div style="position:relative;">
+            <div class="photos-row">
+              <div class="photo-half">
+                <div class="photo-img">1988年的爸爸</div>
+                <span class="photo-tag">1988年 · 爸爸</span>
+              </div>
+              <div class="photo-half">
+                <div class="photo-img">2026年的儿子</div>
+                <span class="photo-tag">2026年 · 儿子</span>
+              </div>
+            </div>
+            <div class="arrow-center">→</div>
+          </div>
+          <div class="card-body">
+            <p class="story">爸，你看小宝这张照片，和你年轻时候一模一样。</p>
+            <div class="timeline">
+              <span>1988</span>
+              <div class="dot"></div>
+              <div class="line"></div>
+              <div class="dot"></div>
+              <div class="line"></div>
+              <div class="dot"></div>
+              <span>2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="dots">
+      <div class="dot active" data-idx="0"></div>
+      <div class="dot" data-idx="1"></div>
+      <div class="dot" data-idx="2"></div>
+      <div class="dot" data-idx="3"></div>
+    </div>
+  </div>
+
+  <div class="home-cta">
+    <button class="cta-btn" onclick="switchPage('make')">✉️ 写一封家书</button>
+    <p class="cta-sub">免费制作 · 把思念带回家</p>
+  </div>
+</div>
+
+<!-- ===== 制作页 ===== -->
+<div class="page" id="page-make">
+  <div class="make-header">
+    <h2>写一封家书</h2>
+    <p class="sub">选择模板，上传照片</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>选择模板</h3>
+        <p>选一个你喜欢的风格</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="template-grid">
+    <div class="template-card selected" onclick="selectTemplate(this)">
+      <div class="preview preview-vintage"></div>
+      <div class="t-name">经典怀旧</div>
+      <div class="t-desc">老照片质感</div>
+    </div>
+    <div class="template-card" onclick="selectTemplate(this)">
+      <div class="preview preview-modern"></div>
+      <div class="t-name">现代简约</div>
+      <div class="t-desc">干净清爽</div>
+    </div>
+    <div class="template-card" onclick="selectTemplate(this)">
+      <div class="preview preview-chinese"></div>
+      <div class="t-name">中国风</div>
+      <div class="t-desc">古典韵味</div>
+    </div>
+    <div class="template-card" onclick="selectTemplate(this)">
+      <div class="preview preview-compare"></div>
+      <div class="t-name">时光对比</div>
+      <div class="t-desc">父子同框</div>
+    </div>
+  </div>
+
+  <div class="steps" style="margin-top: 8px;">
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>上传照片</h3>
+        <p>老照片会自动修复上色</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>写下故事</h3>
+        <p>这段记忆对你意味着什么</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-cta">
+    <button class="cta-btn" onclick="switchPage('gen')">开始制作</button>
+  </div>
+</div>
+
+<!-- ===== 生成页 ===== -->
+<div class="page" id="page-gen">
+  <div class="generating">
+    <div class="gen-icon">✉️</div>
+    <p class="gen-text">正在修复照片...</p>
+    <p class="gen-sub">AI正在为老照片上色修复</p>
+    <div class="gen-progress"><div class="gen-bar"></div></div>
+  </div>
+</div>
+
+<!-- ===== 底部导航 ===== -->
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="switchPage('home')">
+    <span class="icon">🏠</span>
+    <span class="label">首页</span>
+  </div>
+  <div class="nav-tab" onclick="switchPage('make')">
+    <span class="icon">✉️</span>
+    <span class="label">写家书</span>
+  </div>
+  <div class="nav-tab" onclick="switchPage('home')">
+    <span class="icon">📖</span>
+    <span class="label">家书集</span>
+  </div>
+  <div class="nav-tab" onclick="switchPage('home')">
+    <span class="icon">👤</span>
+    <span class="label">我的</span>
+  </div>
+</div>
+
+<script>
+  // 轮播指示器
+  const carousel = document.getElementById('carousel');
+  const dots = document.querySelectorAll('.dot');
+  carousel.addEventListener('scroll', () => {
+    const idx = Math.round(carousel.scrollLeft / carousel.offsetWidth * 0.85);
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  });
+
+  // 页面切换
+  function switchPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    window.scrollTo(0, 0);
+  }
+
+  // 模板选择
+  function selectTemplate(el) {
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+</script>
+
+</body>
+</html>

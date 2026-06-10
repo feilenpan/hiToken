@@ -43,9 +43,6 @@ class FileInput(BaseModel):
     function: str = "restore"
     reviewer: str = ""    # 指定点评师：li_bai / su_shi / li_qingzhao / tang_bohu / lu_xun / bai_juyi，空=随机
 
-# 分享卡片 API（独立模块）
-from share_card_api import router as share_card_router
-app.include_router(share_card_router)
 
 def _get_image_bytes(data: FileInput) -> bytes:
     """从 file_url（云存储）或 file（base64）获取图片字节"""
@@ -58,6 +55,10 @@ def _get_image_bytes(data: FileInput) -> bytes:
     raise HTTPException(400, "请提供图片（file_url 或 file）")
 
 app = FastAPI(title="时光修复", description="AI老照片修复工具")
+
+# 分享卡片 API（独立模块）
+from share_card_api import router as share_card_router
+app.include_router(share_card_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -315,7 +316,7 @@ def get_baidu_token() -> Optional[str]:
     if _baidu_token_cache["token"] and time.time() < _baidu_token_cache["expires_at"]:
         return _baidu_token_cache["token"]
     
-    url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={BAIDU_API_KEY}&client_secret={BAIDU_SECRET_KEY}"
+    url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={BAIDU_API_KEY}&client_secret=***
     try:
         req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -339,7 +340,7 @@ def call_baidu_colorize(image_data: bytes) -> dict:
         return {"success": False, "error": "無法獲取百度 access_token"}
     
     img_b64 = base64.b64encode(image_data).decode()
-    url = f"https://aip.baidubce.com/rest/2.0/image-process/v1/colourize?access_token={token}"
+    url = f"https://aip.baidubce.com/rest/2.0/image-process/v1/colourize?access_token=***
     
     try:
         data = f"image={urllib.parse.quote(img_b64)}".encode()

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时光上色 — 让黑白记忆重焕色彩</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎨</span>
+                <span class="logo-text">时光上色</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/pricing">价格</a>
+                <a href="/about">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">让黑白记忆</span>
+                <br>重焕色彩 ✨
+            </h1>
+            <p class="hero-subtitle">
+                AI 智能上色 · 3秒完成 · 珍藏美好回忆
+            </p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="scrollToUpload()">
+                    立即体验 →
+                </button>
+                <span class="hero-badge">免费试用 3 张</span>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="compare-preview" id="heroCompare">
+                <div class="compare-before">
+                    <div class="compare-placeholder">
+                        <span class="emoji">📷</span>
+                        <span>黑白照片</span>
+                    </div>
+                </div>
+                <div class="compare-after">
+                    <div class="compare-placeholder colorful">
+                        <span class="emoji">🌈</span>
+                        <span>上色后</span>
+                    </div>
+                </div>
+                <div class="compare-slider">
+                    <div class="slider-line"></div>
+                    <div class="slider-handle">⟷</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 上传区域 -->
+    <section class="upload-section" id="uploadSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>上传你的黑白照片</h2>
+                <p>支持 JPG、PNG 格式，单张不超过 10MB</p>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept="image/*" hidden>
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <p class="upload-text">拖放图片到这里</p>
+                    <p class="upload-hint">或点击选择文件</p>
+                </div>
+            </div>
+
+            <!-- 处理中 -->
+            <div class="processing-area" id="processingArea" hidden>
+                <div class="processing-animation">
+                    <div class="color-palette">
+                        <span style="--i:0">🔴</span>
+                        <span style="--i:1">🟠</span>
+                        <span style="--i:2">🟡</span>
+                        <span style="--i:3">🟢</span>
+                        <span style="--i:4">🔵</span>
+                        <span style="--i:5">🟣</span>
+                    </div>
+                </div>
+                <p class="processing-text">AI 正在为你的照片上色...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- 结果区域 -->
+            <div class="result-area" id="resultArea" hidden>
+                <h3>🎉 上色完成！</h3>
+                
+                <div class="result-compare">
+                    <div class="compare-container" id="compareContainer">
+                        <div class="compare-img compare-before-img" id="beforeImg"></div>
+                        <div class="compare-img compare-after-img" id="afterImg"></div>
+                        <div class="compare-handle" id="compareHandle">
+                            <div class="handle-line"></div>
+                            <div class="handle-circle">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                    <path d="M8 5l-5 7 5 7M16 5l5 7-5 7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="compare-labels">
+                        <span>原图</span>
+                        <span>上色后</span>
+                    </div>
+                </div>
+
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="downloadResult()">
+                        📥 下载高清图
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetUpload()">
+                        🔄 再来一张
+                    </button>
+                    <button class="btn btn-outline" onclick="shareResult()">
+                        📤 分享给朋友
+                    </button>
+                </div>
+
+                <!-- 付费转化 -->
+                <div class="upsell-card">
+                    <div class="upsell-badge">💎 升级解锁</div>
+                    <h4>需要更高清？批量处理？</h4>
+                    <p>解锁专业版：4K高清输出、批量处理、去除划痕...</p>
+                    <a href="/pricing" class="btn btn-primary">查看方案</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特性介绍 -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">为什么选择时光上色？</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>3秒出图</h3>
+                    <p>业界领先的 AI 引擎，瞬间完成上色</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>智能识别</h3>
+                    <p>自动识别场景、人物、物品，精准上色</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>隐私安全</h3>
+                    <p>图片处理后自动删除，绝不保存</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🆓</div>
+                    <h3>免费试用</h3>
+                    <p>每用户免费 3 张，满意再付费</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo">🎨 时光上色</span>
+                    <p>让每一张黑白照片重焕生机</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/pricing">价格方案</a>
+                    <a href="/about">关于我们</a>
+                    <a href="mailto:hello@colorize.hk">联系客服</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 时光上色 Colorize.hk | 香港</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

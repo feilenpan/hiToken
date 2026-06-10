@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>方案B — 卡片式設計 | 時光修復</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 容器 - 模擬手機屏幕 */
+    .phone-frame {
+      max-width: 375px;
+      margin: 20px auto;
+      background: #f5f5f5;
+      min-height: 667px;
+      box-shadow: 0 10px 60px rgba(0,0,0,0.3);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 狀態欄 */
+    .status-bar {
+      height: 44px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 12px;
+      color: #333;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* 主容器 */
+    .container {
+      padding: 0;
+      min-height: calc(667px - 44px - 60px);
+      padding-bottom: 80px;
+      background: #f5f5f5;
+    }
+
+    /* 頭部區域 */
+    .header {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+      padding: 24px 20px 32px;
+      color: #fff;
+    }
+
+    .header-greeting {
+      font-size: 15px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .header-subtitle {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+
+    /* 卡片網格 */
+    .cards-container {
+      padding: 20px;
+      margin-top: -20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #FF6B35 0%, #FF8F60 100%);
+    }
+
+    .card.enhance::before {
+      background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
+    }
+
+    .card.history::before {
+      background: linear-gradient(90deg, #2196F3 0%, #42A5F5 100%);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .card-icon.colorize {
+      background: linear-gradient(135deg, #FFE5DC 0%, #FFD4C4 100%);
+    }
+
+    .card-icon.enhance {
+      background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    }
+
+    .card-icon.history {
+      background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    }
+
+    .card-header-text {
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .card-arrow {
+      width: 24px;
+      height: 24px;
+      color: #ccc;
+    }
+
+    .card-description {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .card-stats {
+      display: flex;
+      gap: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .stat-item {
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #FF6B35;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* Demo 預覽卡片 */
+    .demo-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .demo-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .demo-images {
+      display: flex;
+      gap: 12px;
+    }
+
+    .demo-image {
+      flex: 1;
+      height: 140px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #999;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,107,53,0.1) 0%, rgba(255,143,96,0.1) 100%);
+    }
+
+    .demo-label {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      z-index: 1;
+    }
+
+    /* 快速操作 */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+
+    .quick-btn {
+      flex: 1;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .quick-btn.primary {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(255,107,53,0.3);
+    }
+
+    .quick-btn.secondary {
+      background: #fff;
+      color: #FF6B35;
+      border: 2px solid #FF6B35;
+    }
+
+    .quick-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 底部 Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 375px;
+      height: 60px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      border-top: 1px solid rgba(0,0,0,0.05);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .tab-item.active {
+      color: #FF6B35;
+    }
+
+    .tab-item:not(.active) {
+      color: #999;
+    }
+
+    .tab-icon {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.2s;
+    }
+
+    .tab-item.active .tab-icon {
+      transform: scale(1.1);
+    }
+
+    .tab-label {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Tab 內容切換 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 署名 */
+    .attribution {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .attribution a {
+      color: #FF6B35;
+      text-decoration: none;
+    }
+
+    /* 響應式 */
+    @media (max-width: 400px) {
+      .phone-frame {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 狀態欄 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>● ● ● ● ●</span>
+    </div>
+
+    <!-- 主內容 -->
+    <div class="container">
+      <!-- Tab 1: 首頁 -->
+      <div class="tab-content active" data-tab="home">
+        <div class="header">
+          <div class="header-greeting">☀️ 早安</div>
+          <div class="header-title">時光修復</div>
+          <div class="header-subtitle">讓老照片重獲新生</div>
+        </div>
+
+        <div class="cards-container">
+          <!-- Demo 預覽卡片 -->
+          <div class="demo-card">
+            <div class="demo-title">✨ 效果展示</div>
+            <div class="demo-images">
+              <div class="demo-image">
+                <div class="demo-label">處理前</div>
+                黑白老照片
+              </div>
+              <div class="demo-image">
+                <div class="demo-label">處理後</div>
+                彩色修復照
+              </div>
+            </div>
+          </div>
+
+          <!-- AI上色卡片 -->
+          <div class="card colorize" onclick="alert('AI上色功能（演示）')">
+            <div class="card-header">
+              <div class="card-icon colorize">🎨</div>
+              <div class="card-header-text">
+                <div class="card-title">AI 上色</div>
+                <div class="card-subtitle">智能為黑白照片上色</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+            <div class="card-description">
+              用 AI 技術為黑白老照片注入色彩，還原當年的溫度與記憶。
+            </div>
+            <div class="card-stats">
+              <div class="stat-item">
+                <div class="stat-value">10s</div>
+                <div class="stat-label">平均處理</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">98%</div>
+                <div class="stat-label">滿意度</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">免費</div>
+                <div class="stat-label">不限次數</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 照片修復卡片 -->
+          <div class="card enhance" onclick="alert('照片修復功能（演示）')">
+            <div class="card-header">
+              <div class="card-icon enhance">🔧</div>
+              <div class="card-header-text">
+                <div class="card-title">照片修復</div>
+                <div class="card-subtitle">修復折痕、去除噪點</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+            <div class="card-description">
+              修復老照片的物理損傷，去除噪點和折痕，讓模糊的記憶變得清晰。
+            </div>
+            <div class="card-stats">
+              <div class="stat-item">
+                <div class="stat-value">智能</div>
+                <div class="stat-label">自動檢測</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">清晰</div>
+                <div class="stat-label">畫質增強</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">保留</div>
+                <div class="stat-label">原始細節</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 歷史記錄卡片 -->
+          <div class="card history" onclick="alert('歷史記錄（演示）')">
+            <div class="card-header">
+              <div class="card-icon history">📋</div>
+              <div class="card-header-text">
+                <div class="card-title">歷史記錄</div>
+                <div class="card-subtitle">查看已處理的照片</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="attribution">
+          Powered with the <a href="https://palette.fm" target="_blank">Palette API</a>
+        </div>
+      </div>
+
+      <!-- Tab 2: 處理 -->
+      <div class="tab-content" data-tab="process">
+        <div class="header">
+          <div class="header-greeting">🚀 快速處理</div>
+          <div class="header-title">選擇功能</div>
+          <div class="header-subtitle">讓我們開始吧</div>
+        </div>
+
+        <div class="cards-container">
+          <div class="card colorize" onclick="alert('選擇照片 - AI上色（演示）')">
+            <div class="card-header">
+              <div class="card-icon colorize">🎨</div>
+              <div class="card-header-text">
+                <div class="card-title">AI 上色</div>
+                <div class="card-subtitle">為黑白照片注入色彩</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card enhance" onclick="alert('選擇照片 - 照片修復（演示）')">
+            <div class="card-header">
+              <div class="card-icon enhance">🔧</div>
+              <div class="card-header-text">
+                <div class="card-title">照片修復</div>
+                <div class="card-subtitle">修復損傷和噪點</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="quick-btn primary" onclick="alert('選擇照片（演示）')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            選擇照片
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 3: 我的 -->
+      <div class="tab-content" data-tab="profile">
+        <div class="header">
+          <div class="header-greeting">👋 你好</div>
+          <div class="header-title">我的</div>
+          <div class="header-subtitle">設置與更多</div>
+        </div>
+
+        <div class="cards-container">
+          <div class="card history" onclick="alert('歷史記錄（演示）')">
+            <div class="card-header">
+              <div class="card-icon history">📋</div>
+              <div class="card-header-text">
+                <div class="card-title">歷史記錄</div>
+                <div class="card-subtitle">已處理 12 張照片</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="card" onclick="alert('隱私設置（演示）')">
+            <div class="card-header">
+              <div class="card-icon colorize">🔒</div>
+              <div class="card-header-text">
+                <div class="card-title">隱私設置</div>
+                <div class="card-subtitle">管理數據與隱私</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="card" onclick="alert('關於（演示）')">
+            <div class="card-header">
+              <div class="card-icon enhance">ℹ️</div>
+              <div class="card-header-text">
+                <div class="card-title">關於</div>
+                <div class="card-subtitle">版本 1.0.0</div>
+              </div>
+              <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部 Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('home', this)">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <div class="tab-label">首頁</div>
+      </div>
+      
+      <div class="tab-item" onclick="switchTab('process', this)">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <div class="tab-label">處理</div>
+      </div>
+      
+      <div class="tab-item" onclick="switchTab('profile', this)">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+        <div class="tab-label">我的</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName, element) {
+      // 移除所有 active 狀態
+      document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // 添加當前 active 狀態
+      element.classList.add('active');
+      document.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
+    }
+  </script>
+</body>
+</html>

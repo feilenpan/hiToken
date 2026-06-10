@@ -34,8 +34,9 @@ def _load_font(size: int) -> ImageFont.FreeTypeFont:
     if key in _FONT_CACHE:
         return _FONT_CACHE[key]
     for p in FONT_PATHS:
-        if p.exists():
-            font = ImageFont.truetype(str(p), size)
+        path = Path(p) if isinstance(p, str) else p
+        if path.exists():
+            font = ImageFont.truetype(str(path), size)
             _FONT_CACHE[key] = font
             return font
     font = ImageFont.load_default()

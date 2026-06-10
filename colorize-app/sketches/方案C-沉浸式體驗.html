@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>方案C — 沉浸式體驗 | 時光修復</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+      background: #000;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 容器 - 模擬手機屏幕 */
+    .phone-frame {
+      max-width: 375px;
+      margin: 20px auto;
+      background: #000;
+      min-height: 667px;
+      box-shadow: 0 10px 60px rgba(255,107,53,0.5);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 狀態欄 - 透明深色 */
+    .status-bar {
+      height: 44px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 500;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    /* 全屏滑動容器 */
+    .swiper-container {
+      height: 667px;
+      position: relative;
+    }
+
+    .swiper-slide {
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 背景圖層 */
+    .slide-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(0px) brightness(0.7);
+      transition: all 0.6s ease;
+    }
+
+    .slide-background.colorize {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 50%, #FF6B35 100%);
+    }
+
+    .slide-background.enhance {
+      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #4CAF50 100%);
+    }
+
+    .slide-background.history {
+      background: linear-gradient(135deg, #2196F3 0%, #42A5F5 50%, #2196F3 100%);
+    }
+
+    /* 前景內容 */
+    .slide-content {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 80px 32px 120px;
+      color: #fff;
+      z-index: 10;
+    }
+
+    /* 效果展示區 */
+    .demo-showcase {
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 340px;
+      perspective: 1000px;
+    }
+
+    .demo-image-stack {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotateY(-5deg); }
+      50% { transform: translateY(-20px) rotateY(5deg); }
+    }
+
+    .demo-frame {
+      position: absolute;
+      width: 220px;
+      height: 280px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      overflow: hidden;
+      transition: all 0.6s ease;
+    }
+
+    .demo-frame.before {
+      left: 0;
+      top: 0;
+      transform: translateX(-30px) translateZ(0px) rotate(-8deg);
+      opacity: 0.9;
+    }
+
+    .demo-frame.after {
+      right: 0;
+      top: 20px;
+      transform: translateX(30px) translateZ(40px) rotate(8deg);
+    }
+
+    .demo-frame-image {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #999;
+    }
+
+    .demo-label {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* 文字內容區 */
+    .slide-title {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.2;
+      text-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .slide-subtitle {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      opacity: 0.95;
+      line-height: 1.4;
+    }
+
+    .slide-description {
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.85;
+      margin-bottom: 32px;
+    }
+
+    /* 主要 CTA */
+    .slide-cta {
+      width: 100%;
+      height: 60px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(255,255,255,0.3);
+    }
+
+    .slide-cta:active {
+      transform: scale(0.96);
+    }
+
+    .slide-cta svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* 滑動指示器 */
+    .swipe-indicator {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+    }
+
+    .indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.3s ease;
+    }
+
+    .indicator-dot.active {
+      width: 24px;
+      background: #fff;
+    }
+
+    /* 特性標籤 */
+    .feature-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .feature-tag {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* 歷史記錄網格（第三屏特殊佈局）*/
+    .history-grid {
+      position: absolute;
+      top: 100px;
+      left: 32px;
+      right: 32px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .history-card {
+      aspect-ratio: 1;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .history-card:active {
+      transform: scale(0.95);
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* 響應式 */
+    @media (max-width: 400px) {
+      .phone-frame {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+    }
+
+    /* 簡單的左右滑動支持 */
+    .swiper-container {
+      overflow-x: hidden;
+      scroll-snap-type: x mandatory;
+      display: flex;
+      transition: transform 0.3s ease;
+    }
+
+    .swiper-slide {
+      flex-shrink: 0;
+      width: 100%;
+      scroll-snap-align: start;
+    }
+
+    /* 署名 */
+    .attribution {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      z-index: 15;
+    }
+
+    .attribution a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 狀態欄 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>● ● ● ● ●</span>
+    </div>
+
+    <!-- 全屏滑動容器 -->
+    <div class="swiper-container" id="swiperContainer">
+      <!-- 第一屏：AI上色 -->
+      <div class="swiper-slide">
+        <div class="slide-background colorize"></div>
+        
+        <div class="demo-showcase">
+          <div class="demo-image-stack">
+            <div class="demo-frame before">
+              <div class="demo-frame-image">黑白老照片</div>
+              <div class="demo-label">處理前</div>
+            </div>
+            <div class="demo-frame after">
+              <div class="demo-frame-image">彩色修復照</div>
+              <div class="demo-label">處理後</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-title">AI<br>上色</div>
+          <div class="slide-subtitle">讓黑白照片重獲色彩</div>
+          
+          <div class="feature-tags">
+            <div class="feature-tag">⚡ 10秒極速</div>
+            <div class="feature-tag">🎨 真實還原</div>
+            <div class="feature-tag">💎 完全免費</div>
+          </div>
+
+          <div class="slide-description">
+            用AI技術為黑白老照片注入色彩，還原當年的溫度與記憶。每一張照片都是一段時光的見證。
+          </div>
+
+          <button class="slide-cta" onclick="alert('選擇照片 - AI上色（演示）')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            選擇照片，開始上色
+          </button>
+        </div>
+
+        <div class="attribution">
+          Powered with the <a href="https://palette.fm" target="_blank">Palette API</a>
+        </div>
+      </div>
+
+      <!-- 第二屏：照片修復 -->
+      <div class="swiper-slide">
+        <div class="slide-background enhance"></div>
+        
+        <div class="demo-showcase">
+          <div class="demo-image-stack">
+            <div class="demo-frame before">
+              <div class="demo-frame-image">模糊老照片</div>
+              <div class="demo-label">處理前</div>
+            </div>
+            <div class="demo-frame after">
+              <div class="demo-frame-image">清晰修復照</div>
+              <div class="demo-label">處理後</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-title">照片<br>修復</div>
+          <div class="slide-subtitle">修復損傷，還原清晰</div>
+          
+          <div class="feature-tags">
+            <div class="feature-tag">🔧 智能檢測</div>
+            <div class="feature-tag">✨ 畫質增強</div>
+            <div class="feature-tag">📐 細節保留</div>
+          </div>
+
+          <div class="slide-description">
+            修復老照片的物理損傷，去除噪點和折痕，讓模糊的記憶變得清晰。
+          </div>
+
+          <button class="slide-cta" onclick="alert('選擇照片 - 照片修復（演示）')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            選擇照片，開始修復
+          </button>
+        </div>
+
+        <div class="attribution">
+          Powered with the <a href="https://palette.fm" target="_blank">Palette API</a>
+        </div>
+      </div>
+
+      <!-- 第三屏：歷史記錄 -->
+      <div class="swiper-slide">
+        <div class="slide-background history"></div>
+        
+        <div class="history-grid">
+          <div class="history-card" onclick="alert('照片1（演示）')">
+            <div>🖼️<br>2024/05/15</div>
+          </div>
+          <div class="history-card" onclick="alert('照片2（演示）')">
+            <div>🖼️<br>2024/05/14</div>
+          </div>
+          <div class="history-card" onclick="alert('照片3（演示）')">
+            <div>🖼️<br>2024/05/13</div>
+          </div>
+          <div class="history-card" onclick="alert('照片4（演示）')">
+            <div>🖼️<br>2024/05/12</div>
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="slide-title">歷史<br>記錄</div>
+          <div class="slide-subtitle">已處理 12 張照片</div>
+
+          <div class="slide-description">
+            查看所有已處理的照片，隨時回顧美好記憶。
+          </div>
+
+          <button class="slide-cta" onclick="alert('查看全部（演示）')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+            </svg>
+            查看全部記錄
+          </button>
+        </div>
+
+        <div class="attribution">
+          Powered with the <a href="https://palette.fm" target="_blank">Palette API</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 滑動指示器 -->
+    <div class="swipe-indicator">
+      <div class="indicator-dot active" data-index="0"></div>
+      <div class="indicator-dot" data-index="1"></div>
+      <div class="indicator-dot" data-index="2"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const totalSlides = 3;
+    const container = document.getElementById('swiperContainer');
+    const dots = document.querySelectorAll('.indicator-dot');
+
+    // 簡單的滑動實現
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    container.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      currentX = e.touches[0].clientX;
+    });
+
+    container.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      const diff = startX - currentX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentSlide < totalSlides - 1) {
+          currentSlide++;
+        } else if (diff < 0 && currentSlide > 0) {
+          currentSlide--;
+        }
+        updateSlide();
+      }
+    });
+
+    // 點擊指示器切換
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        currentSlide = parseInt(dot.dataset.index);
+        updateSlide();
+      });
+    });
+
+    function updateSlide() {
+      const offset = -currentSlide * 100;
+      container.style.transform = `translateX(${offset}%)`;
+      
+      dots.forEach((dot, index) => {
+        if (index === currentSlide) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+
+    // 鍵盤支持（桌面調試用）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      } else if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    });
+  </script>
+</body>
+</html>

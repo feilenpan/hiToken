@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>价格方案 — 时光上色</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .pricing-section {
+            padding: 120px 0 80px;
+            min-height: 100vh;
+        }
+        
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .pricing-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .pricing-header p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 40px 32px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(180deg, rgba(99,102,241,0.1) 0%, var(--bg-card) 100%);
+        }
+        
+        .pricing-card.featured::before {
+            content: '🔥 最受欢迎';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-primary);
+            padding: 4px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .pricing-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 24px;
+        }
+        
+        .pricing-price {
+            margin-bottom: 32px;
+        }
+        
+        .price-amount {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        
+        .price-currency {
+            font-size: 1.5rem;
+            vertical-align: super;
+        }
+        
+        .price-period {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .pricing-features li::before {
+            content: '✓';
+            color: #4ade80;
+            font-weight: bold;
+        }
+        
+        .pricing-features li.disabled {
+            color: var(--text-muted);
+        }
+        
+        .pricing-features li.disabled::before {
+            content: '—';
+            color: var(--text-muted);
+        }
+        
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .pricing-note {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .faq-section {
+            max-width: 700px;
+            margin: 80px auto 0;
+            padding: 0 24px;
+        }
+        
+        .faq-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .faq-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .faq-answer {
+            padding: 0 24px 20px;
+            color: var(--text-secondary);
+            display: none;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        .faq-item.active .faq-question::after {
+            content: '−';
+        }
+        
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 768px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎨</span>
+                <span class="logo-text">时光上色</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">首页</a>
+                <a href="/pricing" style="color: var(--text-primary)">价格</a>
+                <a href="/about">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pricing-section">
+        <div class="container">
+            <div class="pricing-header">
+                <h1>简单透明的定价</h1>
+                <p>先免费试用，满意再付费</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- 免费版 -->
+                <div class="pricing-card">
+                    <div class="pricing-name">免费体验</div>
+                    <div class="pricing-desc">试试效果</div>
+                    <div class="pricing-price">
+                        <span class="price-amount"><span class="price-currency">¥</span>0</span>
+                        <span class="price-period">/ 永久免费</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>3 张免费额度</li>
+                        <li>标准分辨率输出</li>
+                        <li>基础 AI 上色</li>
+                        <li class="disabled">4K 高清输出</li>
+                        <li class="disabled">去除划痕</li>
+                        <li class="disabled">批量处理</li>
+                    </ul>
+                    <a href="/" class="btn btn-secondary">免费开始</a>
+                </div>
+
+                <!-- 专业版 -->
+                <div class="pricing-card featured">
+                    <div class="pricing-name">专业版</div>
+                    <div class="pricing-desc">个人珍藏修复</div>
+                    <div class="pricing-price">
+                        <span class="price-amount"><span class="price-currency">¥</span>29</span>
+                        <span class="price-period">/ 50 张</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>50 张上色额度</li>
+                        <li>4K 高清输出</li>
+                        <li>智能 AI 上色</li>
+                        <li>去除轻微划痕</li>
+                        <li>永久保存记录</li>
+                        <li class="disabled">批量处理</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">立即购买</a>
+                </div>
+
+                <!-- 企业版 -->
+                <div class="pricing-card">
+                    <div class="pricing-name">企业版</div>
+                    <div class="pricing-desc">机构批量处理</div>
+                    <div class="pricing-price">
+                        <span class="price-amount"><span class="price-currency">¥</span>199</span>
+                        <span class="price-period">/ 500 张</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>500 张上色额度</li>
+                        <li>4K 高清输出</li>
+                        <li>专业 AI 上色</li>
+                        <li>深度修复划痕</li>
+                        <li>批量上传处理</li>
+                        <li>专属客服支持</li>
+                    </ul>
+                    <a href="mailto:business@colorize.hk" class="btn btn-outline">联系我们</a>
+                </div>
+            </div>
+
+            <p class="pricing-note">
+                💡 企业定制方案请联系我们：<a href="mailto:business@colorize.hk" style="color: var(--primary)">business@colorize.hk</a>
+            </p>
+
+            <!-- FAQ -->
+            <div class="faq-section">
+                <h2>常见问题</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        上色效果不满意怎么办？
+                    </div>
+                    <div class="faq-answer">
+                        如果效果不理想，可以调整参数重新生成，或联系客服获取人工优化服务。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        我的照片会被保存吗？
+                    </div>
+                    <div class="faq-answer">
+                        不会。所有照片在处理完成后 24 小时内自动删除，我们绝不保存您的照片。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        支持哪些图片格式？
+                    </div>
+                    <div class="faq-answer">
+                        支持 JPG、JPEG、PNG 格式，单张图片不超过 10MB。
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        如何申请退款？
+                    </div>
+                    <div class="faq-answer">
+                        购买后 7 天内如不满意，可联系客服申请全额退款。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo">🎨 时光上色</span>
+                    <p>让每一张黑白照片重焕生机</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/pricing">价格方案</a>
+                    <a href="/about">关于我们</a>
+                    <a href="mailto:hello@colorize.hk">联系客服</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 时光上色 Colorize.hk | 香港</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            item.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

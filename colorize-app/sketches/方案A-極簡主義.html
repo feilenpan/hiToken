@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>方案A — 極簡主義 | 時光修復</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+      background: #FAFAFA;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 容器 - 模擬手機屏幕 */
+    .phone-frame {
+      max-width: 375px;
+      margin: 20px auto;
+      background: #fff;
+      min-height: 667px;
+      box-shadow: 0 10px 60px rgba(0,0,0,0.15);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 狀態欄 */
+    .status-bar {
+      height: 44px;
+      background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 12px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* 主容器 */
+    .container {
+      padding: 0;
+      min-height: calc(667px - 44px - 60px);
+      padding-bottom: 80px;
+    }
+
+    /* Hero 區 - 單一大效果圖 */
+    .hero-section {
+      position: relative;
+      height: 420px;
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+      overflow: hidden;
+    }
+
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.95;
+      transition: transform 0.6s ease;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 20px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      color: #fff;
+    }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    /* 主要內容區 */
+    .content {
+      padding: 24px 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    .feature-description {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* 超大 CTA 按鈕 */
+    .cta-button {
+      width: 100%;
+      height: 64px;
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+      color: #fff;
+      border: none;
+      border-radius: 32px;
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 12px 32px rgba(255, 107, 53, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .cta-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+    }
+
+    .cta-icon {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+    }
+
+    /* 次要說明 */
+    .secondary-text {
+      text-align: center;
+      font-size: 14px;
+      color: #999;
+      margin-top: 16px;
+    }
+
+    /* 底部 Tab Bar */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 375px;
+      height: 60px;
+      background: #fff;
+      display: flex;
+      border-top: 1px solid #f0f0f0;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .tab-item.active {
+      color: #FF6B35;
+    }
+
+    .tab-item:not(.active) {
+      color: #999;
+    }
+
+    .tab-icon {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.2s;
+    }
+
+    .tab-item.active .tab-icon {
+      transform: scale(1.1);
+    }
+
+    .tab-label {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .tab-badge {
+      position: absolute;
+      top: 8px;
+      right: calc(50% - 20px);
+      background: #FF4D4F;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    /* 功能內容切換 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 優勢列表 */
+    .benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .benefit-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8F60 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .benefit-text {
+      flex: 1;
+    }
+
+    .benefit-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .benefit-desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 署名 */
+    .attribution {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .attribution a {
+      color: #FF6B35;
+      text-decoration: none;
+    }
+
+    /* 響應式 */
+    @media (max-width: 400px) {
+      .phone-frame {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+    }
+
+    /* 簡單的 SVG icon */
+    .icon-colorize {
+      fill: currentColor;
+    }
+
+    .icon-enhance {
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- 狀態欄 -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>● ● ● ● ●</span>
+    </div>
+
+    <!-- 主內容 -->
+    <div class="container">
+      <!-- Tab 1: AI上色 -->
+      <div class="tab-content active" data-tab="colorize">
+        <div class="hero-section">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF6B35'/%3E%3Cstop offset='100%25' style='stop-color:%23FF8F60'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23g1)'/%3E%3Ctext x='400' y='300' font-size='80' fill='white' text-anchor='middle' font-family='Arial' opacity='0.3'%3E老照片效果%3C/text%3E%3C/svg%3E" 
+               alt="效果展示" 
+               class="hero-image">
+          <div class="hero-overlay">
+            <div class="hero-title">時光修復</div>
+            <div class="hero-subtitle">AI 智能上色，讓黑白照片重獲新生</div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="section-title">AI 上色</div>
+          <div class="feature-description">
+            用AI技術為黑白老照片注入色彩，還原當年的溫度與記憶。每一張照片都是一段時光的見證。
+          </div>
+
+          <button class="cta-button" onclick="alert('選擇照片功能（演示）')">
+            <svg class="cta-icon" viewBox="0 0 24 24">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            選擇照片，開始上色
+          </button>
+
+          <div class="secondary-text">
+            💡 完全免費，不限次數
+          </div>
+
+          <div class="benefits">
+            <div class="benefit-item">
+              <div class="benefit-icon">🎨</div>
+              <div class="benefit-text">
+                <div class="benefit-title">真實還原</div>
+                <div class="benefit-desc">AI 分析場景，智能匹配色彩，效果自然真實</div>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">⚡</div>
+              <div class="benefit-text">
+                <div class="benefit-title">極速處理</div>
+                <div class="benefit-desc">平均 10 秒完成，無需等待</div>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">🔒</div>
+              <div class="benefit-text">
+                <div class="benefit-title">隱私保護</div>
+                <div class="benefit-desc">照片僅用於處理，30 天後自動刪除</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 照片修復 -->
+      <div class="tab-content" data-tab="enhance">
+        <div class="hero-section">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='g2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234CAF50'/%3E%3Cstop offset='100%25' style='stop-color:%2366BB6A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='800' height='600' fill='url(%23g2)'/%3E%3Ctext x='400' y='300' font-size='80' fill='white' text-anchor='middle' font-family='Arial' opacity='0.3'%3E修復效果%3C/text%3E%3C/svg%3E" 
+               alt="修復展示" 
+               class="hero-image">
+          <div class="hero-overlay">
+            <div class="hero-title">照片修復</div>
+            <div class="hero-subtitle">修復折痕、去除噪點，還原清晰畫面</div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="section-title">照片修復</div>
+          <div class="feature-description">
+            修復老照片的物理損傷，去除噪點和折痕，讓模糊的記憶變得清晰。
+          </div>
+
+          <button class="cta-button" onclick="alert('選擇照片功能（演示）')">
+            <svg class="cta-icon" viewBox="0 0 24 24">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+            選擇照片，開始修復
+          </button>
+
+          <div class="secondary-text">
+            💡 智能識別，一鍵修復
+          </div>
+
+          <div class="benefits">
+            <div class="benefit-item">
+              <div class="benefit-icon">🔧</div>
+              <div class="benefit-text">
+                <div class="benefit-title">智能修復</div>
+                <div class="benefit-desc">自動檢測並修復照片損傷</div>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">✨</div>
+              <div class="benefit-text">
+                <div class="benefit-title">畫質增強</div>
+                <div class="benefit-desc">提升清晰度，優化色彩</div>
+              </div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">📐</div>
+              <div class="benefit-text">
+                <div class="benefit-title">細節保留</div>
+                <div class="benefit-desc">修復的同時保留原始細節</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: 我的 -->
+      <div class="tab-content" data-tab="profile">
+        <div class="hero-section" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="hero-overlay" style="padding-top: 60px;">
+            <div class="hero-title" style="font-size: 24px;">我的</div>
+            <div class="hero-subtitle">查看歷史記錄與設置</div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="benefit-item" style="cursor: pointer;" onclick="alert('歷史記錄（演示）')">
+            <div class="benefit-icon">📋</div>
+            <div class="benefit-text">
+              <div class="benefit-title">歷史記錄</div>
+              <div class="benefit-desc">查看已處理的照片</div>
+            </div>
+          </div>
+
+          <div class="benefit-item" style="cursor: pointer; margin-top: 16px;" onclick="alert('隱私設置（演示）')">
+            <div class="benefit-icon">🔒</div>
+            <div class="benefit-text">
+              <div class="benefit-title">隱私設置</div>
+              <div class="benefit-desc">管理數據與隱私</div>
+            </div>
+          </div>
+
+          <div class="benefit-item" style="cursor: pointer; margin-top: 16px;" onclick="alert('關於我們（演示）')">
+            <div class="benefit-icon">ℹ️</div>
+            <div class="benefit-text">
+              <div class="benefit-title">關於</div>
+              <div class="benefit-desc">了解更多信息</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="attribution">
+        Powered with the <a href="https://palette.fm" target="_blank">Palette API</a>
+      </div>
+    </div>
+
+    <!-- 底部 Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('colorize', this)">
+        <svg class="tab-icon icon-colorize" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+        </svg>
+        <div class="tab-label">AI上色</div>
+      </div>
+      
+      <div class="tab-item" onclick="switchTab('enhance', this)">
+        <svg class="tab-icon icon-enhance" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
+        </svg>
+        <div class="tab-label">照片修復</div>
+      </div>
+      
+      <div class="tab-item" onclick="switchTab('profile', this)">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+        <div class="tab-label">我的</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName, element) {
+      // 移除所有 active 狀態
+      document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // 添加當前 active 狀態
+      element.classList.add('active');
+      document.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    // 添加圖片懸停效果
+    document.querySelectorAll('.hero-image').forEach(img => {
+      img.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.05)';
+      });
+      img.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+      });
+    });
+  </script>
+</body>
+</html>
