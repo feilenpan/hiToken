@@ -20,8 +20,9 @@ RUN pip install --no-cache-dir \
     python-jose[cryptography]==3.3.0 \
     passlib[bcrypt]==1.7.4
 
-COPY app_full.py volc_visual_engine.py ./
+COPY app_full.py volc_visual_engine.py share_card_api.py ./
 COPY legal/ ./legal/
+COPY fonts/ ./fonts/
 
 RUN mkdir -p /app/results /app/data /app/temp /app/uploads
 

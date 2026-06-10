@@ -28,6 +28,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import io
 import uvicorn
 
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +42,10 @@ class FileInput(BaseModel):
     prompt: str = ""
     function: str = "restore"
     reviewer: str = ""    # 指定点评师：li_bai / su_shi / li_qingzhao / tang_bohu / lu_xun / bai_juyi，空=随机
+
+# 分享卡片 API（独立模块）
+from share_card_api import router as share_card_router
+app.include_router(share_card_router)
 
 def _get_image_bytes(data: FileInput) -> bytes:
     """从 file_url（云存储）或 file（base64）获取图片字节"""
@@ -463,12 +469,12 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
 
 6. 金句（quote,≤15字）：最有画面感的一句话
 
-7. 地点（location）：能识别就填
+7. 地点（location）：能识别就填。如果是知名地标，额外输出 location_story（≤50字，用你的语气讲一个与该地相关的趣事、典故或古今感慨）。普通地点（公园、住宅区、火车站等）location_story留空。
 
 8. 修图建议（suggestions,1-3个）：quality和creative至少各一个，label≤10字，prompt≤20字
 
 返回纯JSON（不要markdown代码块）：
-{{"text":"点评120-200字","poem":"即兴创作2-4行","title":"标题","score":88,"tags":["📸 珍贵记忆","🌅 岁月静好"],"quote":"金句≤15字","location":"地点或空","suggestions":[{{"type":"quality","label":"修复划痕","prompt":"去除折痕和污渍"}},{{"type":"creative","label":"柔光氛围","prompt":"添加温暖柔光滤镜"}}]}}"""
+{{"text":"点评120-200字","poem":"即兴创作2-4行","title":"标题","score":88,"tags":["📸 珍贵记忆","🌅 岁月静好"],"quote":"金句≤15字","location":"地点或空","location_story":"典故或空","suggestions":[{{"type":"quality","label":"修复划痕","prompt":"去除折痕和污渍"}},{{"type":"creative","label":"柔光氛围","prompt":"添加温暖柔光滤镜"}}]}}"""
         
         if not SEED_API_KEY:
             raise HTTPException(500, "豆包 API Key 未配置")
@@ -495,6 +501,7 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         evaluation.setdefault("tags", [])
         evaluation.setdefault("quote", "")
         evaluation.setdefault("location", "")
+        evaluation.setdefault("location_story", "")
         evaluation.setdefault("suggestions", [])
         
         logger.info(f"点评完成: title={evaluation['title']}, score={evaluation['score']}")
@@ -516,10 +523,10 @@ async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_cur
         raise
     except json.JSONDecodeError as e:
         logger.error(f"豆包返回非JSON: {e}")
-        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True}
+        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "location_story": "", "suggestions": [], "fallback": True}
     except Exception as e:
         logger.error(f"点评异常: {e}")
-        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "suggestions": [], "fallback": True}
+        return {"success": True, "text": "这是一张珍贵的照片。", "title": "珍贵印记", "score": 85, "tags": ["📸 珍贵记忆"], "quote": "每一张都值得被珍惜", "location": "", "location_story": "", "suggestions": [], "fallback": True}
 
 @app.get("/api/health")
 async def health():
@@ -849,7 +856,8 @@ async def process_photo(
         "function": data.function,
         "result": f"data:image/jpeg;base64,{result_base64}",
         "result_url": result_url,
-        "engine": engine_name
+        "engine": engine_name,
+        "quota": get_user_quota(user["id"]) if user else {}
     }
 
 
@@ -872,7 +880,7 @@ async def suggest_edit_photo(data: FileInput, user: Optional[dict] = Depends(get
         result_bytes = suggest_edit(image_bytes, data.prompt or "")
         if result_bytes:
             result_b64 = base64.b64encode(result_bytes).decode()
-            return {"success": True, "result": f"data:image/jpeg;base64,{result_b64}"}
+            return {"success": True, "result": f"data:image/jpeg;base64,{result_b64}", "quota": get_user_quota(user["id"]) if user else {}}
         else:
             return {"success": False, "detail": "AI编辑失败，请稍后重试"}
     except HTTPException:
