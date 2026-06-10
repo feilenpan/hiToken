@@ -16,9 +16,15 @@ router = APIRouter()
 
 # ── 字体加载 ──
 FONT_PATHS = [
-    Path(__file__).parent / "fonts" / "NotoSansSC-Regular.ttf",
+    # macOS
     "/System/Library/Fonts/STHeiti Medium.ttc",
     "/System/Library/Fonts/Supplemental/Songti.ttc",
+    # Docker (fonts-noto-cjk)
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+    # 本地开发
+    Path(__file__).parent / "fonts" / "NotoSansSC-Regular.ttf",
 ]
 
 _FONT_CACHE = {}

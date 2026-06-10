@@ -7,6 +7,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir \
@@ -22,7 +23,6 @@ RUN pip install --no-cache-dir \
 
 COPY app_full.py volc_visual_engine.py share_card_api.py ./
 COPY legal/ ./legal/
-COPY fonts/ ./fonts/
 
 RUN mkdir -p /app/results /app/data /app/temp /app/uploads
 
