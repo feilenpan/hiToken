@@ -478,9 +478,11 @@ Page({
     var sendRequest = function(photoPayload) {
       var data = {
         poem: poemText,
-        reviewer_name: ev.reviewer || '李白',
-        reviewer_emoji: ev.reviewer_emoji || '🍶',
-        reviewer_stamp: ev.stamp || '太白醉评'
+        text: ev.text || '',
+        quote: ev.quote || '',
+        reviewer_name: ev.reviewer || '',
+        reviewer_emoji: ev.reviewer_emoji || '',
+        reviewer_stamp: ev.stamp || ''
       };
       Object.assign(data, photoPayload);
 
