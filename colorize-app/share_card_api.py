@@ -47,8 +47,8 @@ def _load_font(size: int) -> ImageFont.FreeTypeFont:
 # ── 卡片常量 ──
 W, H = 1080, 1500
 PAD = 60
-PHOTO_MAX_W = 960
-PHOTO_MAX_H = 960
+PHOTO_MAX_W = 1000
+PHOTO_MAX_H = 1200
 PHOTO_RADIUS = 24
 ORANGE = (255, 107, 53)
 DARK = (51, 51, 51)
@@ -145,7 +145,7 @@ def generate_card(photo_bytes: bytes, poem: str, reviewer_name: str,
     # 照片
     photo = _round_corners(photo, PHOTO_RADIUS - 4)
     img.paste(photo, (card_x + 20, current_y + 20), photo)
-    current_y += card_h + 50
+    current_y += card_h + 30
 
     # ── 诗词 ──
     poem_lines = [l.strip() for l in poem.strip().split("\n") if l.strip()]
