@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 from contextlib import contextmanager
-from fastapi import FastAPI, HTTPException, Header, Depends, Request
+from fastapi import FastAPI, HTTPException, Header, Depends, Request, File, UploadFile
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
@@ -53,6 +53,35 @@ def _get_image_bytes(data: FileInput) -> bytes:
     if data.file:
         return base64.b64decode(data.file)
     raise HTTPException(400, "请提供图片（file_url 或 file）")
+
+async def _parse_file_input(request: Request) -> "FileInput":
+    """从 JSON body 或 multipart/form-data 中提取 FileInput 模型"""
+    content_type = request.headers.get("content-type", "")
+    
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        file_field = form.get("file")
+        reviewer = form.get("reviewer", "")
+        prompt = form.get("prompt", "")
+        function = form.get("function", "")
+        
+        file_b64 = ""
+        if file_field and hasattr(file_field, 'filename') and file_field.filename:
+            contents = await file_field.read()
+            file_b64 = base64.b64encode(contents).decode()
+        elif file_field:
+            file_b64 = str(file_field)
+        
+        return FileInput(
+            file=file_b64,
+            reviewer=str(reviewer) if reviewer else "",
+            prompt=str(prompt) if prompt else "",
+            function=str(function) if function else "restore"
+        )
+    else:
+        body = await request.json()
+        return FileInput(**body)
+
 
 app = FastAPI(title="时光修复 v2.2", description="AI老照片修复工具")
 
@@ -423,8 +452,9 @@ def get_reviewer(name: str = "") -> dict:
     return random.choice(REVIEWER_LIST)
 
 @app.post("/api/evaluate")
-async def evaluate_photo(data: FileInput, user: Optional[dict] = Depends(get_current_user)):
+async def evaluate_photo(request: Request, user: Optional[dict] = Depends(get_current_user)):
     """AI 点评照片：豆包多模态主观评分 + 修图建议"""
+    data = await _parse_file_input(request)
     try:
         # 配额检查
         if user:
@@ -726,10 +756,11 @@ async def get_usage(user: Optional[dict] = Depends(get_current_user)):
 
 @app.post("/api/process")
 async def process_photo(
-    data: FileInput,
+    request: Request,
     user: Optional[dict] = Depends(get_current_user)
 ):
     """统一处理端点"""
+    data = await _parse_file_input(request)
     
     # 配额检查
     if user:
@@ -863,8 +894,9 @@ async def process_photo(
 
 
 @app.post("/api/suggest-edit")
-async def suggest_edit_photo(data: FileInput, user: Optional[dict] = Depends(get_current_user)):
+async def suggest_edit_photo(request: Request, user: Optional[dict] = Depends(get_current_user)):
     """AI 图片编辑（seededit）"""
+    data = await _parse_file_input(request)
     # 配额检查（与 /api/process 共享配额）
     if user:
         quota = check_and_use_quota(user["id"], "process")
