@@ -47,8 +47,8 @@ def _load_font(size: int) -> ImageFont.FreeTypeFont:
 # ── 卡片常量 ──
 W, H = 1080, 1500
 PAD = 60
-PHOTO_MAX_W = 900
-PHOTO_MAX_H = 650
+PHOTO_MAX_W = 960
+PHOTO_MAX_H = 960
 PHOTO_RADIUS = 24
 ORANGE = (255, 107, 53)
 DARK = (51, 51, 51)
@@ -107,9 +107,9 @@ def generate_card(photo_bytes: bytes, poem: str, reviewer_name: str,
 
     # 字体
     font_title = _load_font(42)
-    font_poem = _load_font(34)
+    font_poem = _load_font(30)
     font_sign = _load_font(26)
-    font_brand = _load_font(36)
+    font_brand = _load_font(28)
     font_sub = _load_font(24)
     font_guide = _load_font(22)
 
@@ -147,33 +147,16 @@ def generate_card(photo_bytes: bytes, poem: str, reviewer_name: str,
     img.paste(photo, (card_x + 20, current_y + 20), photo)
     current_y += card_h + 50
 
-    # ── 标题 ──
-    title = f"{reviewer_emoji}  {reviewer_name}  品鉴"
-    current_y = _draw_center(draw, current_y, title, font_title, DARK) + 12
-
-    # ── 分隔线 ──
-    line_w = 200
-    lx = (W - line_w) // 2
-    draw.line([(lx, current_y), (lx + line_w, current_y)], fill=ORANGE, width=3)
-    current_y += 36
-
     # ── 诗词 ──
     poem_lines = [l.strip() for l in poem.strip().split("\n") if l.strip()]
-    for line in poem_lines:
-        current_y = _draw_center(draw, current_y, line, font_poem, (74, 55, 40)) + 10
-    current_y += 16
-
-    # ── 署名 ──
-    current_y = _draw_center(draw, current_y, f"—— {reviewer_stamp}", font_sign, GREY) + 40
-
-    # ── 底部分隔线 ──
-    draw.line([(lx, current_y), (lx + line_w, current_y)], fill=ORANGE, width=2)
-    current_y += 50
+    if poem_lines:
+        current_y += 20  # 照片与诗词之间的小间距
+        for line in poem_lines:
+            current_y = _draw_center(draw, current_y, line, font_poem, (74, 55, 40)) + 10
+        current_y += 30
 
     # ── 品牌 ──
-    current_y = _draw_center(draw, current_y, "时光修复", font_brand, ORANGE) + 8
-    current_y = _draw_center(draw, current_y, "AI 照片品鉴与修复", font_sub, GREY) + 8
-    _draw_center(draw, current_y, "扫码体验，让老照片重获新生", font_guide, LIGHT_GREY)
+    current_y = _draw_center(draw, current_y, "· 时光修复 ·", font_brand, ORANGE)
 
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=True)
