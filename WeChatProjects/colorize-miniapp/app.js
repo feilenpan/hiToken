@@ -96,7 +96,7 @@ App({
   // 模式：wx.request/uploadFile 直连自定义域名 yushucolor.cn（备案已完成）
   // callContainer 网关 INVALID_PATH 已弃用
 
-  BASE_URL: 'https://yushucolor.cn',
+  BASE_URL: 'https://www.yushucolor.cn',
 
   // 安全解析响应
   _parseResponse(res) {
