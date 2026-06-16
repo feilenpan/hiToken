@@ -126,6 +126,10 @@ DAILY_QUOTA = {
     "process": 5,     # AI 处理（seededit）
 }
 
+# 全局每日 API 调用上限（防止成本失控）
+# 可通过环境变量 GLOBAL_DAILY_LIMIT 覆盖，默认 500 次/天 ≈ ¥100
+GLOBAL_DAILY_LIMIT = int(os.getenv("GLOBAL_DAILY_LIMIT", "500"))
+
 def get_db():
     """获取数据库连接（每次请求新建，用完关闭）"""
     conn = sqlite3.connect(str(DB_PATH))
@@ -234,6 +238,55 @@ def get_user_quota(user_id: int) -> dict:
             ).fetchone()
             used = row["count"] if row else 0
             result[usage_type] = {"used": used, "remaining": max(0, limit - used), "limit": limit}
+        return result
+    finally:
+        conn.close()
+
+
+# 全局计数器使用 user_id=0 的特殊行
+_GLOBAL_USER_ID = 0
+
+def check_global_limit(usage_type: str) -> dict:
+    """检查全局日调用上限。返回 {allowed: bool, total: int, limit: int}"""
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT count FROM daily_usage WHERE user_id=? AND usage_type=? AND usage_date=?",
+            (_GLOBAL_USER_ID, usage_type, today)
+        ).fetchone()
+        total = row["count"] if row else 0
+
+        if total >= GLOBAL_DAILY_LIMIT:
+            return {"allowed": False, "total": total, "limit": GLOBAL_DAILY_LIMIT}
+
+        conn.execute(
+            "UPDATE daily_usage SET count=count+1 WHERE user_id=? AND usage_type=? AND usage_date=?",
+            (_GLOBAL_USER_ID, usage_type, today)
+        )
+        if conn.total_changes == 0:
+            conn.execute(
+                "INSERT INTO daily_usage (user_id, usage_type, usage_date, count) VALUES (?,?,?,1)",
+                (_GLOBAL_USER_ID, usage_type, today)
+            )
+        conn.commit()
+        return {"allowed": True, "total": total + 1, "limit": GLOBAL_DAILY_LIMIT}
+    finally:
+        conn.close()
+
+
+def get_global_usage() -> dict:
+    """获取今日全局用量（供 health 端点）"""
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = get_db()
+    try:
+        result = {"limit": GLOBAL_DAILY_LIMIT, "types": {}}
+        for usage_type in DAILY_QUOTA.keys():
+            row = conn.execute(
+                "SELECT count FROM daily_usage WHERE user_id=? AND usage_type=? AND usage_date=?",
+                (_GLOBAL_USER_ID, usage_type, today)
+            ).fetchone()
+            result["types"][usage_type] = row["count"] if row else 0
         return result
     finally:
         conn.close()
@@ -458,6 +511,9 @@ async def evaluate_photo(request: Request, user: Optional[dict] = Depends(get_cu
     try:
         # 配额检查
         if user:
+            gl = check_global_limit("evaluate")
+            if not gl["allowed"]:
+                raise HTTPException(503, "服务繁忙，请明天再来～")
             quota = check_and_use_quota(user["id"], "evaluate")
             if not quota["allowed"]:
                 raise HTTPException(429, f"今日点评次数已用完（{quota['limit']}次/天），明天再来吧～")
@@ -567,6 +623,7 @@ async def health():
         "storage": "sqlite",
         "engine": "volcengine",
         "features": ["evaluate", "restore", "suggest-edit", "share-card"],
+        "global_usage": get_global_usage(),
         "timestamp": int(time.time())
     }
 
@@ -764,6 +821,9 @@ async def process_photo(
     
     # 配额检查
     if user:
+        gl = check_global_limit("process")
+        if not gl["allowed"]:
+            raise HTTPException(503, "服务繁忙，请明天再来～")
         quota = check_and_use_quota(user["id"], "process")
         if not quota["allowed"]:
             raise HTTPException(429, f"今日处理次数已用完（{quota['limit']}次/天），明天再来吧～")
@@ -899,6 +959,9 @@ async def suggest_edit_photo(request: Request, user: Optional[dict] = Depends(ge
     data = await _parse_file_input(request)
     # 配额检查（与 /api/process 共享配额）
     if user:
+        gl = check_global_limit("process")
+        if not gl["allowed"]:
+            raise HTTPException(503, "服务繁忙，请明天再来～")
         quota = check_and_use_quota(user["id"], "process")
         if not quota["allowed"]:
             raise HTTPException(429, f"今日处理次数已用完（{quota['limit']}次/天），明天再来吧～")
