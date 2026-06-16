@@ -566,7 +566,7 @@ async def health():
         "service": "鱼数修照",
         "storage": "sqlite",
         "engine": "volcengine",
-        "features": ["evaluate", "restore", "suggest-edit"],
+        "features": ["evaluate", "restore", "suggest-edit", "share-card"],
         "timestamp": int(time.time())
     }
 
