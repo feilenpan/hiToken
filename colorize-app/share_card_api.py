@@ -217,6 +217,7 @@ def generate_card(photo_bytes: bytes, poem: str, text: str = "",
     return buf.getvalue()
 
 
+@router.post("/api/share-card")
 async def create_share_card(data: ShareCardRequest):
     """生成品鉴分享卡片，返回 base64 data URI"""
     import base64
