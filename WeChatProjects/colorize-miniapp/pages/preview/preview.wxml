@@ -97,9 +97,8 @@
         </view>
         <view class="result-card share-hint">
           <image src="{{repairResult}}" mode="widthFix" class="result-img" show-menu-by-longpress="{{true}}"></image>
-          <view class="result-label"><text class="result-hint">长按图片可分享或保存</text></view>
-        </view>
-        <button class="btn-share-result" bindtap="onShareCompare">📤 分享修复对比</button>
+        <view class="result-label"><text class="result-hint">长按图片可分享或保存</text></view>
+      </view>
       </view>
       <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
         <text class="error-icon">😅</text>

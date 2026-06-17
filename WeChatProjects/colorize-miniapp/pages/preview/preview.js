@@ -330,5 +330,47 @@ Page({
 
   onViewAllHistory() {
     wx.navigateTo({ url: '/pkg-user/pages/history/history' })
+  },
+
+  // ===== 分享：直接分享修复后图片 =====
+  onShareCompare: function() {
+    var that = this;
+    var result = this.data.repairResult;
+    if (!result) return;
+
+    wx.showLoading({ title: '准备分享…', mask: true });
+    this._ensureLocalPath(result, function(localPath) {
+      wx.hideLoading();
+      if (!localPath) {
+        wx.showToast({ title: '图片处理失败', icon: 'none' });
+        return;
+      }
+      wx.showShareImageMenu({ path: localPath });
+    });
+  },
+
+  _ensureLocalPath: function(src, cb) {
+    if (!src) { cb(null); return; }
+    if (src.indexOf('data:') === 0) {
+      var b64 = src.replace(/^data:image\/\w+;base64,/, '');
+      var fp = wx.env.USER_DATA_PATH + '/tmp_cmp_' + Date.now() + '.jpg';
+      var fs = wx.getFileSystemManager();
+      fs.writeFile({
+        filePath: fp, data: b64, encoding: 'base64',
+        success: function() { cb(fp); },
+        fail: function() { cb(null); }
+      });
+    } else if (src.indexOf('http') === 0 || src.indexOf('cloud://') === 0) {
+      wx.downloadFile({
+        url: src,
+        success: function(res) {
+          if (res.statusCode === 200) cb(res.tempFilePath);
+          else cb(null);
+        },
+        fail: function() { cb(null); }
+      });
+    } else {
+      cb(src);
+    }
   }
 })
