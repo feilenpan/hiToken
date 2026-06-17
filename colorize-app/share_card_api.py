@@ -120,6 +120,8 @@ def generate_card(photo_bytes: bytes, poem: str = "", text: str = "",
     
     # ── 字体 ──
     font_title = _load_font(32)
+    font_quote = _load_font(30)
+    font_text  = _load_font(24)
     font_poem  = _load_font(28)
     font_author = _load_font(22)
     font_brand = _load_font(20)
@@ -158,6 +160,26 @@ def generate_card(photo_bytes: bytes, poem: str = "", text: str = "",
     if reviewer_line:
         text_height += 16  # 线 + 上下间距
     
+    # 金句
+    quote_lines = []
+    if quote:
+        quote_lines = _wrap_text(temp_draw, f"「{quote}」", font_quote, POEM_MAX_W)
+        for _ in quote_lines:
+            _, th = _text_size(temp_draw, "测", font_quote)
+            text_height += th + 6
+        text_height += 8  # 金句底部间距
+    
+    # 品鉴评语
+    text_lines = []
+    if text:
+        short = text[:80].rstrip()
+        text_lines = _wrap_text(temp_draw, short, font_text, POEM_MAX_W)
+        text_lines = text_lines[:3]  # 最多3行
+        for _ in text_lines:
+            _, th = _text_size(temp_draw, "测", font_text)
+            text_height += th + 6
+        text_height += 10  # 评语底部间距
+    
     # 诗词
     poem_lines_list = []
     if poem:
@@ -170,6 +192,12 @@ def generate_card(photo_bytes: bytes, poem: str = "", text: str = "",
             _, th = _text_size(temp_draw, "测", font_poem)
             text_height += th + 8
         text_height += 12  # 底部间距
+    
+    # 署名
+    show_stamp = bool(reviewer_stamp)
+    if show_stamp:
+        _, th = _text_size(temp_draw, "测", font_author)
+        text_height += th + 12
     
     # ── 3. 计算卡片总高度 ──
     card_content_h = CARD_PAD + new_h + 20  # 顶部padding + 照片 + 间距
@@ -219,9 +247,28 @@ def generate_card(photo_bytes: bytes, poem: str = "", text: str = "",
         draw.line([(line_x, current_y), (line_x + line_w, current_y)], fill=DIVIDER_C, width=2)
         current_y += 16
     
+    # 金句
+    if quote_lines:
+        for line in quote_lines:
+            current_y = _draw_center(draw, current_y, line, font_quote, TITLE_C) + 6
+        current_y += 8
+    
+    # 品鉴评语
+    if text_lines:
+        for line in text_lines:
+            current_y = _draw_center(draw, current_y, line, font_text, POEM_C) + 6
+        current_y += 10
+    
+    # 诗词
     if poem_lines_list:
         for line in poem_lines_list:
             current_y = _draw_center(draw, current_y, line, font_poem, POEM_C) + 8
+    
+    # 署名
+    if show_stamp:
+        current_y += 8
+        sign_text = f"—— {reviewer_stamp}"
+        _draw_center(draw, current_y, sign_text, font_author, AUTHOR_C)
     
     # ── 品牌签章 ──
     current_y += 8
