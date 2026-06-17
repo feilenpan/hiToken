@@ -89,6 +89,8 @@
         <text class="repairing-text">AI 正在修复中…</text>
       </view>
       <view class="repair-result" wx:if="{{repairResult && !isRepairing}}">
+        <!-- AI生成标识 -->
+        <view class="ai-label"><text class="ai-label-text">🤖 图片由AI生成</text></view>
         <view class="result-header">
           <text class="result-icon">✨</text>
           <text class="result-title">修复完成</text>
@@ -97,6 +99,7 @@
           <image src="{{repairResult}}" mode="widthFix" class="result-img" show-menu-by-longpress="{{true}}"></image>
           <view class="result-label"><text class="result-hint">长按图片可分享或保存</text></view>
         </view>
+        <button class="btn-share-result" bindtap="onShareCompare">📤 分享修复对比</button>
       </view>
       <view class="repair-error" wx:if="{{repairError && !isRepairing}}">
         <text class="error-icon">😅</text>
@@ -105,9 +108,14 @@
       </view>
     </view>
     <view class="fixed-bottom-bar">
+      <button class="btn-share-fixed" wx:if="{{repairResult && !isRepairing}}" bindtap="onShareCompare">📤 分享</button>
       <button class="btn-change" bindtap="onChangeImage">换一张</button>
-      <button class="btn-start" bindtap="{{repairResult ? 'onGoScore' : 'onRetryRepair'}}">{{repairResult ? '🍶 让古人品鉴' : '✨ AI 修复'}}</button>
+      <button class="btn-start" bindtap="{{repairResult ? 'onGoScore' : 'onRetryRepair'}}">{{repairResult ? '🍶 古人品鉴' : '✨ AI 修复'}}</button>
     </view>
   </block>
 
+  <!-- 分享对比画布（隐藏） -->
+  <view class="share-canvas-wrap">
+    <canvas canvas-id="compareCanvas" class="compare-canvas"></canvas>
+  </view>
 </view>
