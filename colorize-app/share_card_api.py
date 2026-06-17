@@ -268,10 +268,10 @@ def generate_card(photo_bytes: bytes, poem: str = "", text: str = "",
     if show_stamp:
         current_y += 8
         sign_text = f"—— {reviewer_stamp}"
-        _draw_center(draw, current_y, sign_text, font_author, AUTHOR_C)
+        current_y = _draw_center(draw, current_y, sign_text, font_author, AUTHOR_C) + 4
     
     # ── 品牌签章 ──
-    current_y += 8
+    current_y += 12
     _draw_center(draw, current_y, "时光修复", font_brand, BRAND_C)
     
     buf = io.BytesIO()
