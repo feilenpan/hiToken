@@ -144,6 +144,9 @@ App({
           if (res.statusCode === 429) {
             wx.showToast({ title: (res.data && res.data.detail) || '今日次数已用完', icon: 'none', duration: 2500 })
             reject(new Error('QUOTA_EXCEEDED'))
+          } else if (res.statusCode === 503) {
+            wx.showToast({ title: '服务繁忙，请明天再来～', icon: 'none', duration: 2500 })
+            reject(new Error('GLOBAL_LIMIT'))
           } else {
             resolve({ data: res.data })
           }
@@ -170,6 +173,9 @@ App({
             try { detail = JSON.parse(res.data).detail || '' } catch(e) {}
             wx.showToast({ title: detail || '今日次数已用完', icon: 'none', duration: 2500 })
             reject(new Error('QUOTA_EXCEEDED'))
+          } else if (res.statusCode === 503) {
+            wx.showToast({ title: '服务繁忙，请明天再来～', icon: 'none', duration: 2500 })
+            reject(new Error('GLOBAL_LIMIT'))
           } else {
             var data = res.data
             if (typeof data === 'string') {

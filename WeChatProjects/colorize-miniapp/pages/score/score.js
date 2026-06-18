@@ -306,10 +306,14 @@ Page({
 
     console.log('[score] repair-now #' + editId, 'uploading...');
 
-    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: prompt }, true)
+    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: prompt })
       .then(function(res) {
         console.log('[score] repair-now #' + editId + ' GOT RESPONSE:', JSON.stringify(res.data).substring(0, 200));
         var data = res.data;
+        if (data && data.quota) {
+          that.setData({ quota: data.quota });
+          app.syncQuota(data.quota);
+        }
         var results = that.data.editResults || [];
         for (var i = 0; i < results.length; i++) {
           if (results[i].id === editId) {
@@ -347,17 +351,8 @@ Page({
   },
 
   onRetry: function() {
-    this.setData({
-      imagePath: '',
-      evaluation: null,
-      quality: null,
-      typedText: '',
-      showCTA: false,
-      editResults: [],
-      activeSuggestion: null
-    });
-    _editId = 0;
-    // 直接弹出照片选择器，一步到位
+    // 直接弹出照片选择器 — 成功时 _doChooseImage 会清除旧数据
+    // 取消时保留当前结果，不跳回首屏
     this.onChooseImage();
   },
 
@@ -403,13 +398,17 @@ Page({
 
     console.log('[score] suggest-edit #' + editId, 'prompt:', item.prompt, 'uploading...');
 
-    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: item.prompt }, true)
+    app.cloudUpload('/api/suggest-edit', that.data.imagePath, { prompt: item.prompt })
       .then(function(res) {
         console.log('[score] suggest-edit #' + editId + ' GOT RESPONSE:', JSON.stringify(res.data).substring(0, 200));
         suggestions[index].loading = false;
         that.setData({ 'evaluation.suggestions': suggestions });
 
         var data = res.data;
+        if (data && data.quota) {
+          that.setData({ quota: data.quota });
+          app.syncQuota(data.quota);
+        }
         var results = that.data.editResults || [];
         for (var i = 0; i < results.length; i++) {
           if (results[i].id === editId) {
@@ -456,13 +455,14 @@ Page({
     };
   },
 
-  // ===== 分享卡片：品鉴诗词（服务端 Pillow 生成 1080×1500） =====
+  // ===== 分享卡片：服务端 Pillow 生成（1080×1500）+ 缓存 =====
   onShareEvaluate: function() {
     var that = this;
     var ev = this.data.evaluation;
-    if (!ev || !this.data.imagePath) return;
+    var imagePath = this.data.imagePath;
+    if (!ev || !imagePath) return;
 
-    // 已有缓存 → 直接复用，不重复生成
+    // 已有缓存 → 直接复用
     if (this.data.shareCardPath) {
       wx.showShareImageMenu({ path: this.data.shareCardPath });
       return;
@@ -470,11 +470,9 @@ Page({
 
     wx.showLoading({ title: '生成分享图…', mask: true });
 
-    // 准备诗词文本
     var poemText = (ev.poemLines || []).join('\n');
     if (!poemText) poemText = ev.poem || '';
 
-    // 准备照片：优先用已有 URL，否则读 base64
     var sendRequest = function(photoPayload) {
       var data = {
         poem: poemText,
@@ -495,155 +493,127 @@ Page({
         success: function(res) {
           wx.hideLoading();
           if (res.data && res.data.success && res.data.image) {
-            // 保存 base64 到临时文件
             var b64 = res.data.image.replace(/^data:image\/\w+;base64,/, '');
-            var fp = that.data.shareCardPath;
-            if (!fp) {
-              fp = wx.env.USER_DATA_PATH + '/share_card_' + Date.now() + '.png';
-              that.setData({ shareCardPath: fp });
-            }
+            var fp = wx.env.USER_DATA_PATH + '/share_card_' + Date.now() + '.png';
+            that.setData({ shareCardPath: fp });
             var fs = wx.getFileSystemManager();
             fs.writeFile({
               filePath: fp, data: b64, encoding: 'base64',
-              success: function() {
-                wx.showShareImageMenu({ path: fp });
-              },
-              fail: function() {
-                wx.showToast({ title: '保存失败', icon: 'none' });
-              }
+              success: function() { wx.showShareImageMenu({ path: fp }); },
+              fail: function() { wx.showToast({ title: '保存失败', icon: 'none' }); }
             });
           } else {
             wx.showToast({ title: '生成失败，请重试', icon: 'none' });
           }
         },
-        fail: function(err) {
+        fail: function() {
           wx.hideLoading();
-          console.error('share-card API fail:', err);
           wx.showToast({ title: '网络错误，请重试', icon: 'none' });
         }
       });
     };
 
-    // 判断照片来源
-    var src = this.data.imagePath;
+    var src = imagePath;
     if (src.indexOf('http') === 0 || src.indexOf('cloud://') === 0) {
-      // 已经是 URL，直接传
       sendRequest({ file_url: src });
     } else if (src.indexOf('data:') === 0) {
-      // base64 data URI
-      var b64 = src.replace(/^data:image\/\w+;base64,/, '');
-      sendRequest({ file: b64 });
+      sendRequest({ file: src.replace(/^data:image\/\w+;base64,/, '') });
     } else {
-      // 本地文件路径 → 读 base64
       var fs = wx.getFileSystemManager();
       fs.readFile({
-        filePath: src,
-        encoding: 'base64',
-        success: function(res) {
-          sendRequest({ file: res.data });
-        },
-        fail: function() {
-          wx.hideLoading();
-          wx.showToast({ title: '图片读取失败', icon: 'none' });
-        }
+        filePath: src, encoding: 'base64',
+        success: function(r) { sendRequest({ file: r.data }); },
+        fail: function() { wx.hideLoading(); wx.showToast({ title: '图片读取失败', icon: 'none' }); }
       });
     }
   },
 
-  _drawScoreShareCard: function(photoPath, imgInfo, ev) {
+  _drawScoreShareCard: function(photoPath, imgInfo, ev, callback) {
     var that = this;
     var sys = wx.getSystemInfoSync();
     var dpr = sys.pixelRatio || 2;
     var W = 375;   // 逻辑宽度 (px)
     var H = 600;   // 逻辑高度
-    var PAD = 25;
 
     var ctx = wx.createCanvasContext('shareCanvas');
-    // 高清倍率：画布物理像素 = 375*dpr × 600*dpr，绘制坐标用逻辑像素
     ctx.scale(dpr, dpr);
 
-    // 背景
+    // 背景渐变
     var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
     bgGrad.addColorStop(0, '#FFFBF7');
     bgGrad.addColorStop(1, '#FFF5ED');
     ctx.setFillStyle(bgGrad);
     ctx.fillRect(0, 0, W, H);
 
-    // 照片（等比缩放，最大宽 325，最大高 260）
-    var pw = W - PAD * 2;
+    // 照片（等比缩放）
+    var pw = W - 40;
     var ph = pw * (imgInfo.height / imgInfo.width);
-    var maxH = 260;
+    var maxH = 280;
     if (ph > maxH) { pw = maxH * (imgInfo.width / imgInfo.height); ph = maxH; }
     var px = (W - pw) / 2;
-    var py = 30;
+    var py = 24;
 
-    // 照片白色边框
+    // 照片白色边框 + 阴影
     ctx.setFillStyle('#FFFFFF');
-    ctx.fillRect(px - 4, py - 4, pw + 8, ph + 8);
-    ctx.setShadow(0, 4, 16, 'rgba(0,0,0,0.08)');
-    ctx.fillRect(px, py, pw, ph);
+    ctx.setShadow(0, 4, 16, 'rgba(0,0,0,0.1)');
+    ctx.fillRect(px - 3, py - 3, pw + 6, ph + 6);
     ctx.setShadow(0, 0, 0, 'rgba(0,0,0,0)');
-
-    // 照片
     ctx.drawImage(photoPath, px, py, pw, ph);
 
-    // 点评师标题
-    var headerY = py + ph + 28;
+    // 点评师标题行
     var emoji = ev.reviewer_emoji || '🍶';
     var name = ev.reviewer || '时光点评师';
-    ctx.setFontSize(16);
+    var headerY = py + ph + 24 + 6;
+    ctx.setFontSize(15);
     ctx.setFillStyle('#6B3A2A');
     ctx.setTextAlign('center');
     ctx.fillText(emoji + '  ' + name + '  品鉴', W / 2, headerY);
 
     // 分隔线
-    var lineY = headerY + 18;
+    var lineY = headerY + 15;
     ctx.setStrokeStyle('#E8D5C3');
     ctx.setLineWidth(0.5);
     ctx.beginPath();
-    ctx.moveTo(PAD * 2, lineY);
-    ctx.lineTo(W - PAD * 2, lineY);
+    ctx.moveTo(50, lineY);
+    ctx.lineTo(W - 50, lineY);
     ctx.stroke();
 
     // 诗词
-    var poemY = lineY + 22;
+    var poemY = lineY + 18;
     var lines = ev.poemLines || [];
     if (lines.length > 0) {
-      ctx.setFontSize(17);
+      ctx.setFontSize(16);
       ctx.setFillStyle('#333333');
       ctx.setTextAlign('center');
-      var lineH = 28;
+      var lineH = 26;
       for (var i = 0; i < lines.length && i < 6; i++) {
         var line = lines[i];
         if (line.length > 16) line = line.substring(0, 15) + '…';
         ctx.fillText(line, W / 2, poemY + i * lineH);
       }
       // 署名
-      var authorY = poemY + Math.min(lines.length, 6) * lineH + 10;
-      ctx.setFontSize(13);
+      var authorY = poemY + Math.min(lines.length, 6) * lineH + 8;
+      ctx.setFontSize(12);
       ctx.setFillStyle('#AAAAAA');
       ctx.fillText('—— ' + name, W / 2, authorY);
     }
 
-    // 底部品牌
-    var bottomY = H - 50;
+    // 底部分隔线
+    var bottomLineY = H - 58;
     ctx.setStrokeStyle('#E8D5C3');
     ctx.setLineWidth(0.5);
     ctx.beginPath();
-    ctx.moveTo(PAD * 2, bottomY - 10);
-    ctx.lineTo(W - PAD * 2, bottomY - 10);
+    ctx.moveTo(50, bottomLineY);
+    ctx.lineTo(W - 50, bottomLineY);
     ctx.stroke();
 
+    // 底部品牌
     ctx.setFontSize(12);
     ctx.setFillStyle('#CC6B45');
     ctx.setTextAlign('center');
-    ctx.fillText('时光修复 · AI 照片品鉴', W / 2, bottomY + 16);
+    ctx.fillText('时光修复 · AI 照片品鉴', W / 2, bottomLineY + 20);
 
-    ctx.setFontSize(10);
-    ctx.setFillStyle('#C4A992');
-    ctx.fillText('扫码体验，让古人为你的照片题诗', W / 2, bottomY + 34);
-
-    // 导出
+    // 导出 → 写入持久化文件 → 回调
     ctx.draw(false, function() {
       setTimeout(function() {
         wx.canvasToTempFilePath({
@@ -651,8 +621,19 @@ Page({
           destWidth: W * dpr,
           destHeight: H * dpr,
           success: function(res) {
-            wx.hideLoading();
-            wx.showShareImageMenu({ path: res.tempFilePath });
+            var persistPath = wx.env.USER_DATA_PATH + '/share_card_' + Date.now() + '.png';
+            var fs = wx.getFileSystemManager();
+            fs.saveFile({
+              tempFilePath: res.tempFilePath,
+              filePath: persistPath,
+              success: function() {
+                callback && callback(persistPath);
+              },
+              fail: function() {
+                // saveFile 失败则用 temp path
+                callback && callback(res.tempFilePath);
+              }
+            });
           },
           fail: function(e) {
             wx.hideLoading();
